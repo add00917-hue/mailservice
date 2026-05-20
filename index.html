@@ -765,6 +765,87 @@ tbody tr:hover td{background:rgba(34,34,34,.8)}
   animation:shimmer 1.8s ease infinite;
 }
 
+
+/* ── HEADER DATA PILL ─────────────────────────── */
+.hdr-data-pill{
+  display:flex;align-items:center;gap:6px;
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:20px;padding:5px 12px;
+  cursor:pointer;transition:all .2s;
+  font-family:var(--fn);
+}
+.hdr-data-pill:hover{border-color:var(--lime);background:var(--lime-dim)}
+.hdr-data-detail{
+  font-size:10px;color:var(--t3);font-family:var(--mn);
+  padding-left:6px;border-left:1px solid var(--bd);margin-left:2px;
+}
+
+/* ── SOURCE PAGE REDESIGN ─────────────────────── */
+.src-import-zone{
+  display:flex;flex-direction:column;gap:10px;margin-bottom:16px;
+}
+.src-info{
+  background:var(--blue-dim);border:1px solid rgba(102,151,247,.15);
+  border-radius:var(--r2);padding:14px 18px;
+}
+.src-info h3{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:5px}
+.src-info p{font-size:11px;color:var(--t2);line-height:1.8}
+
+.src-actions{display:flex;flex-direction:column;gap:8px}
+
+.src-action-card{
+  display:flex;align-items:center;gap:14px;
+  background:var(--sf);border:1px solid var(--bd);
+  border-radius:var(--r2);padding:14px 18px;
+  transition:border-color .2s;
+}
+.src-action-card:hover{border-color:var(--bd2)}
+.src-action-primary{border-left:2px solid var(--lime)}
+.src-action-secondary{border-left:2px solid var(--blue)}
+.src-action-demo{border-left:2px solid var(--purple)}
+.src-action-demo:hover{border-color:var(--purple);background:rgba(181,123,238,.04)}
+
+.src-action-icon{font-size:22px;flex-shrink:0;width:36px;text-align:center}
+.src-action-body{flex:1;min-width:0}
+.src-action-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.src-action-sub{font-size:10px;color:var(--t3);font-family:var(--mn);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.src-upload-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:8px 16px;background:var(--lime-dim);
+  border:1px solid rgba(187,251,76,.35);color:var(--lime);
+  border-radius:50px;font-family:var(--fn);font-size:11px;
+  cursor:pointer;font-weight:700;transition:all .2s;flex-shrink:0;
+  white-space:nowrap;
+}
+.src-upload-btn:hover{background:rgba(187,251,76,.2);box-shadow:0 0 14px rgba(187,251,76,.15)}
+.src-upload-btn input{display:none}
+
+.src-upload-btn-blue{
+  background:var(--blue-dim);border:1px solid rgba(102,151,247,.35);color:var(--blue);
+}
+.src-upload-btn-blue:hover{background:var(--blue-mid);box-shadow:0 0 14px rgba(102,151,247,.15)}
+
+.src-demo-btn{
+  padding:8px 16px;background:rgba(181,123,238,.1);
+  border:1px solid rgba(181,123,238,.3);color:var(--purple);
+  border-radius:50px;font-family:var(--fn);font-size:11px;
+  cursor:pointer;font-weight:700;transition:all .2s;flex-shrink:0;
+  white-space:nowrap;
+}
+.src-demo-btn:hover{background:rgba(181,123,238,.2)}
+
+/* Drag & drop area */
+.src-drop-hint{
+  border:1.5px dashed var(--bd2);border-radius:var(--r2);
+  padding:20px;text-align:center;color:var(--t3);font-size:11px;
+  transition:all .2s;cursor:pointer;position:relative;
+}
+.src-drop-hint:hover,.src-drop-hint.drag-over{
+  border-color:var(--lime);color:var(--lime);background:var(--lime-dim);
+}
+.src-drop-hint input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
 </style>
 </head>
 <body>
@@ -832,15 +913,19 @@ tbody tr:hover td{background:rgba(34,34,34,.8)}
     </div>
   </div>
   <div class="hdr-right">
-    <div class="live-pill"><div class="ldot"></div><span class="hdr-stxt" id="sTxt">Demo Data</span></div>
-    <span class="hdr-stxt" id="uTxt"></span>
+    <button class="hdr-data-pill" onclick="goSources()" id="hdrDataPill" title="คลิกเพื่อจัดการไฟล์">
+      <div class="ldot" id="ldot"></div>
+      <span class="hdr-stxt" id="sTxt">Demo Data</span>
+      <span class="hdr-data-detail" id="hdrDetail"></span>
+    </button>
+    <span class="hdr-stxt" id="uTxt" style="font-size:10px;color:var(--t3)"></span>
   </div>
 </header>
 
 <!-- SLA RULE BANNER -->
 <div class="rule-bar">
   <span style="font-size:10px;font-weight:700;color:var(--t2);letter-spacing:.5px">กฎ SLA</span>
-  <div style="display:flex;align-items:center;gap:6px"><span class="rb rb1">SLA #1 Pickup</span><span class="rdesc">วันสั่งงาน → เข้ารับ <strong>≤ 2 วันทำการ</strong></span></div>
+  <div style="display:flex;align-items:center;gap:6px"><span class="rb rb1">SLA #1 Pickup</span><span class="rdesc">วันสั่งงาน → เข้ารับ <strong>≤ 3 วันทำการ</strong></span></div>
   <span class="rule-sep">·</span>
   <div style="display:flex;align-items:center;gap:6px"><span class="rb rb2">SLA #2 Total</span><span class="rdesc">ระยะเวลารวมถึงปลายทาง</span></div>
   <span class="rule-sep">·</span>
@@ -867,17 +952,7 @@ tbody tr:hover td{background:rgba(34,34,34,.8)}
   </div>
 </div>
 
-<!-- IMPORT BAR -->
-<div class="ibar">
-  <span class="ilabel">เพิ่มไฟล์:</span>
-  <label class="fbtn">➕ Report.xlsx<input type="file" accept=".xlsx,.xls" multiple onchange="addReportFiles(this)"></label>
-  <span id="rStat" class="bwait">ยังไม่มีข้อมูล</span>
-  <span style="color:var(--t4);font-size:16px">·</span>
-  <label class="fbtn">📋 SLA Schedule.xlsx<input type="file" accept=".xlsx,.xls" onchange="loadSLA(this)"></label>
-  <span id="sStat" class="bwait">รอไฟล์</span>
-  <button class="dbtn" onclick="loadDemo()">▶ Demo</button>
-  <span style="font-size:10px;color:var(--t3);font-family:var(--mn);margin-left:4px" id="totalRowsBadge"></span>
-</div>
+
 
 <!-- TIME FILTER BAR -->
 <div class="time-bar" id="timeBar">
@@ -902,9 +977,9 @@ tbody tr:hover td{background:rgba(34,34,34,.8)}
 <!-- ═══ DASHBOARD ═══ -->
 <div class="page active" id="page-dash">
   <div class="krow">
-    <div class="kpi c5"><div class="kl">เกิน SLA Pickup (>2 วันทำการ)</div><div class="kv" id="k1">—</div><div class="ks">รายการ</div></div>
+    <div class="kpi c5"><div class="kl">เกิน SLA Pickup (>3 วันทำการ)</div><div class="kv" id="k1">—</div><div class="ks">รายการ</div></div>
     <div class="kpi c3"><div class="kl">งานทั้งหมด</div><div class="kv" id="k2">—</div><div class="ks">รายการ</div></div>
-    <div class="kpi c6"><div class="kl">Avg Pickup (วันทำการ)</div><div class="kv" id="k3">—</div><div class="ks">กำหนด ≤ 2</div></div>
+    <div class="kpi c6"><div class="kl">Avg Pickup (วันทำการ)</div><div class="kv" id="k3">—</div><div class="ks">กำหนด ≤ 3</div></div>
     <div class="kpi c1"><div class="kl">Avg Total (วันนับรวม)</div><div class="kv" id="k4">—</div><div class="ks">ถึงปลายทาง</div></div>
     <div class="kpi c2"><div class="kl">ผ่าน SLA Pickup</div><div class="kv" id="k5">—</div><div class="ks">% ที่รับทันเวลา</div></div>
     <div class="kpi c4"><div class="kl">ผลการวิ่งสำเร็จ</div><div class="kv" id="k6">—</div><div class="ks">%</div></div>
@@ -912,7 +987,7 @@ tbody tr:hover td{background:rgba(34,34,34,.8)}
   <div class="sla-meters">
     <div class="sm">
       <div class="sm-t" style="color:var(--warn)">⚡ SLA #1 · Pickup Performance</div>
-      <div class="sm-rule">นับเฉพาะ จ–ศ ไม่รวม ส–อ และวันหยุดที่ตั้งค่า ≤ 2 วันทำการ = ผ่าน</div>
+      <div class="sm-rule">นับเฉพาะ จ–ศ ไม่รวม ส–อ และวันหยุดที่ตั้งค่า ≤ 3 วันทำการ = ผ่าน</div>
       <div class="sm-stats">
         <div class="sm-stat"><div class="sm-val" id="m1p" style="color:var(--ok)">—</div><div class="sm-lbl">ผ่าน</div></div>
         <div class="sm-stat"><div class="sm-val" id="m1f" style="color:var(--red)">—</div><div class="sm-lbl">เกิน</div></div>
@@ -957,8 +1032,8 @@ tbody tr:hover td{background:rgba(34,34,34,.8)}
     <input type="text" class="srch" placeholder="🔍 ค้นหา เลขใบงาน / สาขา / จังหวัด..." oninput="fSrch(this.value)">
     <select class="sel" onchange="fPK(this.value)">
       <option value="">Pickup SLA: ทั้งหมด</option>
-      <option value="ผ่าน">✅ ผ่าน (≤2 วันทำการ)</option>
-      <option value="เกิน">❌ เกิน (>2 วันทำการ)</option>
+      <option value="ผ่าน">✅ ผ่าน (≤3 วันทำการ)</option>
+      <option value="เกิน">❌ เกิน (>3 วันทำการ)</option>
     </select>
     <select class="sel" onchange="fPeriod(this.value)">
       <option value="">Period Total: ทั้งหมด</option>
@@ -1058,26 +1133,62 @@ tbody tr:hover td{background:rgba(34,34,34,.8)}
 
 <!-- ═══ SOURCE MANAGEMENT ═══ -->
 <div class="page src-page" id="page-sources">
-  <div class="src-topbar">
+
+  <!-- ── Top import zone ── -->
+  <div class="src-import-zone">
+
+    <!-- Left: info -->
     <div class="src-info">
-      <h3>📂 จัดการไฟล์ข้อมูล Report</h3>
+      <h3>📂 จัดการไฟล์ข้อมูล</h3>
       <p>
-        รองรับการนำเข้า <strong>หลายไฟล์</strong> พร้อมกัน หรือเพิ่มทีละไฟล์สะสมได้<br>
+        รองรับนำเข้า <strong>หลายไฟล์พร้อมกัน</strong> หรือเพิ่มทีละไฟล์สะสม<br>
         ข้อมูลจากทุกไฟล์จะ <strong>รวมกัน</strong> และแสดงผลในทุก Tab<br>
         ใช้ <strong>Filter เดือน / สัปดาห์</strong> ด้านบนเพื่อดูช่วงเวลาที่ต้องการ
       </p>
     </div>
-    <div class="src-add-card">
-      <div class="src-add-title">➕ เพิ่มไฟล์ Report</div>
-      <div class="src-add-row">
-        <label class="src-add-btn">
-          📁 เลือกไฟล์ (รองรับหลายไฟล์)
+
+    <!-- Right: action cards -->
+    <div class="src-actions">
+
+      <!-- Report file card -->
+      <div class="src-action-card src-action-primary">
+        <div class="src-action-icon">📄</div>
+        <div class="src-action-body">
+          <div class="src-action-title">Report.xlsx</div>
+          <div class="src-action-sub">sheet: Report · วันที่สั่งงาน, เข้ารับ, ปลายทาง, ระยะเวลา</div>
+        </div>
+        <label class="src-upload-btn">
+          + เลือกไฟล์
           <input type="file" accept=".xlsx,.xls" multiple onchange="addReportFiles(this)">
         </label>
       </div>
-      <div style="font-size:10px;color:var(--t3);margin-top:8px;font-family:var(--mn)">
-        sheet ที่ใช้: <strong style="color:var(--acc)">Report</strong> · column: วันที่สั่งงาน, วันที่เข้ารับ, ปลายทางได้รับ, ระยะเวลา ฯลฯ
+
+      <!-- SLA Schedule card -->
+      <div class="src-action-card src-action-secondary">
+        <div class="src-action-icon">📋</div>
+        <div class="src-action-body">
+          <div class="src-action-title">SLA Schedule.xlsx</div>
+          <div class="src-action-sub">sheet: Routh · รอบวันเข้ารับ, SLA แต่ละสาขา</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <label class="src-upload-btn src-upload-btn-blue">
+            + เลือกไฟล์
+            <input type="file" accept=".xlsx,.xls" onchange="loadSLA(this)">
+          </label>
+          <span id="sStat" class="bwait" style="font-size:10px;white-space:nowrap">รอไฟล์</span>
+        </div>
       </div>
+
+      <!-- Demo button -->
+      <div class="src-action-card src-action-demo" onclick="loadDemo()" style="cursor:pointer">
+        <div class="src-action-icon">▶</div>
+        <div class="src-action-body">
+          <div class="src-action-title">ข้อมูล Demo</div>
+          <div class="src-action-sub">โหลดตัวอย่างข้อมูล 80 แถวจากไฟล์จริง</div>
+        </div>
+        <button class="src-demo-btn" onclick="loadDemo()">ใช้ Demo</button>
+      </div>
+
     </div>
   </div>
 
@@ -1111,7 +1222,7 @@ tbody tr:hover td{background:rgba(34,34,34,.8)}
       <p>
         วันหยุดที่เพิ่มที่นี่จะ <strong>ไม่ถูกนับ</strong> เป็นวันทำการในการคำนวณ SLA Pickup<br>
         ใช้ร่วมกันทั้ง <strong>บริษัท</strong> และ <strong>บริษัทส่งเอกสาร</strong><br>
-        SLA = จ–ศ ที่ <u>ไม่ใช่วันหยุดในรายการนี้</u> ≤ 2 วัน
+        SLA = จ–ศ ที่ <u>ไม่ใช่วันหยุดในรายการนี้</u> ≤ 3 วัน
       </p>
     </div>
     <div class="hol-add-card">
@@ -1183,11 +1294,12 @@ tbody tr:hover td{background:rgba(34,34,34,.8)}
 <div class="page" id="page-provsla">
   <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;flex-wrap:wrap">
     <div style="flex:1;background:linear-gradient(135deg,rgba(255,214,10,.07),rgba(255,107,53,.04));border:1px solid rgba(255,214,10,.25);border-radius:var(--r);padding:14px">
-      <h3 style="font-size:13px;font-weight:600;color:var(--y);margin-bottom:6px">⚙️ ตั้งค่า SLA ต่อจังหวัด</h3>
-      <p style="font-size:11px;color:var(--t2);line-height:1.7">
-        กำหนด SLA <strong>Total Delivery</strong> ต่อจังหวัด (ใช้ Override ทับค่าจากรอบส่ง)<br>
-        <strong style="color:var(--y)">ภูเก็ต = 3 วัน</strong> ตามที่กำหนด · บันทึกอัตโนมัติในเบราว์เซอร์<br>
-        การเปลี่ยนแปลงจะ <strong>คำนวณ SLA ใหม่ทันที</strong> ทุก Tab
+      <h3 style="font-size:13px;font-weight:700;color:var(--y);margin-bottom:6px">⚙️ ตั้งค่า SLA ต่อจังหวัด</h3>
+      <p style="font-size:11px;color:var(--t2);line-height:1.8">
+        กำหนด SLA <strong>Total Delivery</strong> ต่อจังหวัด (Override ทับค่าจากรอบส่ง)<br>
+        <strong style="color:var(--lime)">ค่าหลัก = 3 วันทำการ</strong> ใช้กับทุกจังหวัดที่ไม่ได้ตั้งค่าพิเศษ<br>
+        <strong style="color:var(--y)">ภูเก็ต = 3 วัน</strong> ตั้ง Override ไว้แล้ว · บันทึกในเบราว์เซอร์<br>
+        เปลี่ยนแปลงใดก็จะ <strong>คำนวณ SLA ใหม่ทันที</strong> ทุก Tab
       </p>
     </div>
     <div style="background:#1a1a1a;border:1px solid var(--bd);border-radius:var(--r);padding:14px;min-width:260px">
@@ -1207,8 +1319,8 @@ tbody tr:hover td{background:rgba(34,34,34,.8)}
   <!-- Stats -->
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px">
     <div class="hol-stat"><div class="hol-stat-v" id="ps1" style="color:var(--y)">0</div><div class="hol-stat-l">Override ที่ตั้งค่า</div></div>
-    <div class="hol-stat"><div class="hol-stat-v" id="ps2" style="color:var(--acc)">—</div><div class="hol-stat-l">จังหวัดทั้งหมด</div></div>
-    <div class="hol-stat"><div class="hol-stat-v" id="ps3" style="color:var(--g)">3d</div><div class="hol-stat-l">ภูเก็ต SLA</div></div>
+    <div class="hol-stat"><div class="hol-stat-v" id="ps2" style="color:var(--blue)">—</div><div class="hol-stat-l">จังหวัดทั้งหมด</div></div>
+    <div class="hol-stat"><div class="hol-stat-v" id="ps3" style="color:var(--lime)">3d</div><div class="hol-stat-l">ค่าหลัก (ทุกจังหวัด)</div></div>
   </div>
 
   <div style="background:#1a1a1a;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden">
@@ -1366,6 +1478,10 @@ tbody tr:hover td{background:rgba(34,34,34,.8)}
 </div>
 
 <script>
+
+// ─── SLA CONSTANTS ──────────────────────────────────
+const PICKUP_SLA_DAYS = 3;   // SLA #1 Pickup: วันสั่งงาน→เข้ารับ ≤ 3 วันทำการ
+const DEFAULT_PROVINCE_SLA = 3;  // SLA หลัก 11 จังหวัด = 3 วันทำการ
 
 // ─── SOURCE STATE ─────────────────────────────────
 // sources: [{id, filename, rows: [], months: Set}]
@@ -1656,31 +1772,33 @@ function mergeAllSources() {
 function updateSourceBadge() {
   const cnt = document.getElementById('srcCntTab');
   if(cnt) cnt.textContent = sources.length;
-  const rs = document.getElementById('rStat');
   const sTxtEl = document.getElementById('sTxt');
-  const ldot = document.querySelector('.ldot');
+  const hdrDetail = document.getElementById('hdrDetail');
+  const ldot = document.getElementById('ldot');
+
+  if(sources.length === 0) {
+    if(sTxtEl) sTxtEl.textContent = 'Demo Data';
+    if(hdrDetail) hdrDetail.textContent = '';
+    if(ldot) ldot.style.background = 'var(--lime)';
+  } else {
+    const isDemo = sources.length === 1 && sources[0].filename === 'Demo_Report.xlsx';
+    if(sTxtEl) sTxtEl.textContent = isDemo ? 'Demo Data' : 'Report Data';
+    if(hdrDetail) hdrDetail.textContent = isDemo
+      ? `${allData.length} แถว`
+      : `${sources.length} ไฟล์ · ${allData.length.toLocaleString()} แถว`;
+    if(ldot) ldot.style.background = isDemo ? 'var(--lime)' : '#6697f7';
+  }
+  // rStat kept inside sources page
+  const rs = document.getElementById('rStat');
   if(rs) {
-    if(sources.length === 0) {
-      rs.className='bwait'; rs.textContent='ยังไม่มีข้อมูล';
-    } else {
-      rs.className='bok';
-      rs.textContent=`✓ ${sources.length} ไฟล์ · ${allData.length} แถว`;
-    }
+    if(sources.length === 0) { rs.className='bwait'; rs.textContent='ยังไม่มีข้อมูล'; }
+    else { rs.className='bok'; rs.textContent=`✓ ${sources.length} ไฟล์ · ${allData.length} แถว`; }
   }
-  // Update header live pill label
-  if(sTxtEl) {
-    if(sources.length === 0) {
-      sTxtEl.textContent = 'Demo Data';
-      if(ldot) ldot.style.background = 'var(--lime)';
-    } else {
-      // Check if it's demo or real files
-      const isDemo = sources.length === 1 && sources[0].filename === 'Demo_Report.xlsx';
-      sTxtEl.textContent = isDemo ? 'Demo Data' : 'Report Data';
-      if(ldot) ldot.style.background = isDemo ? 'var(--lime)' : '#6697f7';
-    }
-  }
-  const tb = document.getElementById('totalRowsBadge');
-  if(tb) tb.textContent = allData.length > 0 ? `รวม ${allData.length.toLocaleString()} แถว` : '';
+}
+
+function goSources(){
+  const btn = document.querySelector('.tab[onclick*="sources"]') || document.getElementById('srcTab');
+  if(btn) btn.click();
 }
 
 function getDateRange(rows) {
@@ -1918,7 +2036,7 @@ function saveProvinceSLA(){ try{localStorage.setItem('gnr3_province_sla',JSON.st
 
 function getProvinceSLADays(province){
   if(province && provinceSLA[province] !== undefined) return provinceSLA[province];
-  return null; // use slaData (schedule-based)
+  return DEFAULT_PROVINCE_SLA; // Default = 3 วันทำการ for all provinces
 }
 
 function setProvinceSLA(province, days){
@@ -2054,11 +2172,10 @@ function normRow(r){
   // ── SLA CALC ──────────────────────────────────
   const od=parseDate(orderDate), pd=parseDate(pickupDate);
   const pickupBizDays=bizDays(od,pd);  // excludes weekends + holidays
-  const pickupSLA=(pickupBizDays===null)?'ไม่มีข้อมูล':(pickupBizDays<=2?'ผ่าน':'เกิน');
+  const pickupSLA=(pickupBizDays===null)?'ไม่มีข้อมูล':(pickupBizDays<=PICKUP_SLA_DAYS?'ผ่าน':'เกิน');
   const periodBand=days<=3?'1-3':days<=6?'4-6':days<=9?'7-9':'10+';
   // Province SLA override for total delivery
-  const _provSLADays = getProvinceSLADays(sr?sr.province:(r['province']||''));
-  const totalSLADays = _provSLADays !== null ? _provSLADays : (sr?sr.slaDays:3);
+  const totalSLADays = getProvinceSLADays(sr?sr.province:(r['province']||''));
   const totalSLAStatus = (days>0 && days>totalSLADays)?'เกิน':'ผ่าน';
 
   return {jobNo,ref,orderDate,pickupDate,arrivalDate,days,team,group,result,
@@ -2181,7 +2298,7 @@ function switchTab(id,btn){
     const ps1=document.getElementById('ps1'),ps2=document.getElementById('ps2'),ps3=document.getElementById('ps3');
     if(ps1) ps1.textContent=overrides;
     if(ps2) ps2.textContent=allProvs.size;
-    if(ps3) ps3.textContent=(provinceSLA['ภูเก็ต']||3)+'d';
+    if(ps3) ps3.textContent=DEFAULT_PROVINCE_SLA+'d';
   }
 }
 
@@ -2348,7 +2465,7 @@ function renderTable(){
     <td>${r.branchName}</td><td>${r.province}</td>
     <td style="font-size:10px">${r.team}</td>
     <td class="mn">${r.orderDate}</td><td class="mn">${r.pickupDate}</td><td class="mn">${r.arrivalDate}</td>
-    <td class="mn" style="text-align:center;font-weight:700;color:${r.pickupBizDays>2?'var(--warn)':r.pickupBizDays<=2?'var(--ok)':'var(--t3)'}">
+    <td class="mn" style="text-align:center;font-weight:700;color:${r.pickupBizDays>PICKUP_SLA_DAYS?'var(--warn)':r.pickupBizDays<=PICKUP_SLA_DAYS?'var(--ok)':'var(--t3)'}">
       ${r.pickupBizDays!==null?r.pickupBizDays+'d':'—'}</td>
     <td><span class="chip ${r.pickupSLA==='ผ่าน'?'cok':r.pickupSLA==='เกิน'?'cfail':'cwarn'}">${r.pickupSLA}</span></td>
     <td class="mn" style="text-align:center;font-weight:700">${r.days||'—'}</td>
@@ -2404,7 +2521,7 @@ function showDetail(i){
     ['วันที่สั่งงาน',r.orderDate,''],
     ['วันที่เข้ารับ',r.pickupDate,''],
     ['🕐 Pickup วันทำการ '+holNote,(r.pickupBizDays!==null?r.pickupBizDays+' วันทำการ':'—'),pkCls],
-    ['🕐 Pickup SLA',r.pickupSLA+(r.pickupSLA==='เกิน'?' ❌ (เกิน 2 วันทำการ)':r.pickupSLA==='ผ่าน'?' ✅ (≤ 2 วันทำการ)':''),pkCls],
+    ['🕐 Pickup SLA',r.pickupSLA+(r.pickupSLA==='เกิน'?` ❌ (เกิน ${PICKUP_SLA_DAYS} วันทำการ)`:r.pickupSLA==='ผ่าน'?` ✅ (≤ ${PICKUP_SLA_DAYS} วันทำการ)`:''),pkCls],
     ['─────────────','─────────────────────────',''],
     ['ปลายทางได้รับ',r.arrivalDate,''],
     ['📦 ระยะเวลารวม',r.days+' วัน',''],['📦 Period Band',r.periodBand+' วัน',''],
@@ -2500,7 +2617,7 @@ function buildTeamWith(D){
     data:{labels:teams,datasets:[
       {label:'avg Pickup (วันทำการ)',data:teams.map(t=>parseFloat(ts[t].avgPK)||0),
        backgroundColor:'rgba(255,159,67,.7)',borderRadius:4},
-      {label:'SLA limit (2 วัน)',data:teams.map(()=>2),
+      {label:`SLA limit (${PICKUP_SLA_DAYS} วัน)`,data:teams.map(()=>PICKUP_SLA_DAYS),
        type:'line',borderColor:'rgba(255,71,87,.8)',borderDash:[4,3],pointRadius:0,borderWidth:2,fill:false}
     ]},
     options:{responsive:true,maintainAspectRatio:true,
@@ -2551,7 +2668,7 @@ function buildTrendWith(D){
     data:{labels:dates,datasets:[
       {label:'avg Pickup (วันทำการ)',data:dates.map(d=>dm[d].cpk?(dm[d].spk/dm[d].cpk).toFixed(1):null),
        borderColor:'#ff9f43',backgroundColor:'rgba(255,159,67,.12)',fill:true,tension:.35,pointRadius:4,spanGaps:true},
-      {label:'SLA limit (2d)',data:dates.map(()=>2),
+      {label:`SLA limit (${PICKUP_SLA_DAYS}d)`,data:dates.map(()=>PICKUP_SLA_DAYS),
        borderColor:'rgba(255,71,87,.7)',borderDash:[4,3],pointRadius:0,borderWidth:2,fill:false}
     ]},
     options:{responsive:true,maintainAspectRatio:true,
@@ -2600,8 +2717,8 @@ function buildAlertPage(){
   // Show top risk items
 
   const breach = D.filter(r=>r.pickupSLA==='เกิน').sort((a,b)=>(b.pickupBizDays||0)-(a.pickupBizDays||0));
-  const atRisk = D.filter(r=>r.pickupBizDays===2); // ใช้ครบ 2 วัน
-  const warning = D.filter(r=>r.pickupBizDays===1); // ใช้ 1 วัน
+  const atRisk = D.filter(r=>r.pickupBizDays===PICKUP_SLA_DAYS); // ใช้ครบ SLA limit
+  const warning = D.filter(r=>r.pickupBizDays===PICKUP_SLA_DAYS-1); // เหลือ 1 วัน
 
   // Month-over-month summary
   const byMonth={};
@@ -2907,8 +3024,8 @@ function buildCountdown(D){
 
   // Group jobs: overdue, critical(=2d), warning(=1d), safe(0d)
   const overdue=D.filter(r=>r.pickupSLA==='เกิน').sort((a,b)=>(b.pickupBizDays||0)-(a.pickupBizDays||0));
-  const critical=D.filter(r=>r.pickupBizDays===2);
-  const warning=D.filter(r=>r.pickupBizDays===1);
+  const critical=D.filter(r=>r.pickupBizDays===PICKUP_SLA_DAYS);
+  const warning=D.filter(r=>r.pickupBizDays===PICKUP_SLA_DAYS-1);
   const safe=D.filter(r=>r.pickupBizDays===0);
 
   const cdCard=(r,clr,label,sub)=>{
@@ -2943,8 +3060,8 @@ function buildCountdown(D){
     </div>`:'';
 
   return `
-    ${section(overdue,'red','🚨','เกิน SLA Pickup','> 2 วันทำการ')}
-    ${section(critical,'warn','⚠️','ถึงขีดจำกัด','= 2 วันทำการ')}
+    ${section(overdue,'red','🚨','เกิน SLA Pickup',`> ${PICKUP_SLA_DAYS} วันทำการ`)}
+    ${section(critical,'warn','⚠️','ถึงขีดจำกัด',`= ${PICKUP_SLA_DAYS} วันทำการ`)}
     ${section(warning,'warn','💡','เฝ้าระวัง','= 1 วันทำการ')}
     ${section(safe,'ok','✅','ยังปลอดภัย','= 0 วันทำการ')}
     ${!overdue.length&&!critical.length&&!warning.length?'<div class="empty-state"><div class="empty-icon">🎉</div><div class="empty-text">ทุกงานผ่าน SLA Pickup</div></div>':''}
