@@ -2,12 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>GNR3 MAILSERVICE MONITOR</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+
+
 /* ═══════════════════════════════════════════════
    GNR3 MAILSERVICE — DESIGN SYSTEM v11
    Inspired by HeliData reference
@@ -526,7 +527,7 @@ input.admin-inp:focus{border-color:var(--lime)}
 @media(max-width:768px){
 
   /* Hide top nav pills on mobile */
-  .nav-pills{ display:none !important; }
+  
 
   /* Adjust header */
   .hdr{ padding:0 16px; height:54px; }
@@ -553,7 +554,7 @@ input.admin-inp:focus{border-color:var(--lime)}
 
   /* ── BOTTOM NAV BAR ── */
   .bottom-nav{
-    display:flex;
+    display:none;
     position:fixed;
     bottom:0;left:0;right:0;
     height:62px;
@@ -561,7 +562,7 @@ input.admin-inp:focus{border-color:var(--lime)}
     backdrop-filter:blur(20px);
     -webkit-backdrop-filter:blur(20px);
     border-top:1px solid rgba(255,255,255,.08);
-    z-index:500;
+    z-index:100;
     padding:0 8px;
     padding-bottom:env(safe-area-inset-bottom);
     box-shadow:0 -8px 32px rgba(0,0,0,.4);
@@ -631,12 +632,22 @@ input.admin-inp:focus{border-color:var(--lime)}
 
 /* Desktop: hide bottom nav */
 @media(min-width:769px){
-  .bottom-nav{ display:none !important; }
+  .bottom-nav{ display:none !important; pointer-events:none !important; }
   .bnav-admin-sheet{ display:none !important; }
-  .bnav-overlay{ display:none !important; }
+  .bnav-overlay{ display:none !important; pointer-events:none !important; }
   .page-wrap{ padding-bottom:16px !important; }
+  .nav-pills{ display:flex !important; }
 }
 
+
+
+/* ===== CRITICAL OVERRIDES ===== */
+.nav-pills { display:flex !important; }
+.bottom-nav { display:none; position:fixed; z-index:100; }
+@media(max-width:768px){
+  .nav-pills { display:none !important; }
+  .bottom-nav { display:flex !important; }
+}
 </style>
 </head>
 <body>
@@ -644,19 +655,16 @@ input.admin-inp:focus{border-color:var(--lime)}
 <div id="loading"><div class="spin"></div><div class="loading-msg" id="loadMsg">กำลังโหลด...</div></div>
 <div class="toast" id="toast"></div>
 
-<!-- MODAL (detail) -->
+<!-- Detail Modal -->
 <div class="overlay" id="modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <h3 id="mTitle">รายละเอียด</h3>
-    <div id="mBody"></div>
-    <button class="mcls" onclick="closeModal()">ปิด</button>
-  </div>
+  <div class="modal"><h3 id="mTitle">รายละเอียด</h3><div id="mBody"></div>
+    <button class="mcls" onclick="closeModal()">ปิด</button></div>
 </div>
 
-<!-- MODAL (Google Sheets) -->
+<!-- Sheets Modal -->
 <div class="overlay" id="sheetsModal" onclick="if(event.target===this)closeSheetsModal()">
   <div class="modal">
-    <div class="sheets-modal-icon">📊</div>
+<div class="sheets-modal-icon">📊</div>
     <h3>ตั้งค่า Google Sheets</h3>
 
     <!-- Connection mode tabs -->
@@ -684,7 +692,8 @@ input.admin-inp:focus{border-color:var(--lime)}
         style="font-family:var(--mn);font-size:11px">
       <div style="font-size:10px;color:var(--t3);font-family:var(--mn);margin:10px 0 5px">ต้องการ Sheets</div>
       <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">
-        ${MONTH_SHEETS.map(m=>`<span style="font-family:var(--mn);font-size:9px;padding:2px 8px;border-radius:8px;background:var(--s2);color:var(--t3);border:1px solid var(--bd)">${m}</span>`).join('')}
+        <span style="font-family:var(--mn);font-size:9px;padding:2px 8px;border-radius:8px;background:var(--s2);color:var(--t3);border:1px solid var(--bd)">Monitor</span>
+        <span style="font-family:var(--mn);font-size:9px;padding:2px 8px;border-radius:8px;background:var(--s2);color:var(--t3);border:1px solid var(--bd)">Jan-Dec</span>
       </div>
     </div>
 
@@ -715,7 +724,18 @@ input.admin-inp:focus{border-color:var(--lime)}
           class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:rgba(187,251,76,.15);border:1px solid rgba(187,251,76,.3);color:var(--lime);font-weight:600">Monitor</button>
         <button onclick="setSyncSheet('all')" id="spill_all"
           class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">ทั้งหมด</button>
-        ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m=>`<button onclick="setSyncSheet('${m}')" id="spill_${m}" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">${m}</button>`).join('')}
+        <button onclick="setSyncSheet('Jan')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">Jan</button>
+        <button onclick="setSyncSheet('Feb')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">Feb</button>
+        <button onclick="setSyncSheet('Mar')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">Mar</button>
+        <button onclick="setSyncSheet('Apr')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">Apr</button>
+        <button onclick="setSyncSheet('May')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">May</button>
+        <button onclick="setSyncSheet('Jun')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">Jun</button>
+        <button onclick="setSyncSheet('Jul')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">Jul</button>
+        <button onclick="setSyncSheet('Aug')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">Aug</button>
+        <button onclick="setSyncSheet('Sep')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">Sep</button>
+        <button onclick="setSyncSheet('Oct')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">Oct</button>
+        <button onclick="setSyncSheet('Nov')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">Nov</button>
+        <button onclick="setSyncSheet('Dec')" class="sheet-pill" style="padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;background:var(--s2);border:1px solid var(--bd);color:var(--t2)">Dec</button>
       </div>
     </div>
 
@@ -723,106 +743,66 @@ input.admin-inp:focus{border-color:var(--lime)}
     <div style="margin-top:10px;text-align:center">
       <button class="mcls" onclick="closeSheetsModal()">ยกเลิก</button>
     </div>
+  
+  
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     HEADER
-═══════════════════════════════════════════ -->
+<!-- HEADER -->
 <header class="hdr">
-  <!-- Logo -->
   <div class="hdr-logo">
     <div class="hdr-logo-mark">📦</div>
     <div>
       <div class="hdr-logo-name">GNR3 MAILSERVICE</div>
-      <div class="hdr-logo-sub">Document Delivery Monitor</div>
+      <div class="hdr-logo-sub">Document Delivery Tracking</div>
     </div>
   </div>
-
-  <!-- Nav pills -->
-  <div class="nav-pills">
+  <nav class="nav-pills">
     <button class="nav-pill active" onclick="switchPage('dash',this)">📊 Dashboard</button>
     <button class="nav-pill" onclick="switchPage('table',this)">📋 ตารางรายการ</button>
     <button class="nav-pill" onclick="switchPage('alert',this)">🔔 Alert</button>
-    <!-- Admin dropdown -->
     <div class="nav-admin" id="adminMenu">
-      <button class="nav-admin-btn" onclick="toggleAdmin()">
-        ⚙️ Admin <span class="chevron">▾</span>
-      </button>
+      <button class="nav-admin-btn" onclick="toggleAdmin()">⚙️ Admin <span class="chevron">▾</span></button>
       <div class="nav-dropdown">
         <div class="nav-drop-item" onclick="switchPage('sched',this);toggleAdmin()">📅 SLA Schedule</div>
         <div class="nav-drop-item" onclick="switchPage('slaconf',this);toggleAdmin()">⚙️ SLA Config</div>
         <div class="nav-drop-item" onclick="switchPage('holiday',this);toggleAdmin()">🗓 ตั้งค่าวันหยุด</div>
       </div>
     </div>
-  </div>
-
-  <!-- Right: sheets status + sync -->
+  </nav>
   <div class="hdr-right">
-    <div class="sheets-pill" id="sheetsPill" onclick="openSheetsModal()">
+    <div class="sheets-pill" onclick="openSheetsModal()">
       <div class="sheets-dot" id="sheetsDot" style="background:var(--warn)"></div>
-      <span class="sheets-label" id="sheetsLabel">ยังไม่เชื่อมต่อ</span>
+      <span class="sheets-label" id="sheetsLabel">กด ↻ Sync</span>
     </div>
-    <div style="display:flex;align-items:center;gap:4px">
-    <button class="sync-btn" id="syncBtn" onclick="syncData(syncTargetSheet||'Monitor')">↻ Sync</button>
     <div style="position:relative" id="syncMenu">
-      <button class="sync-btn" style="padding:7px 10px;background:rgba(187,251,76,.15);color:var(--lime)" onclick="toggleSyncMenu()">▾</button>
-      <div id="syncDropdown" style="display:none;position:absolute;right:0;top:calc(100%+6px);background:var(--sf);border:1px solid var(--bd2);border-radius:var(--r2);min-width:200px;z-index:300;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4)">
-        <div onclick="syncData('Monitor');toggleSyncMenu()" class="export-item">↻ Sync Monitor (งานปัจจุบัน)</div>
-        <div onclick="syncAllSheets();toggleSyncMenu()" class="export-item">↻ Sync ทุก Sheet (ช้า)</div>
-        <div style="border-top:1px solid var(--bd)"></div>
-        ${MONTH_SHEETS.filter(s=>s!=='Monitor').map(s=>`<div onclick="lazyLoadSheet('${s}');toggleSyncMenu()" class="export-item">+ โหลด Sheet ${s}</div>`).join('')}
-        <div style="border-top:1px solid var(--bd)"></div>
-        <div onclick="openSheetsModal();toggleSyncMenu()" class="export-item">⚙️ ตั้งค่า Connection</div>
+      <button class="sync-btn" onclick="quickSync()">↻ Sync</button>
+      <button class="sync-btn" style="padding:7px 10px;background:rgba(187,251,76,.15);color:var(--lime);margin-left:2px" onclick="toggleSyncMenu()">▾</button>
+      <div id="syncDropdown" style="display:none;position:absolute;right:0;top:calc(100%+6px);background:var(--sf);border:1px solid var(--bd2);border-radius:16px;min-width:220px;z-index:300;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+        <div onclick="syncMonitor();toggleSyncMenu()" class="export-item">🔔 Sync Monitor (Alert)</div>
+        <div onclick="syncAllSheets();toggleSyncMenu()" class="export-item">📊 Sync Jan-Dec</div>
+        <div style="border-top:1px solid var(--bd)">
+          <div onclick="lazyLoadSheet('Jan');toggleSyncMenu()" class="export-item">+ Jan</div>
+          <div onclick="lazyLoadSheet('Feb');toggleSyncMenu()" class="export-item">+ Feb</div>
+          <div onclick="lazyLoadSheet('Mar');toggleSyncMenu()" class="export-item">+ Mar</div>
+          <div onclick="lazyLoadSheet('Apr');toggleSyncMenu()" class="export-item">+ Apr</div>
+          <div onclick="lazyLoadSheet('May');toggleSyncMenu()" class="export-item">+ May</div>
+          <div onclick="lazyLoadSheet('Jun');toggleSyncMenu()" class="export-item">+ Jun</div>
+          <div onclick="lazyLoadSheet('Jul');toggleSyncMenu()" class="export-item">+ Jul</div>
+          <div onclick="lazyLoadSheet('Aug');toggleSyncMenu()" class="export-item">+ Aug</div>
+          <div onclick="lazyLoadSheet('Sep');toggleSyncMenu()" class="export-item">+ Sep</div>
+          <div onclick="lazyLoadSheet('Oct');toggleSyncMenu()" class="export-item">+ Oct</div>
+          <div onclick="lazyLoadSheet('Nov');toggleSyncMenu()" class="export-item">+ Nov</div>
+          <div onclick="lazyLoadSheet('Dec');toggleSyncMenu()" class="export-item">+ Dec</div>
+        </div>
+        <div style="border-top:1px solid var(--bd)">
+          <div onclick="testConnection();toggleSyncMenu()" class="export-item">🔍 ทดสอบ Connection</div>
+          <div onclick="openSheetsModal();toggleSyncMenu()" class="export-item">⚙️ ตั้งค่า Connection</div>
+        </div>
       </div>
     </div>
   </div>
-  </div>
 </header>
-
-<!-- ═══ MOBILE BOTTOM NAV ═══ -->
-<div class="mob-sheet-overlay" id="mobOverlay" onclick="closeMobAdmin()"></div>
-
-<!-- Admin bottom sheet -->
-<div class="mob-admin-sheet" id="mobAdminSheet">
-  <div class="mob-sheet-handle"></div>
-  <div class="mob-sheet-title">Admin</div>
-  <div class="mob-sheet-item" onclick="mobSwitchPage('sched');closeMobAdmin()">
-    <span class="mob-sheet-icon">📅</span> SLA Schedule
-  </div>
-  <div class="mob-sheet-item" onclick="mobSwitchPage('slaconf');closeMobAdmin()">
-    <span class="mob-sheet-icon">⚙️</span> SLA Config
-  </div>
-  <div class="mob-sheet-item" onclick="mobSwitchPage('holiday');closeMobAdmin()">
-    <span class="mob-sheet-icon">🗓</span> ตั้งค่าวันหยุด
-  </div>
-  <div class="mob-sheet-item" onclick="closeMobAdmin()" style="color:var(--t3)">
-    <span class="mob-sheet-icon">✕</span> ปิด
-  </div>
-</div>
-
-<!-- Bottom nav bar -->
-<nav class="mobile-bottom-nav">
-  <button class="mob-nav-item active" id="mBtn-dash" onclick="mobSwitchPage('dash')">
-    <span class="mob-nav-icon">📊</span>
-    <span class="mob-nav-label">Dashboard</span>
-  </button>
-  <button class="mob-nav-item" id="mBtn-table" onclick="mobSwitchPage('table')">
-    <span class="mob-nav-icon">📋</span>
-    <span class="mob-nav-label">ตาราง</span>
-  </button>
-  <button class="mob-nav-item" id="mBtn-alert" onclick="mobSwitchPage('alert')">
-    <span class="mob-nav-icon">🔔</span>
-    <span class="mob-nav-label">Alert</span>
-  </button>
-  <button class="mob-nav-item" id="mBtn-admin" onclick="openMobAdmin()">
-    <span class="mob-nav-icon">⚙️</span>
-    <span class="mob-nav-label">Admin</span>
-  </button>
-</nav>
-
-
-
 
 <!-- ═══ KPI STRIP ═══ -->
 <div style="padding:12px 28px">
@@ -992,6 +972,7 @@ input.admin-inp:focus{border-color:var(--lime)}
         <th onclick="srt('receiverCo')">บริษัทผู้ติดต่อ ↕</th>
         <th onclick="srt('province')">จังหวัด ↕</th>
         <th onclick="srt('orderDate')">วันสั่งงาน ↕</th>
+        <th onclick="srt('pickupDate')">วันที่เข้ารับ ↕</th>
         <th onclick="srt('completionDate')">วันดำเนินการสำเร็จ ↕</th>
         <th onclick="srt('pickupBizDays')" class="pk">🕐 เข้ารับ (d) ↕</th>
         <th onclick="srt('pickupSLA')" class="pk">SLA เข้ารับ ↕</th>
@@ -1002,7 +983,7 @@ input.admin-inp:focus{border-color:var(--lime)}
         <th onclick="srt('result')">ผลการวิ่ง ↕</th>
         <th></th>
       </tr></thead>
-      <tbody id="tbody"><tr><td colspan="16" style="text-align:center;padding:40px;color:var(--t3)">กรุณาเชื่อมต่อ Google Sheets หรือกด Sync</td></tr></tbody>
+      <tbody id="tbody"><tr><td colspan="17" style="text-align:center;padding:40px;color:var(--t3)">กรุณาเชื่อมต่อ Google Sheets หรือกด Sync</td></tr></tbody>
     </table>
     <div class="tbl-foot" id="tfoot"><span>แถว: 0</span></div>
   </div>
@@ -1108,7 +1089,27 @@ input.admin-inp:focus{border-color:var(--lime)}
   </div>
 </div>
 
+
+
+
+<!-- BOTTOM NAV (Mobile) -->
+<div class="bnav-overlay" id="bnavOverlay" onclick="closeBnavAdmin()"></div>
+<div class="bnav-admin-sheet" id="bnavAdminSheet">
+  <div class="bnav-sheet-handle"></div>
+  <div class="bnav-sheet-title">Admin</div>
+  <div class="bnav-sheet-item" onclick="switchPage('sched',null);closeBnavAdmin()"><span class="bnav-sheet-icon">📅</span><div class="bnav-sheet-text"><div class="bnav-sheet-name">SLA Schedule</div></div></div>
+  <div class="bnav-sheet-item" onclick="switchPage('slaconf',null);closeBnavAdmin()"><span class="bnav-sheet-icon">⚙️</span><div class="bnav-sheet-text"><div class="bnav-sheet-name">SLA Config</div></div></div>
+  <div class="bnav-sheet-item" onclick="switchPage('holiday',null);closeBnavAdmin()"><span class="bnav-sheet-icon">🗓</span><div class="bnav-sheet-text"><div class="bnav-sheet-name">ตั้งค่าวันหยุด</div></div></div>
+</div>
+<nav class="bottom-nav">
+  <button class="bnav-item active" id="bnav-dash" onclick="switchPage('dash',null)"><div class="bnav-icon">📊</div><span class="bnav-label">Dashboard</span></button>
+  <button class="bnav-item" id="bnav-table" onclick="switchPage('table',null)"><div class="bnav-icon">📋</div><span class="bnav-label">ตาราง</span></button>
+  <button class="bnav-item" id="bnav-alert" onclick="switchPage('alert',null)"><div class="bnav-icon">🔔</div><span class="bnav-label">Alert</span></button>
+  <button class="bnav-item" id="bnav-admin" onclick="openBnavAdmin()"><div class="bnav-icon">⚙️</div><span class="bnav-label">Admin</span></button>
+</nav>
+
 <script>
+
 // ═══════════════════════════════════════════════════════════
 // GNR3 MAILSERVICE MONITOR v11
 // Google Sheets Integration + Clean Architecture
@@ -1134,8 +1135,10 @@ const THAI_M = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.',
 const THAI_MF = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 
 // ─── STATE ────────────────────────────────────────────────
-let allData = [], filteredData = [], slaData = [];
-let loadedSheets = new Set(); // tracks which sheets have been loaded
+let allData = [];          // monthly data (Jan-Dec) → Dashboard + Table
+let monitorData = [];     // Monitor sheet → Alert only
+let filteredData = [], slaData = [];
+let loadedSheets = new Set();
 let holidays = [], holidaySet = new Set();
 let provinceSLA = {};
 let flt = {srch:'',pk:'',period:'',team:'',prov:'',month:'',delivType:'',alertLvl:''};
@@ -1270,7 +1273,7 @@ async function fetchSheet(sheetName, onProgress){
 async function fetchSheetPaged(sheetName, onProgress){
   const PAGE_SIZE = 500;
   // Step 1: Get total count (fast — no data transfer)
-  const countUrl = `${APPS_SCRIPT_URL}?sheet=${encodeURIComponent(sheetName)}&count=true`;
+  const countUrl = `${APPS_SCRIPT_URL}?sheet=${encodeURIComponent(sheetName)}&count=true&dateFormat=iso`;
   const countResp = await fetch(countUrl);
   if(!countResp.ok) throw new Error(`HTTP ${countResp.status}`);
   const countJson = await countResp.json();
@@ -1289,7 +1292,8 @@ async function fetchSheetPaged(sheetName, onProgress){
   for(let batch = 0; batch < totalPages; batch += CONCURRENCY){
     const pageBatch = [];
     for(let p = batch; p < Math.min(batch + CONCURRENCY, totalPages); p++){
-      const pageUrl = `${APPS_SCRIPT_URL}?sheet=${encodeURIComponent(sheetName)}&page=${p+1}&size=${PAGE_SIZE}`;
+      // dateFormat=iso tells Apps Script to return dates as YYYY-MM-DD
+    const pageUrl = `${APPS_SCRIPT_URL}?sheet=${encodeURIComponent(sheetName)}&page=${p+1}&size=${PAGE_SIZE}&dateFormat=iso`;
       pageBatch.push(fetch(pageUrl).then(r=>r.json()));
     }
     const results = await Promise.all(pageBatch);
@@ -1302,39 +1306,43 @@ async function fetchSheetPaged(sheetName, onProgress){
   return allRows;
 }
 
+// MONTH_ONLY_SHEETS = Jan-Dec (Dashboard + Table)
+const MONTH_ONLY_SHEETS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 async function syncData(sheetName){
-  // If called from UI without arg, sync current selected sheet or all
-  const target = sheetName || syncTargetSheet || 'Monitor';
-  show(`กำลัง Sync Sheet: ${target}...`);
+  const target = sheetName || 'Monitor';
+  const isMonitor = target === 'Monitor';
+  show(`กำลัง Sync "${target}"...`);
   try{
-    // Show paged progress
-    const rows = await fetchSheet(target, (done, total, pages)=>{
-      const pct = total>0 ? Math.round(done/total*100) : 0;
+    const rows = await fetchSheet(target, (done, total)=>{
+      const pct = total>0?Math.round(done/total*100):0;
       const lm = document.getElementById('loadMsg');
-      if(lm) lm.textContent = `กำลัง Sync "${target}"... ${done.toLocaleString()}/${total.toLocaleString()} แถว (${pct}%)`;
+      if(lm) lm.textContent = `Sync "${target}": ${done.toLocaleString()}/${total.toLocaleString()} (${pct}%)`;
     });
-    if(!rows || rows.length < 1) throw new Error('ไม่พบข้อมูลใน Sheet: '+target);
+    if(!rows||rows.length<1) throw new Error('ไม่พบข้อมูลใน Sheet: '+target);
     const lm2 = document.getElementById('loadMsg');
     if(lm2) lm2.textContent = `Normalize ${rows.length.toLocaleString()} แถว...`;
-    const normalized = rows.map(r=>{ try{return normRow(r);}catch(e){return null;} }).filter(Boolean);
-    // Merge or replace
-    if(sheetName && sheetName !== 'Monitor' && allData.length > 0){
-      // Upsert by jobNo
+    const normalized = rows.map(r=>{try{return normRow(r);}catch(e){return null;}}).filter(Boolean);
+
+    if(isMonitor){
+      // Monitor → Alert only
+      monitorData = normalized;
+      showToast(`✓ Monitor: ${normalized.length.toLocaleString()} งาน (ใช้หน้า Alert)`, 'tok');
+    } else {
+      // Monthly sheet → Dashboard + Table (upsert by jobNo)
       const map = new Map(allData.map(r=>[r.jobNo,r]));
       normalized.forEach(r=>{ if(r.jobNo) map.set(r.jobNo,r); });
       allData = Array.from(map.values()).sort((a,b)=>(a.orderDate||'').localeCompare(b.orderDate||''));
-    } else {
-      allData = normalized;
+      filteredData = [...allData];
+      loadedSheets.add(target);
+      showToast(`✓ Sync "${target}": +${normalized.length.toLocaleString()} แถว · รวม ${allData.length.toLocaleString()}`, 'tok');
     }
-    filteredData = [...allData];
-    loadedSheets.add(target);
-    updateSheetsStatus(true, `⚡ ${allData.length.toLocaleString()} แถว · ${new Date().toLocaleTimeString('th')}`);
+    updateSheetsStatus(true, `⚡ ${allData.length.toLocaleString()} แถว / Monitor:${monitorData.length}`);
     rebuildAll();
-    showToast(`✓ Sync "${target}" สำเร็จ ${normalized.length.toLocaleString()} แถว`, 'tok');
   }catch(e){
-    console.error('Sync error:', e);
-    updateSheetsStatus(false, 'เชื่อมต่อไม่ได้');
-    showToast('Sync ล้มเหลว: '+e.message+' — ตรวจสอบว่า Sheets เป็น Public', 'terr');
+    console.error('Sync error:',e);
+    updateSheetsStatus(false,'เชื่อมต่อไม่ได้');
+    showToast('Sync ล้มเหลว: '+e.message,'terr');
   }
   hide();
 }
@@ -1372,11 +1380,9 @@ let syncTargetSheet = 'Monitor';
 // ─── LAZY LOAD MONTH ─────────────────────────────────────────
 // Load a sheet and merge into allData (skip if already loaded)
 async function lazyLoadSheet(sheetName, force){
+  if(sheetName==='Monitor'){ await syncData('Monitor'); return; }
   if(!force && loadedSheets.has(sheetName)){
-    // Already loaded — just filter
-    buildTableMonthBar();
-    applyF();
-    return;
+    buildTableMonthBar(); applyF(); return;
   }
   show(`กำลังโหลด Sheet: ${sheetName}...`);
   try{
@@ -1550,66 +1556,61 @@ function renderProvinceSLATable(){
 function rebuildSlaMap(){ _slaMap.clear(); slaData.forEach(s=>_slaMap.set(s.code,s)); }
 
 // ─── DATE UTILS ───────────────────────────────────────────
+// ── INPUT FORMAT FROM APPS SCRIPT: MM/DD/YYYY ─────────────────
+// Google Sheets with Thai locale, Apps Script sends MM/DD/YYYY (US)
+// e.g. "05/01/2026" = May 1, 2026 (month=05, day=01)
+// After Apps Script redeploy with ISO format, this will switch automatically
+
 function fmtDate(v){
   if(!v) return '';
 
-  // Date object → format directly
+  // Date object (from cellDates:true)
   if(v instanceof Date){
     if(isNaN(v.getTime())) return '';
     return _pad(v.getDate())+'/'+_pad(v.getMonth()+1)+'/'+v.getFullYear();
   }
 
   const s = String(v).replace(/\xa0/g,'').trim();
-  if(!s||s==='-'||s==='nan'||s==='undefined'||s==='null') return '';
+  if(!s||s==='-'||s==='nan'||s==='undefined'||s==='null'||s==='0') return '';
 
-  // ── YYYY-MM-DD (ISO format) ──────────────────────────────
-  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  // ── ISO: YYYY-MM-DD ← unambiguous, from redeployed Apps Script ──
+  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})([T ].*)?$/);
   if(iso){
-    let y=parseInt(iso[1]); if(y>2500)y-=543;
-    if(y>=2000&&y<=2100) return _pad(parseInt(iso[3]))+'/'+_pad(parseInt(iso[2]))+'/'+y;
+    let y=parseInt(iso[1]),m=parseInt(iso[2]),d=parseInt(iso[3]);
+    if(y>2500) y-=543;
+    if(m>=1&&m<=12&&d>=1&&d<=31&&y>=2000&&y<=2100)
+      return _pad(d)+'/'+_pad(m)+'/'+y;
   }
 
-  // ── D/M/YYYY or DD/MM/YYYY (Thai Google Sheets format) ───
-  // Thai locale: วัน/เดือน/ปี — ALWAYS D first, M second
-  // NEVER treat as MM/DD/YYYY (US format)
-  const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(dmy){
-    let d=parseInt(dmy[1]), m=parseInt(dmy[2]), y=parseInt(dmy[3]);
+  // ── XX/YY/YYYY or XX/YY/YYYY (Buddhist) ─────────────────────────
+  const slash = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if(slash){
+    let p0=parseInt(slash[1]), p1=parseInt(slash[2]), y=parseInt(slash[3]);
+    if(y<100) y+=2000;
     if(y>2500) y-=543; // Buddhist → CE
-    // Validate: month must be 1-12, day must be 1-31
-    if(m>=1&&m<=12&&d>=1&&d<=31&&y>=2000&&y<=2100){
-      return _pad(d)+'/'+_pad(m)+'/'+y;
+
+    let d, m;
+
+    // CASE 1: p0 > 12 → must be DD/MM/YYYY (day first)
+    if(p0 > 12){
+      d=p0; m=p1;
     }
-    // If m>12 → day and month swapped (shouldn't happen with Thai locale)
-    if(d<=12&&m>12){ const tmp=d; d=m; m=tmp; }
-    if(m>=1&&m<=12&&d>=1&&d<=31&&y>=2000&&y<=2100){
-      return _pad(d)+'/'+_pad(m)+'/'+y;
+    // CASE 2: p1 > 12 → must be MM/DD/YYYY (month first) — impossible for valid day/month
+    // but handle anyway
+    else if(p1 > 12){
+      m=p0; d=p1;
     }
+    // CASE 3: both ≤ 12 → Apps Script confirmed sends MM/DD/YYYY
+    // "05/01/2026" = month=05, day=01
+    else {
+      m=p0; d=p1;  // ← TREAT AS MM/DD/YYYY (Apps Script format)
+    }
+
+    if(m>=1&&m<=12&&d>=1&&d<=31&&y>=2000&&y<=2100)
+      return _pad(d)+'/'+_pad(m)+'/'+y;
   }
 
-  // ── D/M/YY ───────────────────────────────────────────────
-  const dmy2 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
-  if(dmy2){
-    let d=parseInt(dmy2[1]),m=parseInt(dmy2[2]),y=parseInt(dmy2[3]);
-    y = y < 100 ? 2000+y : y;
-    if(m>=1&&m<=12&&d>=1&&d<=31) return _pad(d)+'/'+_pad(m)+'/'+y;
-  }
-
-  // ── D/M/YYYY (Buddhist 4-digit) ─────────────────────────
-  const dmy3 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(dmy3){
-    let y=parseInt(dmy3[3]); if(y>2500)y-=543;
-    return _pad(parseInt(dmy3[1]))+'/'+_pad(parseInt(dmy3[2]))+'/'+y;
-  }
-
-  // ── Already DD/MM/YYYY with correct format ───────────────
-  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)){
-    const parts = s.split('/');
-    let y = parseInt(parts[2]); if(y>2500) y-=543;
-    return parts[0]+'/'+parts[1]+'/'+y;
-  }
-
-  return s; // return as-is if can't parse
+  return s;
 }
 
 function _pad(n){ return String(n).padStart(2,'0'); }
@@ -1682,16 +1683,17 @@ function normRow(r){
   const jobNo         = c(r['เลขที่ใบงาน']      ||r['jobNo']          ||'');
   const group         = c(r['กลุ่มผู้สั่งงาน']  ||r['group']          ||'');
   const senderName    = c(r['ชื่อ - สกุล ผู้สั่งงาน']||r['ชื่อ-สกุล ผู้สั่งงาน']||r['sender']||'');
-  const orderDate     = fmtDate(r['วันสั่งงาน']  ||r['วันที่สั่งงาน']  ||r['orderDate']||'');
+  const orderDate = fmtDate(r['วันสั่งงาน']||r['วันที่สั่งงาน']||r['orderDate']||'');
+  const pickupDate    = fmtDate(r['วันที่เข้ารับ'] ||r['pickupDate']      ||'');
   const receiverCo    = c(r['บริษัท ผู้ติดต่อ']  ||r['branchName']     ||'');
   const receiverName  = c(r['ชื่อ - สกุล ผู้ติดต่อ']||r['ชื่อ-สกุล ผู้ติดต่อ']||r['receiver']||'');
   const province      = c(r['จังหวัด']            ||r['province']       ||'');
-  const completionDate= fmtDate(r['วันที่ดำเนินการสำเร็จ']||r['arrivalDate']||r['completion']||'');
+  const completionDate = fmtDate(r['วันที่ดำเนินการสำเร็จ']||r['arrivalDate']||r['completion']||'');
   const status        = c(r['สถานะ']              ||r['status']         ||'');
+  const remark        = c(r['หมายเหตุการวิ่ง']   ||r['remark']         ||'');
   const result        = c(r['ผลการวิ่ง']          ||r['result']         ||'');
 
-  // ── Legacy compat (old schema) ───────────────────────────
-  const pickupDate    = fmtDate(r['วันที่เข้ารับ'] ||r['pickupDate']    ||'');
+  // ── Legacy compat ──────────────────────────────────────────
   const deliveryDate  = fmtDate(r['วันที่ส่งงาน']  ||r['deliveryDate']  ||'');
 
   // ── Sender/Receiver classification ──────────────────────
@@ -1710,16 +1712,16 @@ function normRow(r){
   // HO merge for sender group
   const senderDisplay = senderIsHO ? 'HO / สำนักงานใหญ่' : group;
 
-  // ── SLA #1: Pickup ≤ 3 วันทำการ ─────────────────────────
+  // ── SLA #1: Pickup ≤ 3 วันทำการ (วันสั่งงาน → วันที่เข้ารับ) ──
   const od = parseDate(orderDate);
-  const pd = parseDate(pickupDate||completionDate); // use completion if no pickup
+  const pd = parseDate(pickupDate); // วันที่เข้ารับโดยตรง
   const pickupBizDays = bizDays(od, pd);
   const pickupSLA = (pickupBizDays===null)?'ไม่มีข้อมูล'
                    :(pickupBizDays<=PICKUP_SLA_DAYS?'ผ่าน':'เกิน');
 
-  // ── SLA #2: Delivery ≤ 1 วันทำการ (next biz day) ────────
+  // ── SLA #2: Delivery ≤ 1 วันทำการ (วันที่เข้ารับ → วันดำเนินการสำเร็จ) ──
   const cd = parseDate(completionDate);
-  const deliveryBizDays = bizDays(pd||od, cd); // from pickup (or order) to completion
+  const deliveryBizDays = bizDays(pd, cd); // วันเข้ารับ → วันดำเนินการสำเร็จ
   const deliverySLA = (deliveryBizDays===null)?'ไม่มีข้อมูล'
                      :(deliveryBizDays<=DELIVERY_SLA_DAYS?'ผ่าน':'เกิน');
 
@@ -1745,10 +1747,10 @@ function normRow(r){
   }
 
   return {
-    jobNo, group, senderName, orderDate, receiverCo, receiverName,
+    jobNo, group, senderName, orderDate, pickupDate, receiverCo, receiverName,
     province, completionDate, status, result,
     // Compat fields
-    pickupDate, deliveryDate,
+    deliveryDate,
     sender:senderDisplay, receiver:receiverCo,
     branchCode, branchName,
     // Derived
@@ -1781,6 +1783,52 @@ function rebuildAll(){
 // ─── NAV ──────────────────────────────────────────────────
 
 
+// ─── DIAGNOSTIC: show raw data from Apps Script ──────────────
+async function testConnection(){
+  if(!APPS_SCRIPT_URL){ showToast('ยังไม่ได้ตั้งค่า Apps Script URL','twarn'); return; }
+  show('ทดสอบการเชื่อมต่อ...');
+  try{
+    // Fetch 3 rows to inspect raw format
+    const url = `${APPS_SCRIPT_URL}?sheet=Monitor&size=3&page=1&dateFormat=iso`;
+    const resp = await fetch(url);
+    const json = await resp.json();
+    hide();
+    if(json.error){ showToast('Error: '+json.error,'terr'); return; }
+    const rows = json.data || [];
+    if(!rows.length){ showToast('ไม่มีข้อมูล','twarn'); return; }
+    // Show raw data in modal
+    const r = rows[0];
+    const keys = ['เลขที่ใบงาน','วันสั่งงาน','วันที่ดำเนินการสำเร็จ','กลุ่มผู้สั่งงาน','บริษัท ผู้ติดต่อ','จังหวัด'];
+    document.getElementById('mTitle').textContent = '🔍 ข้อมูลดิบ (Raw) จาก Apps Script';
+    document.getElementById('mBody').innerHTML =
+      `<div style="font-size:10px;color:var(--t3);font-family:var(--mn);margin-bottom:10px">Row 1 — ก่อน normalize</div>`+
+      keys.map(k=>`<div class="mrow"><span class="mk">${k}</span>
+        <span class="mv" style="color:var(--lime);font-family:var(--mn)">${r[k]||'(ไม่พบ column นี้)'}</span></div>`).join('')+
+      `<div style="margin-top:12px;font-size:10px;color:var(--t3)">
+        <strong style="color:var(--t2)">หลัง fmtDate:</strong><br>
+        วันสั่งงาน: <span style="color:var(--lime)">${fmtDate(r['วันสั่งงาน'])}</span><br>
+        วันดำเนินการสำเร็จ: <span style="color:var(--lime)">${fmtDate(r['วันที่ดำเนินการสำเร็จ'])}</span>
+      </div>`;
+    document.getElementById('modal').classList.add('show');
+  }catch(e){
+    hide();
+    showToast('ทดสอบไม่ได้: '+e.message,'terr');
+  }
+}
+
+// ─── QUICK SYNC: Monitor (Alert) + current month (Dashboard) ──
+async function quickSync(){
+  const now=new Date();
+  const curMonth=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()];
+  try{
+    await syncMonitor();   // Alert
+    await syncData(curMonth); // Dashboard + Table
+  }catch(e){
+    hide();
+    showToast('Sync error: '+e.message,'terr');
+  }
+}
+
 function toggleSyncMenu(){
   const d = document.getElementById('syncDropdown');
   if(d) d.style.display = d.style.display==='none'?'block':'none';
@@ -1792,6 +1840,46 @@ document.addEventListener('click',e=>{
     if(d) d.style.display='none';
   }
 });
+
+// ─── NAVIGATION ──────────────────────────────────────────────
+function switchPage(id, btnEl){
+  // Deactivate all
+  document.querySelectorAll('.nav-pill').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.page-wrap').forEach(p=>p.classList.remove('active'));
+
+  // Activate desktop nav pill
+  if(btnEl && btnEl.classList && btnEl.classList.contains('nav-pill')){
+    btnEl.classList.add('active');
+  } else {
+    document.querySelectorAll('.nav-pill').forEach(b=>{
+      if((b.getAttribute('onclick')||'').includes("'"+id+"'")) b.classList.add('active');
+    });
+  }
+
+  // Activate mobile bottom nav
+  const bMap={dash:'bnav-dash',table:'bnav-table',alert:'bnav-alert'};
+  const adminPgs=['sched','slaconf','holiday'];
+  if(bMap[id]) document.getElementById(bMap[id])?.classList.add('active');
+  else if(adminPgs.includes(id)) document.getElementById('bnav-admin')?.classList.add('active');
+
+  // Show page
+  const pg = document.getElementById('page-'+id);
+  if(pg) pg.classList.add('active');
+
+  // Build content
+  try{
+    if(id==='alert')   buildAlertPage();
+    if(id==='slaconf') renderProvinceSLATable();
+    if(id==='holiday') renderHolidayPage();
+    if(id==='sched')   buildSched();
+    if(id==='table'){  buildTableMonthBar(); applyF(); }
+  }catch(e){ console.error('switchPage:',id,e); }
+}
+
+function mobileSwitchPage(id){
+  switchPage(id, null);
+}
 
 function toggleAdmin(){
   const m=document.getElementById('adminMenu');
@@ -1819,6 +1907,9 @@ function updateKpiStrip(){
   _s('ks1',pkFail); _s('ks2',total.toLocaleString());
   _s('ks3',pkPct+'%'); _s('ks_del',delFail);
   _s('ks4',avgPK+'d'); _s('ks5',grouped.length.toLocaleString());
+  // Update Monitor status in header
+  const alertBadge=document.getElementById('alertBadge');
+  if(alertBadge) alertBadge.textContent=monitorData.filter(r=>r.alertLevel==='red').length||'';
 }
 
 // ─── DASHBOARD ────────────────────────────────────────────
@@ -1979,7 +2070,7 @@ function buildTableMonthBar(){
     }).join('')
     // Show unloaded months (months not yet fetched)
     +'<span style="color:var(--t4);margin:0 4px">·</span>'
-    +['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].filter(s=>!loadedSheets.has(s)).map(s=>`
+    +MONTH_ONLY_SHEETS.filter(s=>!loadedSheets.has(s)).map(s=>`
       <button onclick="lazyLoadSheet('${s}')"
         style="padding:3px 10px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;
           border:1px dashed rgba(255,255,255,.15);background:none;color:rgba(255,255,255,.25);transition:all .2s"
@@ -1989,7 +2080,7 @@ function buildTableMonthBar(){
       </button>`).join('');
 
   const tc=document.getElementById('tblMonthCount');
-  if(tc) tc.textContent=loadedSheets.size+' Sheet โหลดแล้ว · '+allData.length.toLocaleString()+' แถว';
+  if(tc) tc.textContent=loadedSheets.size+' Sheet · '+allData.length.toLocaleString()+' แถว (Dashboard/Table) · Monitor: '+monitorData.length.toLocaleString()+' งาน (Alert)';
 }
 
 function setTblMonth(m){flt.month=m===''?'':m;buildTableMonthBar();applyF();}
@@ -2029,7 +2120,7 @@ function updateTableKPIs(){
 
 function renderTable(){
   const body=document.getElementById('tbody');if(!body)return;
-  if(!filteredData.length){body.innerHTML='<tr><td colspan="16" style="text-align:center;padding:40px;color:var(--t3)">ไม่พบข้อมูล</td></tr>';
+  if(!filteredData.length){body.innerHTML='<tr><td colspan="17" style="text-align:center;padding:40px;color:var(--t3)">ไม่พบข้อมูล</td></tr>';
     const tf=document.getElementById('tfoot');if(tf)tf.innerHTML='<span>แถว: 0</span>'; return;}
   const pc={'1-3':'p1','4-6':'p2','7-9':'p3','10+':'p4'};
   const alertClr={red:'var(--red)',yellow:'var(--warn)',blue:'var(--cyan)',none:'var(--t3)'};
@@ -2043,6 +2134,7 @@ function renderTable(){
     <td style="font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;font-weight:500" title="${r.receiverCo}">${r.receiverCo||'—'}</td>
     <td style="font-size:11px">${r.province||'—'}</td>
     <td class="mn">${r.orderDate||'—'}</td>
+    <td class="mn">${r.pickupDate||'—'}</td>
     <td class="mn">${r.completionDate||'—'}</td>
     <td class="mn" style="text-align:center;font-weight:700;color:${alertClr[r.alertLevel]||'var(--ok)'}">
       ${r.pickupBizDays!==null?r.pickupBizDays+'d':'—'}</td>
@@ -2095,7 +2187,7 @@ function closeModal(){document.getElementById('modal').classList.remove('show');
 
 // ─── ALERT PAGE ───────────────────────────────────────────
 function buildAlertPage(){
-  const D = allData;
+  const D = monitorData.length ? monitorData : allData; // Monitor = งานที่ยังดำเนินการอยู่
   const _s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   // 3-color alert system
   const breach  = D.filter(r=>r.alertLevel==='red').sort((a,b)=>(b.pickupBizDays||0)-(a.pickupBizDays||0));   // >3d red
@@ -2229,8 +2321,20 @@ function exportExcel(mode){
 
 // ─── UI HELPERS ───────────────────────────────────────────
 const ld=document.getElementById('loading'),lm=document.getElementById('loadMsg');
-function show(msg='กำลังโหลด...'){ if(lm)lm.textContent=msg; ld?.classList.add('show'); }
-function hide(){ ld?.classList.remove('show'); }
+function show(msg='กำลังโหลด...'){
+  try{ if(lm)lm.textContent=msg; ld?.classList.add('show'); }catch(e){}
+}
+function hide(){
+  try{ ld?.classList.remove('show'); }catch(e){}
+}
+// Safety: auto-hide after 30s to prevent stuck overlay
+let _hideTimer;
+const _origShow = show;
+window.show = function(msg){
+  clearTimeout(_hideTimer);
+  _origShow(msg);
+  _hideTimer = setTimeout(()=>{ hide(); }, 30000);
+};
 
 let _toastTimer;
 function showToast(msg,cls=''){
@@ -2240,17 +2344,7 @@ function showToast(msg,cls=''){
 }
 
 // ─── MOBILE NAV ───────────────────────────────────────────
-function mobileSwitchPage(id){
-  // Update bottom nav active state
-  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
-  const adminPages=['sched','slaconf','holiday'];
-  const mainMap={'dash':'bnav-dash','table':'bnav-table','alert':'bnav-alert'};
-  if(mainMap[id]) document.getElementById(mainMap[id])?.classList.add('active');
-  else if(adminPages.includes(id)) document.getElementById('bnav-admin')?.classList.add('active');
 
-  // Reuse desktop switchPage
-  switchPage(id, null);
-}
 
 function openBnavAdmin(){
   document.getElementById('bnavAdminSheet')?.classList.add('open');
@@ -2270,182 +2364,25 @@ try{
   if(!_saved || JSON.parse(_saved).length === 0){
     const _default2026 = [{"date": "2026-01-01", "desc": "วันขึ้นปีใหม่"}, {"date": "2026-01-02", "desc": "วันหยุดชดเชยทำการเพิ่มเป็นกรณีพิเศษ"}, {"date": "2026-03-03", "desc": "วันมาฆบูชา"}, {"date": "2026-04-06", "desc": "วันพระบาทสมเด็จพระพุทธยอดฟ้าจุฬาโลกมหาราช และวันที่ระลึกมหาจักรีบรมราชวงศ์"}, {"date": "2026-04-13", "desc": "วันสงกรานต์"}, {"date": "2026-04-14", "desc": "วันสงกรานต์"}, {"date": "2026-04-15", "desc": "วันสงกรานต์"}, {"date": "2026-05-01", "desc": "วันแรงงานแห่งชาติ"}, {"date": "2026-05-04", "desc": "วันฉัตรมงคล"}, {"date": "2026-05-31", "desc": "วันวิสาขบูชา"}, {"date": "2026-06-01", "desc": "ชดเชยวันวิสาขบูชา (วันอาทิตย์ที่ 31 พฤษภาคม 2569)"}, {"date": "2026-06-03", "desc": "วันเฉลิมพระชนมพรรษาสมเด็จพระนางเจ้าสุทิดา พัชรสุธาพิมลลักษณ พระบรมราชินี"}, {"date": "2026-07-28", "desc": "วันเฉลิมพระชนมพรรษาพระบาทสมเด็จพระเจ้าอยู่หัว"}, {"date": "2026-07-29", "desc": "วันอาสาฬหบูชา"}, {"date": "2026-08-12", "desc": "วันเฉลิมพระชนมพรรษาสมเด็จพระนางเจ้าสิริกิต์ พระบรมราชินีนาถ และวันแม่แห่งชาติ"}, {"date": "2026-10-13", "desc": "วันนวมินทรมหาราช"}, {"date": "2026-10-23", "desc": "วันปิยมหาราช"}, {"date": "2026-12-05", "desc": "วันคล้ายวันพระบรมราชสมภพพระบาทสมเด็จพระบรมชนกาธิเบศร มหาภูมิพลอดุลยเดชมหาราช และวันพ่อแห่งชาติ"}, {"date": "2026-12-07", "desc": "ชดเชยวันคล้ายวันพระบรมราชสมภพ (วันเสาร์ที่ 5 ธันวาคม 2569)"}, {"date": "2026-12-10", "desc": "วันรัฐธรรมนูญ"}, {"date": "2026-12-31", "desc": "วันสิ้นปี"}];
     localStorage.setItem('gnr3_holidays', JSON.stringify(_default2026));
-    loadStoredHolidays(); // reload with defaults
+    loadStoredHolidays();
   }
 }catch(e){}
 try{loadProvinceSLA();}catch(e){}
 try{
-  const savedUrl=localStorage.getItem('gnr3_sheets_url');
-  const savedSheet=localStorage.getItem('gnr3_sheets_sheet')||'Report';
-  if(savedUrl){ sheetsUrl=savedUrl; sheetsSheetName=savedSheet; updateSheetsStatus(false,'Apps Script — กด Sync'); }
+  const savedUrl=localStorage.getItem('gnr3_appsscript_url');
+  const savedMode=localStorage.getItem('gnr3_conn_mode')||'appsscript';
+  if(savedUrl){ APPS_SCRIPT_URL=savedUrl; }
+  CONN_MODE=savedMode;
 }catch(e){}
-// Auto-load demo data so all pages have content immediately
-loadDemo();
+try{ renderHolidayPage(); }catch(e){}
 
-document.getElementById('uTxt') && (document.getElementById('uTxt').textContent='');
+// Make sure loading overlay is HIDDEN on start
+hide();
 
-// ─── MOBILE NAVIGATION ───────────────────────────────────
-function mobSwitchPage(id){
-  // Sync with desktop nav
-  switchPage(id, null);
-  // Update mobile nav active state (only for main tabs)
-  const mainTabs = ['dash','table','alert'];
-  document.querySelectorAll('.mob-nav-item[id^="mBtn-"]').forEach(b=>{
-    b.classList.remove('active');
-  });
-  const activeBtn = document.getElementById('mBtn-'+id);
-  if(activeBtn) activeBtn.classList.add('active');
-  // If admin page, highlight admin button
-  if(!mainTabs.includes(id)){
-    const adminBtn = document.getElementById('mBtn-admin');
-    if(adminBtn) adminBtn.classList.add('active');
-  }
-  // Scroll to top
-  window.scrollTo({top:0,behavior:'smooth'});
-}
+// Show ready state
+updateSheetsStatus(false, 'กด ↻ Sync เพื่อโหลดข้อมูล');
 
-function openMobAdmin(){
-  document.getElementById('mobAdminSheet').classList.add('open');
-  document.getElementById('mobOverlay').classList.add('open');
-  // Prevent body scroll
-  document.body.style.overflow='hidden';
-}
-function closeMobAdmin(){
-  document.getElementById('mobAdminSheet').classList.remove('open');
-  document.getElementById('mobOverlay').classList.remove('open');
-  document.body.style.overflow='';
-}
-
-// Swipe down to close admin sheet
-let _touchStartY = 0;
-document.getElementById('mobAdminSheet').addEventListener('touchstart', e=>{
-  _touchStartY = e.touches[0].clientY;
-},{passive:true});
-document.getElementById('mobAdminSheet').addEventListener('touchmove', e=>{
-  const dy = e.touches[0].clientY - _touchStartY;
-  if(dy > 60) closeMobAdmin();
-},{passive:true});
-
-function switchPage(id, btnEl){
-  // Deactivate everything
-  document.querySelectorAll('.nav-pill').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.page-wrap').forEach(p=>p.classList.remove('active'));
-
-  // Activate desktop nav pill
-  if(btnEl && btnEl.classList && btnEl.classList.contains('nav-pill')){
-    btnEl.classList.add('active');
-  } else {
-    document.querySelectorAll('.nav-pill').forEach(b=>{
-      if((b.getAttribute('onclick')||'').includes("'"+id+"'")) b.classList.add('active');
-    });
-  }
-
-  // Activate mobile bottom nav
-  const bMap={dash:'bnav-dash',table:'bnav-table',alert:'bnav-alert'};
-  const adminPgs=['sched','slaconf','holiday'];
-  if(bMap[id]) document.getElementById(bMap[id])?.classList.add('active');
-  else if(adminPgs.includes(id)) document.getElementById('bnav-admin')?.classList.add('active');
-
-  // Show page
-  const pg=document.getElementById('page-'+id);
-  if(pg) pg.classList.add('active');
-
-  // Build content on switch
-  try{
-    if(id==='alert') buildAlertPage();
-    if(id==='slaconf') renderProvinceSLATable();
-    if(id==='holiday') renderHolidayPage();
-    if(id==='sched') buildSched();
-    if(id==='table'){ buildTableMonthBar(); applyF(); }
-  }catch(e){ console.error('switchPage:',id,e); }
-}
 
 </script>
-
-<!-- ══ BOTTOM NAV (mobile) ══════════════════════════════ -->
-<div class="bnav-overlay" id="bnavOverlay" onclick="closeBnavAdmin()"></div>
-
-<!-- Admin bottom sheet -->
-<div class="bnav-admin-sheet" id="bnavAdminSheet">
-  <div class="bnav-sheet-handle"></div>
-  <div class="bnav-sheet-title">Admin</div>
-  <div class="bnav-sheet-item" onclick="mobileSwitchPage('sched');closeBnavAdmin()">
-    <span class="bnav-sheet-icon">📅</span>
-    <div class="bnav-sheet-text">
-      <div class="bnav-sheet-name">SLA Schedule</div>
-      <div class="bnav-sheet-sub">รอบวันเข้ารับเอกสาร</div>
-    </div>
-    <span class="bnav-sheet-arrow">›</span>
-  </div>
-  <div class="bnav-sheet-item" onclick="mobileSwitchPage('slaconf');closeBnavAdmin()">
-    <span class="bnav-sheet-icon">⚙️</span>
-    <div class="bnav-sheet-text">
-      <div class="bnav-sheet-name">SLA Config</div>
-      <div class="bnav-sheet-sub">ตั้งค่า SLA ต่อจังหวัด</div>
-    </div>
-    <span class="bnav-sheet-arrow">›</span>
-  </div>
-  <div class="bnav-sheet-item" onclick="mobileSwitchPage('holiday');closeBnavAdmin()">
-    <span class="bnav-sheet-icon">🗓</span>
-    <div class="bnav-sheet-text">
-      <div class="bnav-sheet-name">ตั้งค่าวันหยุด</div>
-      <div class="bnav-sheet-sub">วันหยุดนักขัตฤกษ์บริษัท</div>
-    </div>
-    <span class="bnav-sheet-arrow">›</span>
-  </div>
-</div>
-
-<!-- Bottom nav bar -->
-<nav class="bottom-nav">
-  <button class="bnav-item active" id="bnav-dash" onclick="mobileSwitchPage('dash')">
-    <div class="bnav-icon">📊</div>
-    <span class="bnav-label">Dashboard</span>
-  </button>
-  <button class="bnav-item" id="bnav-table" onclick="mobileSwitchPage('table')">
-    <div class="bnav-icon">📋</div>
-    <span class="bnav-label">ตาราง</span>
-  </button>
-  <button class="bnav-item" id="bnav-alert" onclick="mobileSwitchPage('alert')">
-    <div class="bnav-icon">🔔</div>
-    <span class="bnav-label">Alert</span>
-  </button>
-  <button class="bnav-item" id="bnav-admin" onclick="openBnavAdmin()">
-    <div class="bnav-icon">⚙️</div>
-    <span class="bnav-label">Admin</span>
-  </button>
-</nav>
-
-
-<!-- ══ GOOGLE APPS SCRIPT NOTE ════════════════════════════ -->
-<!-- 
-GOOGLE APPS SCRIPT สำหรับ GNR3 Mailservice Monitor:
-================================================
-เปิด Google Sheets → Extensions → Apps Script → วางโค้ดนี้
-
-function doGet(e) {
-  const sheet = e.parameter.sheet || 'Monitor';
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const ws = ss.getSheetByName(sheet);
-  if (!ws) return ContentService.createTextOutput('Sheet not found').setMimeType(ContentService.MimeType.TEXT);
-  
-  const data = ws.getDataRange().getValues();
-  const headers = data[0];
-  const rows = data.slice(1).map(row => {
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = row[i] || '');
-    return obj;
-  });
-  
-  const output = JSON.stringify(rows);
-  return ContentService.createTextOutput(output)
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeaders({'Access-Control-Allow-Origin': '*'});
-}
-
-Deploy → New deployment → Web app → Execute as: Me → Anyone → Deploy
-ใช้ URL ที่ได้ในระบบ
-================================================
--->
 </body>
 </html>
