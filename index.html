@@ -118,6 +118,12 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fn);min-height:100vh
 .sheets-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:sdot 2.5s ease infinite}
 @keyframes sdot{0%,100%{opacity:1}50%{opacity:.3}}
 .sheets-label{font-family:var(--mn);font-size:10px}
+.sheets-pill.cache-fresh{border-color:rgba(46,204,113,.35);background:rgba(46,204,113,.06)}
+.sheets-pill.cache-fresh .sheets-dot{background:var(--ok)}
+.sheets-pill.cache-stale{border-color:rgba(232,133,10,.35);background:rgba(232,133,10,.06)}
+.sheets-pill.cache-stale .sheets-dot{background:var(--warn)}
+.sheets-pill.cache-old{border-color:rgba(217,48,37,.35);background:rgba(217,48,37,.06)}
+.sheets-pill.cache-old .sheets-dot{background:var(--red)}
 .sync-btn{
   padding:7px 16px;border-radius:30px;font-size:11px;font-weight:700;
   background:var(--lime);color:#111;border:none;cursor:pointer;
@@ -457,6 +463,26 @@ input.admin-inp:focus{border-color:var(--lime)}
   animation:shimload 1.5s ease infinite}
 @keyframes shimload{0%{left:-60%}100%{left:160%}}
 .load-stats{font-size:10px;color:var(--t3);font-family:var(--mn);min-height:14px}
+.load-tasks{margin-top:14px;display:none;flex-direction:column;gap:5px;
+  max-height:200px;overflow-y:auto;text-align:left;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent;
+  padding-right:4px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px}
+.load-tasks.show{display:flex}
+.load-task{display:flex;align-items:center;gap:8px;font-size:10px;font-family:var(--mn);
+  color:var(--t2);padding:2px 0}
+.load-task-icon{width:14px;height:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px}
+.load-task-icon.pending{color:var(--t3)}
+.load-task-icon.running{color:var(--blue);animation:spin 1s linear infinite}
+.load-task-icon.done{color:var(--ok)}
+.load-task-icon.err{color:var(--red)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-task-name{min-width:56px;color:var(--t2);font-weight:600}
+.load-task-bar{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.load-task-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--lime));
+  border-radius:2px;transition:width .25s ease;width:0%}
+.load-task.done .load-task-bar-fill{background:var(--ok)}
+.load-task.err .load-task-bar-fill{background:var(--red)}
+.load-task-pct{min-width:36px;text-align:right;color:var(--t3);font-size:9px}
 
 /* ── SCROLLBAR ────────────────────────────── */
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -1145,6 +1171,7 @@ input.admin-inp:focus{border-color:var(--lime)}
       <div class="load-bar-fill" id="loadBar" style="width:0%"></div>
     </div>
     <div class="load-stats" id="loadStats"></div>
+    <div class="load-tasks" id="loadTasks"></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -1153,6 +1180,25 @@ input.admin-inp:focus{border-color:var(--lime)}
 <div class="overlay" id="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal"><h3 id="mTitle">รายละเอียด</h3><div id="mBody"></div>
     <button class="mcls" onclick="closeModal()">ปิด</button></div>
+</div>
+
+<!-- Cache Management Modal -->
+<div class="overlay" id="cacheModal" onclick="if(event.target===this)closeCacheModal()">
+  <div class="modal">
+    <div style="text-align:center;font-size:40px;margin-bottom:10px">💾</div>
+    <h3>จัดการ Cache</h3>
+    <div id="cacheModalBody" style="font-size:12px;color:var(--t2);margin-top:10px">
+      <!-- populated by renderCacheModal() -->
+    </div>
+    <div style="display:flex;gap:8px;margin-top:18px">
+      <button class="mcls" onclick="closeCacheModal()" style="flex:1">ปิด</button>
+      <button onclick="handleClearCache()" id="cacheClearBtn"
+        style="flex:1;background:rgba(217,48,37,.12);color:var(--red);border:1px solid rgba(217,48,37,.3);
+        padding:10px;border-radius:10px;font-family:var(--fn);font-weight:600;cursor:pointer;font-size:12px">
+        🗑️ ล้าง Cache
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Sheets Modal -->
@@ -1285,6 +1331,7 @@ input.admin-inp:focus{border-color:var(--lime)}
         <div class="nav-drop-item" onclick="switchPage('sched',this);toggleAdmin()">📅 SLA Schedule</div>
         <div class="nav-drop-item" onclick="switchPage('slaconf',this);toggleAdmin()">⚙️ SLA Config</div>
         <div class="nav-drop-item" onclick="switchPage('holiday',this);toggleAdmin()">🗓 ตั้งค่าวันหยุด</div>
+        <div class="nav-drop-item" onclick="openCacheModal();toggleAdmin()">💾 จัดการ Cache</div>
       </div>
     </div>
   </nav>
@@ -1805,6 +1852,7 @@ input.admin-inp:focus{border-color:var(--lime)}
   <div class="bnav-sheet-item" onclick="switchPage('sched',null);closeBnavAdmin()"><span class="bnav-sheet-icon">📅</span><div class="bnav-sheet-text"><div class="bnav-sheet-name">SLA Schedule</div></div></div>
   <div class="bnav-sheet-item" onclick="switchPage('slaconf',null);closeBnavAdmin()"><span class="bnav-sheet-icon">⚙️</span><div class="bnav-sheet-text"><div class="bnav-sheet-name">SLA Config</div></div></div>
   <div class="bnav-sheet-item" onclick="switchPage('holiday',null);closeBnavAdmin()"><span class="bnav-sheet-icon">🗓</span><div class="bnav-sheet-text"><div class="bnav-sheet-name">ตั้งค่าวันหยุด</div></div></div>
+  <div class="bnav-sheet-item" onclick="openCacheModal();closeBnavAdmin()"><span class="bnav-sheet-icon">💾</span><div class="bnav-sheet-text"><div class="bnav-sheet-name">จัดการ Cache</div></div></div>
 </div>
 <nav class="bottom-nav">
   <button class="bnav-item active" id="bnav-dash" onclick="switchPage('dash',null)"><div class="bnav-icon">📊</div><span class="bnav-label">Dashboard</span></button>
@@ -2056,6 +2104,7 @@ async function syncData(sheetName){
     }
     updateSheetsStatus(true, `⚡ ${allData.length.toLocaleString()} แถว / Monitor:${monitorData.length}`);
     rebuildAll();
+    saveCache(); // persist to localStorage for next visit
   }catch(e){
     console.error('Sync error:',e);
     updateSheetsStatus(false,'เชื่อมต่อไม่ได้');
@@ -2065,14 +2114,31 @@ async function syncData(sheetName){
 }
 
 async function syncAllSheets(){
-  show('Sync ทุก Sheet...');
+  show('Sync ทุก Sheet...', `${MONTH_SHEETS.length} ไฟล์`);
+  clearTasks();
+  startMultiTask('📥 Sync ทุก Sheet (Jan-Dec)');
+  // Pre-register all sheets as pending
+  MONTH_SHEETS.forEach(s=>setTask(s, s, 0, 0, 'pending'));
   let allRows = [], errSheets = [];
   for(const sheet of MONTH_SHEETS){
+    setTask(sheet, sheet, 0, 0, 'running');
+    if(lsub) lsub.textContent = `กำลังโหลด ${sheet}...`;
     try{
-      const rows = await fetchSheet(sheet);
-      if(rows && rows.length > 0) allRows.push(...rows);
-    }catch(e){ errSheets.push(sheet); }
+      const rows = await fetchSheet(sheet, (done, total)=>{
+        setTask(sheet, sheet, done, total, 'running');
+      });
+      if(rows && rows.length > 0){
+        allRows.push(...rows);
+        setTask(sheet, sheet, rows.length, rows.length, 'done');
+      } else {
+        setTask(sheet, sheet, 0, 0, 'done'); // empty but no error
+      }
+    }catch(e){
+      errSheets.push(sheet);
+      setTask(sheet, sheet, 0, 0, 'err');
+    }
   }
+  endMultiTask();
   if(allRows.length === 0){ showToast('ไม่พบข้อมูลในทุก Sheet','terr'); hide(); return; }
   // Dedup by jobNo (keep latest/most complete)
   const map = new Map();
@@ -2088,6 +2154,7 @@ async function syncAllSheets(){
   filteredData = [...allData];
   updateSheetsStatus(true, `${allData.length} แถว · ทุก Sheet`);
   rebuildAll();
+  saveCache(); // persist to localStorage for next visit
   showToast(`✓ Sync ${MONTH_SHEETS.length} Sheet สำเร็จ ${allData.length.toLocaleString()} แถว ${errSheets.length?'('+errSheets.join(',')+' error)':''}`, 'tok');
   hide();
 }
@@ -2127,6 +2194,7 @@ async function lazyLoadSheet(sheetName, force){
 
     showToast(`✓ โหลด ${sheetName} เพิ่ม ${newCount.toLocaleString()} งานใหม่ · รวม ${allData.length.toLocaleString()} งาน`, 'tok');
     rebuildAll();
+    saveCache(); // persist to localStorage
   }catch(e){
     console.error('lazyLoad:', e);
     showToast(`โหลด ${sheetName} ล้มเหลว: ${e.message}`, 'terr');
@@ -2163,6 +2231,20 @@ function updateSheetsStatus(ok, label){
   if(lbl) lbl.textContent = (CONN_MODE==='appsscript'?'⚡ ':'📄 ') + (label||'');
 }
 
+// Update the sheets-pill in the header to reflect cache age (called after cache load/save)
+function updateCacheBadge(){
+  const info = getCacheInfo();
+  const pill = document.querySelector('.sheets-pill');
+  if(!pill) return;
+  pill.classList.remove('cache-fresh','cache-stale','cache-old');
+  if(!info.exists) return;
+  // Color by age: < 4h green, 4-12h amber, > 12h red
+  const hr = info.ageMs / 3600000;
+  if(hr < 4) pill.classList.add('cache-fresh');
+  else if(hr < 12) pill.classList.add('cache-stale');
+  else pill.classList.add('cache-old');
+}
+
 // ─── LOAD DEMO (fallback) ─────────────────────────────────
 function loadDemo(){
   show('โหลด Demo Data...');
@@ -2185,6 +2267,244 @@ function loadStoredHolidays(){
 }
 function rebuildHolidaySet(){ holidaySet=new Set(holidays.map(h=>h.date)); }
 function saveHolidays(){ try{localStorage.setItem('gnr3_holidays',JSON.stringify(holidays));}catch(e){} rebuildHolidaySet(); }
+
+// ─── DATA CACHE (localStorage) ────────────────────────────
+// Cache key versioning lets us invalidate old caches when schema changes
+const CACHE_VER = 'v1';
+const CACHE_KEYS = {
+  data:  `gnr3_cache_${CACHE_VER}_data`,
+  sla:   `gnr3_cache_${CACHE_VER}_sla`,
+  loaded:`gnr3_cache_${CACHE_VER}_loaded`,
+  meta:  `gnr3_cache_${CACHE_VER}_meta`
+};
+// Fields whose values repeat heavily across rows → store via dictionary index
+const DICT_FIELDS = ['province','group','team','branchName','reason','periodBand','result',
+  'pickupSLA','deliverySLA','totalSLAStatus','alertLevel','deliveryType','status',
+  'orderDate','pickupDate','arrivalDate','completionDate','deliveryDate'];
+// Alias fields that can be reconstructed on load — drop to save space
+const ALIAS_FIELDS = ['sender','receiver','days','senderIsHO'];
+
+// Pack records: build per-field dictionaries, replace string values with integer IDs
+function packRecords(records){
+  const dicts = {};
+  DICT_FIELDS.forEach(f=>{ dicts[f]=[]; });
+  const dictMaps = {};
+  DICT_FIELDS.forEach(f=>{ dictMaps[f]=new Map(); });
+
+  const recs = records.map(r=>{
+    const out = {};
+    for(const k in r){
+      if(ALIAS_FIELDS.includes(k)) continue; // drop aliases
+      const v = r[k];
+      if(DICT_FIELDS.includes(k) && v!=null && v!==''){
+        let id = dictMaps[k].get(v);
+        if(id===undefined){ id = dicts[k].length; dicts[k].push(v); dictMaps[k].set(v,id); }
+        out[k] = id;
+      } else {
+        out[k] = v;
+      }
+    }
+    return out;
+  });
+  return { dicts, recs };
+}
+
+// Unpack: replace integer IDs back to strings, rebuild alias fields
+function unpackRecords(packed){
+  if(!packed || !packed.recs || !packed.dicts) return packed; // already plain array? return as-is
+  const { dicts, recs } = packed;
+  return recs.map(r=>{
+    const out = {...r};
+    DICT_FIELDS.forEach(f=>{
+      const v = r[f];
+      if(typeof v==='number' && dicts[f]) out[f] = dicts[f][v];
+    });
+    // Rebuild aliases (used by some chart/table code paths)
+    if(out.group && !out.team) out.team = out.group;
+    if(out.calDays!=null && out.days==null) out.days = out.calDays;
+    if(out.receiverCo && !out.receiver) out.receiver = out.receiverCo;
+    if(!out.sender && out.senderName) out.sender = out.senderName;
+    return out;
+  });
+}
+
+// Save current allData + slaData to localStorage. Returns true on success.
+function saveCache(){
+  try{
+    const t0 = performance.now();
+    if(!allData || !allData.length) return false;
+
+    const packed   = packRecords(allData);
+    const dataStr  = JSON.stringify(packed);
+    const slaStr   = JSON.stringify(slaData||[]);
+    const loadedArr= Array.from(loadedSheets||[]);
+    const meta = {
+      ts: Date.now(),
+      rowCount: allData.length,
+      slaCount: (slaData||[]).length,
+      sheetCount: loadedArr.length,
+      sizeKB: Math.round((dataStr.length + slaStr.length)/1024),
+      packed: true
+    };
+
+    localStorage.setItem(CACHE_KEYS.data,   dataStr);
+    localStorage.setItem(CACHE_KEYS.sla,    slaStr);
+    localStorage.setItem(CACHE_KEYS.loaded, JSON.stringify(loadedArr));
+    localStorage.setItem(CACHE_KEYS.meta,   JSON.stringify(meta));
+
+    console.log(`💾 Cache saved: ${meta.rowCount.toLocaleString()} rows · ${(meta.sizeKB/1024).toFixed(1)} MB · ${(performance.now()-t0).toFixed(0)} ms`);
+    try{ updateCacheBadge(); }catch(_){}
+    return true;
+  }catch(e){
+    console.warn('Cache save failed:', e.message);
+    if(e.name==='QuotaExceededError' || /quota/i.test(e.message)){
+      try{ Object.values(CACHE_KEYS).forEach(k=>localStorage.removeItem(k)); }catch(_){}
+      // Don't toast — we'll show a banner in the UI instead. Just log.
+      console.warn('Cache exceeded browser quota — data too large to cache locally');
+    }
+    return false;
+  }
+}
+
+// Load cached data. Returns {data, sla, loaded, meta} or null.
+function loadCache(){
+  try{
+    const dataStr = localStorage.getItem(CACHE_KEYS.data);
+    const metaStr = localStorage.getItem(CACHE_KEYS.meta);
+    if(!dataStr || !metaStr) return null;
+
+    const meta = JSON.parse(metaStr);
+    const raw  = JSON.parse(dataStr);
+    // Backwards-compat: handle both packed and plain-array caches
+    const data = (raw && raw.recs && raw.dicts) ? unpackRecords(raw) : raw;
+    if(!Array.isArray(data) || !data.length) return null;
+
+    const slaStr = localStorage.getItem(CACHE_KEYS.sla);
+    const sla = slaStr ? JSON.parse(slaStr) : [];
+    const loadedStr = localStorage.getItem(CACHE_KEYS.loaded);
+    const loaded = loadedStr ? JSON.parse(loadedStr) : [];
+
+    return { data, sla, loaded, meta };
+  }catch(e){
+    console.warn('Cache load failed:', e.message);
+    return null;
+  }
+}
+
+// Clear all cache entries
+function clearCache(){
+  try{ Object.values(CACHE_KEYS).forEach(k=>localStorage.removeItem(k)); return true; }
+  catch(e){ console.warn('Cache clear failed:', e.message); return false; }
+}
+
+// Return info about current cache (for UI display) — does NOT load the data
+function getCacheInfo(){
+  try{
+    const metaStr = localStorage.getItem(CACHE_KEYS.meta);
+    if(!metaStr) return { exists:false };
+    const meta = JSON.parse(metaStr);
+    const ageMs = Date.now() - (meta.ts||0);
+    return {
+      exists:true, ageMs, ageText: formatCacheAge(ageMs),
+      ts: meta.ts, rowCount: meta.rowCount||0, slaCount: meta.slaCount||0,
+      sheetCount: meta.sheetCount||0, sizeKB: meta.sizeKB||0
+    };
+  }catch(e){ return { exists:false }; }
+}
+
+function formatCacheAge(ms){
+  if(ms < 60*1000) return 'เพิ่งซิงค์';
+  const min = Math.floor(ms/60000);
+  if(min < 60) return min+' นาที';
+  const hr = Math.floor(min/60);
+  if(hr < 24) return hr+' ชม.';
+  const day = Math.floor(hr/24);
+  if(day < 7) return day+' วัน';
+  return Math.floor(day/7)+' สัปดาห์';
+}
+
+// ── CACHE MODAL ──────────────────────────────────────────
+function openCacheModal(){
+  renderCacheModal();
+  document.getElementById('cacheModal')?.classList.add('show');
+}
+function closeCacheModal(){
+  document.getElementById('cacheModal')?.classList.remove('show');
+}
+function renderCacheModal(){
+  const body = document.getElementById('cacheModalBody');
+  if(!body) return;
+  const info = getCacheInfo();
+  const btn = document.getElementById('cacheClearBtn');
+
+  if(!info.exists){
+    if(btn) btn.style.opacity = '0.5', btn.disabled = true;
+    body.innerHTML = `
+      <div style="text-align:center;padding:20px 10px;color:var(--t3)">
+        <div style="font-size:32px;margin-bottom:10px">📭</div>
+        <div style="font-size:13px;color:var(--t2);margin-bottom:6px">ยังไม่มี Cache</div>
+        <div style="font-size:11px">กด <strong>↻ Sync</strong> เพื่อโหลดข้อมูลและบันทึก Cache อัตโนมัติ</div>
+      </div>`;
+    return;
+  }
+
+  if(btn){ btn.style.opacity = '1'; btn.disabled = false; }
+
+  // Color by age
+  const hr = info.ageMs / 3600000;
+  const ageColor = hr < 4 ? 'var(--ok)' : hr < 12 ? 'var(--warn)' : 'var(--red)';
+  const ageIcon = hr < 4 ? '🟢' : hr < 12 ? '🟡' : '🔴';
+  const ts = new Date(info.ts);
+  const tsStr = ts.toLocaleString('th-TH', {dateStyle:'short', timeStyle:'short'});
+
+  // Estimate quota usage (5MB typical limit)
+  const sizeMB = (info.sizeKB/1024).toFixed(2);
+  const pctOfQuota = Math.min(100, Math.round(info.sizeKB/5120*100));
+  const barColor = pctOfQuota < 60 ? 'var(--ok)' : pctOfQuota < 85 ? 'var(--warn)' : 'var(--red)';
+
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px">
+        <div style="font-size:10px;color:var(--t3);margin-bottom:4px">📊 จำนวนข้อมูล</div>
+        <div style="font-size:18px;font-weight:800;color:var(--blue);font-family:var(--mn)">${info.rowCount.toLocaleString()}</div>
+        <div style="font-size:10px;color:var(--t3)">แถว · ${info.sheetCount} sheets</div>
+      </div>
+      <div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px">
+        <div style="font-size:10px;color:var(--t3);margin-bottom:4px">${ageIcon} อายุ Cache</div>
+        <div style="font-size:18px;font-weight:800;color:${ageColor};font-family:var(--mn)">${info.ageText}</div>
+        <div style="font-size:10px;color:var(--t3)">ที่แล้ว · ${tsStr}</div>
+      </div>
+    </div>
+
+    <div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <span style="font-size:11px;color:var(--t2);font-weight:600">💽 ขนาดที่ใช้</span>
+        <span style="font-size:13px;color:${barColor};font-weight:800;font-family:var(--mn)">${sizeMB} MB / ~5 MB</span>
+      </div>
+      <div style="height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pctOfQuota}%;background:${barColor};transition:width .3s"></div>
+      </div>
+      <div style="font-size:9px;color:var(--t3);margin-top:6px;font-family:var(--mn)">
+        ${pctOfQuota}% ของ localStorage quota (โดยประมาณ)
+      </div>
+    </div>
+
+    ${info.slaCount ? `<div style="font-size:11px;color:var(--t3);text-align:center;padding:6px;background:var(--s2);border-radius:8px">
+      🗓 SLA Schedule: ${info.slaCount} สาขา
+    </div>`:''}
+
+    ${hr >= 12 ? `<div style="margin-top:10px;padding:10px;background:rgba(217,48,37,.08);border:1px solid rgba(217,48,37,.2);border-radius:8px;font-size:11px;color:var(--red)">
+      ⚠️ Cache เก่าเกิน 12 ชม. แนะนำกด ↻ Sync เพื่ออัปเดต
+    </div>`:''}
+  `;
+}
+function handleClearCache(){
+  if(!confirm('ยืนยันการล้าง Cache?\nครั้งถัดไปจะต้อง Sync ใหม่')) return;
+  clearCache();
+  updateCacheBadge();
+  renderCacheModal();
+  showToast('🗑️ ล้าง Cache แล้ว', 'tok');
+}
 function isHoliday(dt){
   const k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
   return holidaySet.has(k);
@@ -3081,6 +3401,11 @@ function groupJobs(data){
   return Array.from(map.values()).map(g=>({...g, jobCount:g.jobNos.length, jobNo:g.jobNos.join(', ')}));
 }
 
+// ── Cache to skip rebuild when data hasn't changed ────────
+let _lastDashRef = null;
+let _lastDashLen = -1;
+function _invalidateDashCache(){ _lastDashRef = null; _lastDashLen = -1; }
+
 function buildDashWith(D){
   if(!D||!D.length){
     // Show empty state on dashboard
@@ -3088,46 +3413,99 @@ function buildDashWith(D){
     const rankEl=document.getElementById('rankList');
     if(breachEl) breachEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--t3);font-size:11px">กรุณากด ↻ Sync หรือเชื่อมต่อ Google Sheets</div>';
     if(rankEl) rankEl.innerHTML='';
+    _invalidateDashCache();
     return;
   }
+  // Cache: skip full rebuild if same data array & length (e.g. page switch back to dashboard)
+  if(D === _lastDashRef && D.length === _lastDashLen) return;
+  _lastDashRef = D; _lastDashLen = D.length;
+
   const _s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   const total=D.length;
-  const hd=D.filter(r=>r.pickupBizDays!==null);
-  const pkPass=hd.filter(r=>r.pickupSLA==='ผ่าน').length;
-  const pkFail=hd.filter(r=>r.pickupSLA==='เกิน').length;
-  const pkFail2=hd.filter(r=>r.pickupSLA==='เกิน').length;
-  const pkHasData2=pkPass+pkFail2;
-  const pkPct=pkHasData2>0?(pkPass/pkHasData2*100).toFixed(1):'0.0';
-  const avgPK=hd.length?(hd.reduce((s,r)=>s+r.pickupBizDays,0)/hd.length).toFixed(1):'—';
-  const avgT=(D.reduce((s,r)=>s+(r.calDays||0),0)/total).toFixed(1);
-  const succPct=Math.round(D.filter(r=>r.result==='สำเร็จ').length/total*100);
-  // Meters
+
+  // ── SINGLE-PASS AGGREGATION ─────────────────────────────
+  // Collect everything in one walk over D instead of 15+ separate passes
+  let pkPass=0, pkFail=0, hdLen=0, hdSum=0;
+  let calSum=0, calMin=Infinity, calMax=-Infinity, calCount=0;
+  const calFreq=new Map();             // calDays → count, for mode (O(N) instead of O(N²log N))
+  const pb={'1-3':0,'4-6':0,'7-9':0,'10+':0};
+  const branchAll={}, branchBreach={};
+  const branchTotSum={}, branchTotCnt={};       // for best/worst by calDays
+  const branchPkSum={}, branchPkCnt={};         // for best by pickup
+  const teamCount={};
+  const provSum={}, provCnt={};
+  let successCount=0;
+
+  for(let i=0;i<total;i++){
+    const r=D[i];
+    if(r.result==='สำเร็จ') successCount++;
+    // pickup metrics (only count rows that have pickup data)
+    if(r.pickupBizDays!==null){
+      hdLen++;
+      hdSum += r.pickupBizDays;
+      if(r.pickupSLA==='ผ่าน') pkPass++;
+      else if(r.pickupSLA==='เกิน') pkFail++;
+      const bn=r.branchName;
+      branchPkSum[bn]=(branchPkSum[bn]||0)+r.pickupBizDays;
+      branchPkCnt[bn]=(branchPkCnt[bn]||0)+1;
+    }
+    // calDays stats
+    const cd=r.calDays;
+    if(cd>0){
+      calSum+=cd; calCount++;
+      if(cd<calMin) calMin=cd;
+      if(cd>calMax) calMax=cd;
+      calFreq.set(cd, (calFreq.get(cd)||0)+1);
+    }
+    // period band
+    if(pb[r.periodBand]!==undefined) pb[r.periodBand]++;
+    // branch aggregates
+    const bn=r.branchName;
+    branchAll[bn]=(branchAll[bn]||0)+1;
+    branchTotSum[bn]=(branchTotSum[bn]||0)+(cd||0);
+    branchTotCnt[bn]=(branchTotCnt[bn]||0)+1;
+    if(r.pickupSLA==='เกิน'){
+      if(!branchBreach[bn]) branchBreach[bn]={n:bn,prov:r.province,cnt:0,spk:0,cpk:0};
+      branchBreach[bn].cnt++;
+      if(r.pickupBizDays){ branchBreach[bn].spk+=r.pickupBizDays; branchBreach[bn].cpk++; }
+    }
+    // team
+    teamCount[r.team]=(teamCount[r.team]||0)+1;
+    // province (skip "ไม่ระบุ")
+    if(r.province && r.province!=='ไม่ระบุ'){
+      provSum[r.province]=(provSum[r.province]||0)+(cd||0);
+      provCnt[r.province]=(provCnt[r.province]||0)+1;
+    }
+  }
+
+  // ── DERIVE VALUES ─────────────────────────────────────────
+  const pkHasData=pkPass+pkFail;
+  const pkPct=pkHasData>0?(pkPass/pkHasData*100).toFixed(1):'0.0';
+  const avgPK=hdLen?(hdSum/hdLen).toFixed(1):'—';
+  // Mode O(N) instead of O(N²log N) — KEY PERFORMANCE FIX
+  let modeVal='—', modeFreq=0;
+  calFreq.forEach((f,v)=>{ if(f>modeFreq){ modeFreq=f; modeVal=v; } });
+  const avgCal=calCount?(calSum/calCount).toFixed(1):'—';
+
+  // ── METERS ──────────────────────────────────────────────
   _s('m1p',pkPass);_s('m1f',pkFail);_s('m1pct',pkPct+'%');_s('m1avg',avgPK+'d');
   const m1b=document.getElementById('m1bar');
   if(m1b) m1b.style.cssText=`width:${pkPct}%;background:${pkPct>=80?'var(--ok)':pkPct>=50?'var(--warn)':'var(--red)'}`;
-  const da=D.map(r=>r.calDays).filter(d=>d>0);
-  const mn=da.length?Math.min(...da):'—',mx=da.length?Math.max(...da):'—';
-  const av=da.length?(da.reduce((s,v)=>s+v,0)/da.length).toFixed(1):'—';
-  const md=da.length?da.sort((a,b)=>da.filter(v=>v===b).length-da.filter(v=>v===a).length)[0]:'—';
-  _s('m2min', da.length?mn+'d':'—');
-  _s('m2avg', da.length?av+'d':'—');
-  _s('m2max', da.length?mx+'d':'—');
-  _s('m2mode', da.length?(md+'d'):'—');
-  const pb={'1-3':0,'4-6':0,'7-9':0,'10+':0};
-  D.forEach(r=>pb[r.periodBand]=(pb[r.periodBand]||0)+1);
+  _s('m2min', calCount?calMin+'d':'—');
+  _s('m2avg', calCount?avgCal+'d':'—');
+  _s('m2max', calCount?calMax+'d':'—');
+  _s('m2mode', calCount?(modeVal+'d'):'—');
   const pc={'1-3':'var(--ok)','4-6':'var(--cyan)','7-9':'var(--warn)','10+':'var(--red)'};
   const m2b=document.getElementById('m2bands');
   if(m2b) m2b.innerHTML=Object.entries(pb).map(([b,c])=>
     `<span style="font-size:10px;font-family:var(--mn);font-weight:600;padding:2px 9px;border-radius:12px;background:${pc[b]}18;color:${pc[b]};border:1px solid ${pc[b]}45">${b}วัน: ${c}</span>`).join('');
-  // Breach list
-  const bm={};
-  D.filter(r=>r.pickupSLA==='เกิน').forEach(r=>{if(!bm[r.branchName])bm[r.branchName]={n:r.branchName,prov:r.province,cnt:0,spk:0,cpk:0};bm[r.branchName].cnt++;if(r.pickupBizDays){bm[r.branchName].spk+=r.pickupBizDays;bm[r.branchName].cpk++;}});
-  const bt={};D.forEach(r=>bt[r.branchName]=(bt[r.branchName]||0)+1);
-  const sl=Object.values(bm).sort((a,b)=>b.cnt-a.cnt).slice(0,8);
+
+  // ── BREACH LIST ─────────────────────────────────────────
+  const sl=Object.values(branchBreach).sort((a,b)=>b.cnt-a.cnt).slice(0,8);
   const bEl=document.getElementById('breachList');
   if(bEl) bEl.innerHTML=sl.length
     ? sl.map((v,idx)=>{
-        const pct=Math.round(v.cnt/(bt[v.n]||1)*100);
+        const pct=Math.round(v.cnt/(branchAll[v.n]||1)*100);
         const avg=v.cpk?(v.spk/v.cpk).toFixed(1):'—';
         const cls=pct>=70?'':'warn';
         const sev=pct>=80?'var(--red)':pct>=50?'var(--warn)':'var(--blue)';
@@ -3145,10 +3523,10 @@ function buildDashWith(D){
         </div>`;
       }).join('')
     : '<div style="text-align:center;padding:28px;color:var(--ok);font-size:13px;font-weight:600">🎉 ไม่มีสาขาเกิน SLA</div>';
-  const bCnt=document.getElementById('breachCount');if(bCnt)bCnt.textContent=sl.length+'/'+(Object.keys(bm).length)+' สาขา';
-  // Rank
-  const wm={};D.forEach(r=>wm[r.branchName]=(wm[r.branchName]||0)+1);
-  const tw=Object.entries(wm).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const bCnt=document.getElementById('breachCount');if(bCnt)bCnt.textContent=sl.length+'/'+(Object.keys(branchBreach).length)+' สาขา';
+
+  // ── RANK (จากการนับ branchAll ที่มีอยู่แล้ว — ไม่ต้อง pass อีก) ──
+  const tw=Object.entries(branchAll).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const mxw=tw[0]?.[1]||1;
   const rc=['#bbfb4c','#4dffb4','#6697f7','#ffac33','#b57bee','#ff9f43','#ff6b35','#ff4d6a'];
   const rMedal=['gold','silver','bronze'];
@@ -3164,11 +3542,12 @@ function buildDashWith(D){
       <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${w}%;background:linear-gradient(90deg,${clr},${clr}88)"></div></div>
       <div class="rank-val" style="color:${clr}">${c.toLocaleString()}</div>
     </div>`;}).join('');
-  // Best/Worst
-  const ba={},bc={},bpk={},bpc={};
-  D.forEach(r=>{ba[r.branchName]=(ba[r.branchName]||0)+r.calDays;bc[r.branchName]=(bc[r.branchName]||0)+1;if(r.pickupBizDays!==null){bpk[r.branchName]=(bpk[r.branchName]||0)+r.pickupBizDays;bpc[r.branchName]=(bpc[r.branchName]||0)+1;}});
-  const al=Object.entries(ba).filter(([k])=>bc[k]>=2).map(([k,s])=>({k,avg:s/bc[k]})).sort((a,b)=>a.avg-b.avg);
-  const pkl=Object.entries(bpk).filter(([k])=>bpc[k]>=2).map(([k,s])=>({k,avg:s/bpc[k]})).sort((a,b)=>a.avg-b.avg);
+
+  // ── BEST/WORST ──────────────────────────────────────────
+  const al=Object.entries(branchTotSum).filter(([k])=>branchTotCnt[k]>=2)
+    .map(([k,s])=>({k,avg:s/branchTotCnt[k]})).sort((a,b)=>a.avg-b.avg);
+  const pkl=Object.entries(branchPkSum).filter(([k])=>branchPkCnt[k]>=2)
+    .map(([k,s])=>({k,avg:s/branchPkCnt[k]})).sort((a,b)=>a.avg-b.avg);
   const hiRow=(icon,name,sub,val,clr)=>`<div class="perf-item" style="border-left:2px solid ${clr}">
     <span style="font-size:13px">${icon}</span>
     <div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</div>
@@ -3179,22 +3558,28 @@ function buildDashWith(D){
   if(bB)bB.innerHTML=best?hiRow('🏆',best.k,'Total น้อยสุด',best.avg.toFixed(1)+'d','var(--ok)'):'';
   if(bPK)bPK.innerHTML=bpkBest?hiRow('⚡',bpkBest.k,'Pickup เร็วสุด',bpkBest.avg.toFixed(1)+'d','var(--cyan)'):'';
   if(wB)wB.innerHTML=worst?hiRow('⚠️',worst.k,'Total มากสุด',worst.avg.toFixed(1)+'d','var(--red)'):'';
-  // Team chart
-  const tm={};D.forEach(r=>tm[r.team]=(tm[r.team]||0)+1);
+
+  // ── TEAM CHART (update instead of destroy+create) ───────
+  const teamLabels=Object.keys(teamCount), teamData=Object.values(teamCount);
   const cEl=document.getElementById('cTeam');
-  if(cEl){if(charts.tm){try{charts.tm.destroy();}catch(e){}}
-    charts.tm=new Chart(cEl,{type:'bar',data:{labels:Object.keys(tm),datasets:[{data:Object.values(tm),backgroundColor:['rgba(187,251,76,.7)','rgba(77,124,254,.7)','rgba(255,172,51,.7)','rgba(255,61,90,.7)','rgba(168,85,247,.7)'],borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:'#888',font:{family:'Plus Jakarta Sans',size:10},maxRotation:20},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#888'},grid:{color:'rgba(255,255,255,.04)'}}}}}); }
+  if(cEl){
+    if(charts.tm){
+      charts.tm.data.labels=teamLabels;
+      charts.tm.data.datasets[0].data=teamData;
+      charts.tm.update('none');
+    } else {
+      charts.tm=new Chart(cEl,{type:'bar',data:{labels:teamLabels,datasets:[{data:teamData,backgroundColor:['rgba(187,251,76,.7)','rgba(77,124,254,.7)','rgba(255,172,51,.7)','rgba(255,61,90,.7)','rgba(168,85,247,.7)'],borderRadius:6}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#888',font:{family:'Plus Jakarta Sans',size:10},maxRotation:20},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#888'},grid:{color:'rgba(255,255,255,.04)'}}}}});
+    }
+  }
   // Monthly SLA trend chart
   buildTrendChart(D);
-  // Province bars
-  const pA={},pC={};
-  D.forEach(r=>{if(r.province&&r.province!=='ไม่ระบุ'){pA[r.province]=(pA[r.province]||0)+r.calDays;pC[r.province]=(pC[r.province]||0)+1;}});
-  const pL=Object.entries(pA).map(([p,s])=>({p,avg:s/pC[p],jobs:pC[p]})).sort((a,b)=>a.avg-b.avg);
+
+  // ── PROVINCE BARS ───────────────────────────────────────
+  const pL=Object.entries(provSum).map(([p,s])=>({p,avg:s/provCnt[p],jobs:provCnt[p]})).sort((a,b)=>a.avg-b.avg);
   const mxA=Math.max(...pL.map(x=>x.avg),1);
   const provFn=(avg,mx)=>{const r=avg/mx;return r<=.4?'#bbfb4c':r<=.55?'#4dffb4':r<=.68?'#6697f7':r<=.78?'#ffac33':r<=.88?'#ff6b35':'#ff4d6a';};
-  const rkSty=i=>{const c=[['rgba(187,251,76,.2)','#bbfb4c'],['rgba(77,255,180,.15)','#4dffb4'],['rgba(102,151,247,.15)','#6697f7']][i];return c?`background:${c[0]};color:${c[1]}`:'background:var(--s2);color:var(--t3)';};
   const pEl=document.getElementById('provBars');
   if(pEl) pEl.innerHTML=pL.length?pL.map((x,i)=>{
     const clr=provFn(x.avg,mxA);
@@ -3237,7 +3622,15 @@ function buildTrendChart(D){
   const ti=document.getElementById('trendInfo');
   if(ti) ti.textContent=`${months.length} เดือน · ${D.length.toLocaleString()} งาน`;
 
-  if(charts.trend){ try{charts.trend.destroy();}catch(e){} }
+  if(charts.trend){
+    // Update existing chart in-place — much faster, no flicker
+    charts.trend.data.labels=labels;
+    charts.trend.data.datasets[0].data=vol;
+    charts.trend.data.datasets[1].data=pkPct;
+    charts.trend.data.datasets[2].data=delPct;
+    charts.trend.update('none');
+    return;
+  }
   charts.trend=new Chart(cEl,{
     data:{labels,datasets:[
       {type:'bar',label:'จำนวนงาน',data:vol,yAxisID:'y1',
@@ -3768,18 +4161,87 @@ function show(msg='กำลังโหลด...', sub=''){
 }
 
 function hide(){
-  try{ clearTimeout(_hideTimer); ld?.classList.remove('show'); }catch(e){}
+  try{ clearTimeout(_hideTimer); ld?.classList.remove('show'); clearTasks(); }catch(e){}
 }
 
 // Update progress bar during loading
 function setProgress(done, total, msg, sub){
   try{
     const pct = total>0 ? Math.round(done/total*100) : 0;
+    if(_multiTaskMode){
+      // In multi-task mode, only update the sub-text (per-file detail)
+      // The main bar/title/stats are owned by renderTasks()
+      if(sub && lsub) lsub.textContent = sub;
+      return;
+    }
     if(lbar) lbar.style.width = pct+'%';
     if(msg && lm) lm.textContent = msg;
     if(sub && lsub) lsub.textContent = sub;
     if(lstats && total>0) lstats.textContent = `${done.toLocaleString()} / ${total.toLocaleString()} แถว (${pct}%)`;
   }catch(e){}
+}
+
+// ─── MULTI-TASK PROGRESS ──────────────────────────────────
+// Track multiple concurrent loads (e.g. Sync Jan-Dec)
+const _tasks = new Map(); // id → {label, done, total, status}
+let _multiTaskMode = false;
+function startMultiTask(title){
+  _multiTaskMode = true;
+  clearTimeout(_hideTimer); // disable 60s safety while syncing many sheets
+  if(lm) lm.textContent = title || 'กำลังโหลดหลายไฟล์...';
+}
+function endMultiTask(){
+  _multiTaskMode = false;
+  _hideTimer = setTimeout(()=>{ hide(); }, 60000);
+}
+function clearTasks(){
+  _tasks.clear();
+  _multiTaskMode = false;
+  const el=document.getElementById('loadTasks');
+  if(el){ el.innerHTML=''; el.classList.remove('show'); }
+}
+function setTask(id, label, done, total, status){
+  // status: 'pending' | 'running' | 'done' | 'err'
+  const prev=_tasks.get(id)||{};
+  _tasks.set(id, {
+    label: label!=null?label:(prev.label||id),
+    done: done!=null?done:(prev.done||0),
+    total: total!=null?total:(prev.total||0),
+    status: status||prev.status||'pending'
+  });
+  renderTasks();
+}
+function renderTasks(){
+  const el=document.getElementById('loadTasks');
+  if(!el) return;
+  if(_tasks.size===0){ el.classList.remove('show'); el.innerHTML=''; return; }
+  el.classList.add('show');
+  const ICON={pending:'○',running:'◐',done:'✓',err:'✗'};
+  let totalDone=0, totalAll=0, doneCount=0;
+  const rows=[];
+  _tasks.forEach((t,id)=>{
+    const pct = t.total>0 ? Math.round(t.done/t.total*100) : (t.status==='done'?100:0);
+    if(t.status==='done'){ doneCount++; totalDone+=t.total||0; totalAll+=t.total||0; }
+    else { totalDone+=t.done||0; totalAll+=t.total||0; }
+    rows.push(`<div class="load-task ${t.status}">
+      <span class="load-task-icon ${t.status}">${ICON[t.status]||'○'}</span>
+      <span class="load-task-name">${t.label}</span>
+      <span class="load-task-bar"><span class="load-task-bar-fill" style="width:${pct}%"></span></span>
+      <span class="load-task-pct">${t.status==='err'?'error':pct+'%'}</span>
+    </div>`);
+  });
+  el.innerHTML=rows.join('');
+  // Update overall progress bar to reflect tasks completed
+  if(totalAll>0 && lbar){
+    const overallPct = Math.round(totalDone/totalAll*100);
+    lbar.style.width = overallPct+'%';
+    if(lstats) lstats.textContent =
+      `${doneCount}/${_tasks.size} ไฟล์ · ${totalDone.toLocaleString()}/${totalAll.toLocaleString()} แถว (${overallPct}%)`;
+  } else if(lbar && _tasks.size>0){
+    const overallPct = Math.round(doneCount/_tasks.size*100);
+    lbar.style.width = overallPct+'%';
+    if(lstats) lstats.textContent = `${doneCount}/${_tasks.size} ไฟล์เสร็จ`;
+  }
 }
 
 let _toastTimer;
@@ -3850,8 +4312,34 @@ try{
 // Make sure loading overlay is HIDDEN on start
 hide();
 
-// Auto-load demo data so all pages have content immediately
-loadDemo();
+// Try to restore from localStorage cache first; fallback to demo data
+(function autoBoot(){
+  const cached = loadCache();
+  if(cached && cached.data && cached.data.length){
+    try{
+      allData = cached.data;
+      filteredData = [...allData];
+      if(cached.sla && cached.sla.length){
+        slaData = cached.sla;
+        try{ rebuildSlaMap(); }catch(_){}
+      }
+      if(cached.loaded && cached.loaded.length){
+        loadedSheets = new Set(cached.loaded);
+      }
+      const age = cached.meta.ageText || formatCacheAge(Date.now()-(cached.meta.ts||0));
+      updateSheetsStatus(true, `💾 Cache · ${allData.length.toLocaleString()} แถว · ${age}ที่แล้ว`);
+      rebuildAll();
+      updateCacheBadge();
+      showToast(`💾 โหลดจาก Cache สำเร็จ · ${allData.length.toLocaleString()} แถว (${age}ที่แล้ว)`, 'tok');
+      console.log(`💾 Cache restored: ${allData.length.toLocaleString()} rows, age=${age}`);
+      return;
+    }catch(e){
+      console.warn('Cache restore failed, falling back to demo:', e);
+    }
+  }
+  // No cache or restore failed → demo data
+  loadDemo();
+})();
 
 
 </script>
