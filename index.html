@@ -161,6 +161,9 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fn);min-height:100vh
 .page-wrap{padding:16px 28px;display:none}
 .page-wrap.active{display:block}
 
+/* ── tbl-page-split: controlled by parent page-table visibility ── */
+/* no JS needed - hidden when page-table is display:none (via .page-wrap) */
+
 /* ── SECTION HEADER ───────────────────────── */
 .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .sec-title{font-size:13px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:8px}
@@ -216,52 +219,97 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fn);min-height:100vh
 .meter-bar{height:5px;background:var(--s2);border-radius:3px;overflow:hidden}
 .meter-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.23,1,.32,1)}
 
-/* ── BREACH LIST ──────────────────────────── */
-.breach-list{display:flex;flex-direction:column;gap:5px;max-height:280px;overflow-y:auto;scrollbar-width:thin}
+/* ── BREACH LIST — Modern redesign ───────── */
+.breach-list{display:flex;flex-direction:column;gap:6px;max-height:290px;overflow-y:auto;scrollbar-width:thin;padding-right:2px}
 .breach-item{
-  display:flex;align-items:center;gap:10px;
-  padding:9px 12px;background:var(--s2);border-radius:10px;
-  border-left:2px solid var(--red);transition:all .15s;
+  display:flex;align-items:center;gap:12px;
+  padding:10px 14px 10px 12px;
+  background:linear-gradient(135deg,rgba(255,61,90,.07),rgba(255,61,90,.02));
+  border-radius:12px;border:1px solid rgba(255,61,90,.18);
+  position:relative;overflow:hidden;transition:all .2s;
 }
-.breach-item:hover{background:var(--s3)}
-.breach-item.warn{border-left-color:var(--warn)}
-.breach-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:var(--red-d)}
+.breach-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--red),rgba(255,100,80,.6));border-radius:3px 0 0 3px}
+.breach-item:hover{background:linear-gradient(135deg,rgba(255,61,90,.12),rgba(255,61,90,.04));transform:translateX(2px)}
+.breach-item.warn{background:linear-gradient(135deg,rgba(255,172,51,.07),rgba(255,172,51,.02));border-color:rgba(255,172,51,.2)}
+.breach-item.warn::before{background:linear-gradient(180deg,var(--warn),rgba(255,172,51,.6))}
+.breach-item.warn:hover{background:linear-gradient(135deg,rgba(255,172,51,.12),rgba(255,172,51,.04))}
+.breach-icon{
+  width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+  background:rgba(255,61,90,.15);border:1px solid rgba(255,61,90,.25);
+}
+.breach-item.warn .breach-icon{background:rgba(255,172,51,.15);border-color:rgba(255,172,51,.25)}
 .breach-info{flex:1;min-width:0}
-.breach-name{font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.breach-meta{font-size:10px;color:var(--t3);margin-top:1px}
-.breach-pct{font-family:var(--mn);font-size:14px;font-weight:800;color:var(--red)}
+.breach-name{font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t1)}
+.breach-meta{font-size:9px;color:var(--t3);margin-top:2px;font-family:var(--mn)}
+.breach-bar-wrap{height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:5px;overflow:hidden}
+.breach-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--red),rgba(255,100,60,.5));transition:width 1.2s cubic-bezier(.23,1,.32,1)}
+.breach-item.warn .breach-bar-fill{background:linear-gradient(90deg,var(--warn),rgba(255,200,50,.5))}
+.breach-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.breach-pct{font-family:var(--mn);font-size:16px;font-weight:800;color:var(--red);line-height:1}
 .breach-pct.warn{color:var(--warn)}
+.breach-pct-lbl{font-size:8px;color:var(--t3);font-family:var(--mn);text-align:right}
 
-/* ── RANK LIST ────────────────────────────── */
-.rank-list{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;scrollbar-width:thin}
-.rank-item{display:flex;align-items:center;gap:8px;padding:4px 0}
-.rank-n{width:22px;height:22px;border-radius:6px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;font-family:var(--mn);flex-shrink:0}
-.rank-name{font-size:11px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rank-bar-wrap{flex:1.5;height:5px;background:var(--s2);border-radius:3px;overflow:hidden;min-width:40px}
-.rank-bar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.23,1,.32,1)}
-.rank-val{font-family:var(--mn);font-size:10px;color:var(--t2);width:26px;text-align:right;flex-shrink:0}
+/* ── RANK LIST — Modern leaderboard ─────── */
+.rank-list{display:flex;flex-direction:column;gap:5px;max-height:290px;overflow-y:auto;scrollbar-width:thin;padding-right:2px}
+.rank-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--s2);border-radius:10px;border:1px solid var(--bd);transition:all .2s;position:relative;overflow:hidden}
+.rank-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:100%;opacity:0;background:linear-gradient(90deg,rgba(255,255,255,.03),transparent);transition:opacity .2s}
+.rank-item:hover{border-color:var(--bd2);transform:translateX(2px)}
+.rank-item:hover::before{opacity:1}
+.rank-n{
+  width:24px;height:24px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;font-family:var(--mn);
+  flex-shrink:0;position:relative;z-index:1;
+}
+.rank-n.gold{background:linear-gradient(135deg,#f6c90e,#e0a800);color:#111;box-shadow:0 0 10px rgba(246,201,14,.3)}
+.rank-n.silver{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);color:#111}
+.rank-n.bronze{background:linear-gradient(135deg,#cd7f32,#a05a20);color:#fff}
+.rank-name{font-size:11px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:relative;z-index:1}
+.rank-bar-wrap{flex:1.2;height:6px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;min-width:40px;position:relative;z-index:1}
+.rank-bar-fill{height:100%;border-radius:4px;transition:width 1.4s cubic-bezier(.23,1,.32,1);position:relative;overflow:hidden}
+.rank-bar-fill::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:shine 2.5s ease infinite}
+.rank-val{
+  font-family:var(--mn);font-size:10px;font-weight:700;
+  flex-shrink:0;min-width:28px;text-align:right;position:relative;z-index:1;
+  padding:2px 7px;border-radius:8px;background:rgba(255,255,255,.06);
+}
 
 /* ── PERF CARD ────────────────────────────── */
 .perf-item{
-  display:flex;align-items:center;gap:8px;padding:8px 10px;
-  background:var(--s2);border-radius:8px;margin-bottom:5px;
+  display:flex;align-items:center;gap:8px;padding:9px 12px;
+  background:var(--s2);border-radius:10px;margin-bottom:5px;
   border:1px solid transparent;transition:all .2s;
 }
-.perf-item:hover{border-color:var(--bd)}
+.perf-item:hover{border-color:var(--bd);transform:translateX(2px)}
 .perf-val{margin-left:auto;font-family:var(--fn);font-weight:800;font-size:13px}
 .perf-label{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--mn);margin-bottom:4px}
 
-/* ── PROVINCE BARS ────────────────────────── */
-.prov-list{display:flex;flex-direction:column;gap:5px;max-height:260px;overflow-y:auto;scrollbar-width:thin}
-.prov-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--s2);border-radius:8px;transition:all .15s}
-.prov-item:hover{background:var(--s3)}
-.prov-rank{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;font-family:var(--mn);flex-shrink:0}
-.prov-name{font-size:11px;font-weight:600;width:100px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.prov-bar-wrap{flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
-.prov-bar-fill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.23,1,.32,1);position:relative;overflow:hidden}
-.prov-bar-fill::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);animation:shine 2.5s ease infinite}
+/* ── PROVINCE BARS — Heat-map redesign ───── */
+.prov-list{display:flex;flex-direction:column;gap:5px;max-height:270px;overflow-y:auto;scrollbar-width:thin;padding-right:2px}
+.prov-item{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 12px;border-radius:10px;
+  background:var(--s2);border:1px solid var(--bd);
+  transition:all .2s;cursor:default;
+}
+.prov-item:hover{border-color:var(--bd2);transform:translateX(2px)}
+.prov-rank{
+  width:20px;height:20px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:800;font-family:var(--mn);flex-shrink:0;
+}
+.prov-name{font-size:11px;font-weight:600;width:95px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prov-bar-wrap{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden;position:relative}
+.prov-bar-fill{
+  height:100%;border-radius:5px;
+  transition:width 1.2s cubic-bezier(.23,1,.32,1);
+  position:relative;overflow:hidden;
+}
+.prov-bar-fill::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:shine 2.5s ease infinite}
 @keyframes shine{0%{left:-60%}100%{left:160%}}
-.prov-val{font-family:var(--mn);font-size:11px;font-weight:800;flex-shrink:0;width:34px;text-align:right}
+.prov-val{font-family:var(--mn);font-size:11px;font-weight:800;flex-shrink:0;width:36px;text-align:right}
 
 /* ── TABLE PAGE ───────────────────────────── */
 .tbl-kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
@@ -288,6 +336,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:10px;font-family:var(--mn);font-weight:600}
 .chip::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .chip.chip-blue{background:var(--cyan-d);color:var(--cyan);border:1px solid rgba(0,212,255,.2)}.chip.chip-blue::before{background:var(--cyan)}
+.chip.chip-err{background:rgba(180,100,200,.12);color:#b464c8;border:1px solid rgba(180,100,200,.25)}.chip.chip-err::before{background:#b464c8}
 .cok{background:var(--ok-d);color:var(--ok);border:1px solid rgba(0,229,160,.2)}.cok::before{background:var(--ok)}
 .cfail{background:var(--red-d);color:var(--red);border:1px solid rgba(255,61,90,.2)}.cfail::before{background:var(--red)}
 .cwarn{background:var(--warn-d);color:var(--warn);border:1px solid rgba(255,172,51,.2)}.cwarn::before{background:var(--warn)}
@@ -303,11 +352,13 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .alert-stat{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r2);padding:14px;text-align:center}
 .alert-stat-v{font-size:24px;font-weight:800;font-family:var(--fn)}
 .alert-stat-l{font-size:10px;color:var(--t3);margin-top:3px}
-.alert-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r2);padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:all .2s}
-.alert-card:hover{border-color:var(--bd2);background:var(--s2)}
-.alert-card.danger{border-left:2px solid var(--red)}
-.alert-card.warning{border-left:2px solid var(--warn)}
-.alert-card.safe{border-left:2px solid var(--ok)}
+.alert-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r2);padding:12px;margin-bottom:6px;display:flex;align-items:center;gap:12px;transition:all .2s;position:relative;overflow:hidden}
+.alert-card:hover{border-color:var(--bd2);transform:translateX(2px)}
+.alert-card.danger{border-left:3px solid var(--red);background:linear-gradient(135deg,rgba(255,61,90,.06),transparent)}
+.alert-card.danger:hover{background:linear-gradient(135deg,rgba(255,61,90,.1),transparent)}
+.alert-card.warning{border-left:3px solid var(--warn);background:linear-gradient(135deg,rgba(255,172,51,.06),transparent)}
+.alert-card.warning:hover{background:linear-gradient(135deg,rgba(255,172,51,.1),transparent)}
+.alert-card.safe{border-left:3px solid var(--cyan);background:linear-gradient(135deg,rgba(0,212,255,.04),transparent)}
 .alert-days{text-align:center;flex-shrink:0;width:50px}
 .alert-days-num{font-size:26px;font-weight:800;font-family:var(--fn);line-height:1}
 .alert-days-lbl{font-size:9px;color:var(--t2)}
@@ -385,11 +436,26 @@ input.admin-inp:focus{border-color:var(--lime)}
 .toast.terr{border-color:rgba(255,61,90,.4);color:var(--red)}
 
 /* ── LOADING ──────────────────────────────── */
-#loading{display:none;position:fixed;inset:0;background:rgba(10,10,15,.9);backdrop-filter:blur(12px);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+#loading{display:none;position:fixed;inset:0;background:rgba(10,10,15,.92);backdrop-filter:blur(16px);z-index:999;align-items:center;justify-content:center}
 #loading.show{display:flex}
-.spin{width:40px;height:40px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--lime);border-radius:50%;animation:sp .7s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.loading-msg{font-size:12px;color:var(--t2);font-family:var(--mn)}
+.load-box{
+  background:#141420;border:1px solid rgba(187,251,76,.2);
+  border-radius:20px;padding:32px 36px;min-width:340px;max-width:90vw;
+  box-shadow:0 0 60px rgba(187,251,76,.06),0 24px 80px rgba(0,0,0,.6);
+  text-align:center;
+}
+.load-icon{font-size:36px;margin-bottom:14px;animation:loadpulse 1.5s ease infinite}
+@keyframes loadpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.load-title{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px;font-family:var(--fn)}
+.load-sub{font-size:11px;color:var(--t3);font-family:var(--mn);margin-bottom:16px;min-height:16px}
+.load-bar-wrap{height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.load-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--lime));
+  transition:width .4s cubic-bezier(.23,1,.32,1);position:relative;overflow:hidden}
+.load-bar-fill::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);
+  animation:shimload 1.5s ease infinite}
+@keyframes shimload{0%{left:-60%}100%{left:160%}}
+.load-stats{font-size:10px;color:var(--t3);font-family:var(--mn);min-height:14px}
 
 /* ── SCROLLBAR ────────────────────────────── */
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -648,11 +714,438 @@ input.admin-inp:focus{border-color:var(--lime)}
   .nav-pills { display:none !important; }
   .bottom-nav { display:flex !important; }
 }
+
+/* ── MONTHS LOADED STATUS ─────────────────────── */
+.months-strip{
+  margin:0 28px 12px;
+  display:flex;align-items:center;gap:8px;
+  padding:10px 18px;
+  background:var(--sf);border:1px solid var(--bd);border-radius:var(--r2);
+  flex-wrap:wrap;
+}
+.months-strip-label{
+  font-size:10px;color:var(--t3);font-family:var(--mn);
+  font-weight:700;letter-spacing:.5px;white-space:nowrap;
+  margin-right:4px;
+}
+.month-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:12px;
+  font-size:10px;font-family:var(--mn);font-weight:600;
+  border:1px solid var(--bd);background:var(--s2);color:var(--t3);
+  transition:all .3s;cursor:default;
+}
+.month-badge.loaded{
+  background:rgba(187,251,76,.1);border-color:rgba(187,251,76,.3);color:var(--lime);
+}
+.month-badge.loading{
+  background:rgba(102,151,247,.1);border-color:rgba(102,151,247,.3);color:var(--blue);
+  animation:badgepulse 1s ease infinite;
+}
+.month-badge.monitor{
+  background:rgba(255,61,90,.08);border-color:rgba(255,61,90,.25);color:var(--red);
+}
+.month-badge.monitor.loaded{
+  background:rgba(255,61,90,.15);border-color:rgba(255,61,90,.4);color:var(--red);
+}
+@keyframes badgepulse{0%,100%{opacity:1}50%{opacity:.5}}
+.month-badge .badge-dot{
+  width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;
+}
+.months-strip-count{
+  margin-left:auto;font-size:10px;color:var(--t3);font-family:var(--mn);white-space:nowrap;
+}
+
+
+/* ── SHEET MANAGER POPUP ──────────────────────────── */
+.sheet-mgr-overlay{
+  display:none;position:fixed;inset:0;z-index:600;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(14px);
+  align-items:center;justify-content:center;
+}
+.sheet-mgr-overlay.open{display:flex}
+.sheet-mgr-modal{
+  background:#12121e;border:1px solid rgba(255,255,255,.1);
+  border-radius:24px;padding:28px;width:520px;max-width:94vw;
+  max-height:88vh;overflow-y:auto;
+  box-shadow:0 32px 80px rgba(0,0,0,.7);
+}
+.sheet-mgr-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;
+}
+.sheet-mgr-title{font-size:16px;font-weight:800;color:var(--t1)}
+.sheet-mgr-sub{font-size:11px;color:var(--t3);font-family:var(--mn);margin-top:2px}
+.sheet-mgr-close{
+  width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);color:var(--t2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  transition:all .2s;flex-shrink:0;
+}
+.sheet-mgr-close:hover{background:rgba(255,61,90,.15);border-color:var(--red);color:var(--red)}
+/* Sheet row */
+.shr{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:12px;margin-bottom:6px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+  transition:all .2s;
+}
+.shr:hover{background:rgba(255,255,255,.07)}
+.shr.shr-loaded{border-color:rgba(187,251,76,.2);background:rgba(187,251,76,.04)}
+.shr.shr-monitor{border-color:rgba(255,61,90,.2);background:rgba(255,61,90,.03)}
+.shr.shr-monitor.shr-loaded{border-color:rgba(255,61,90,.35);background:rgba(255,61,90,.08)}
+.shr.shr-loading{border-color:rgba(102,151,247,.3);background:rgba(102,151,247,.05)}
+.shr-icon{font-size:18px;flex-shrink:0;width:28px;text-align:center}
+.shr-info{flex:1;min-width:0}
+.shr-name{font-size:13px;font-weight:700;color:var(--t1)}
+.shr-meta{font-size:10px;color:var(--t3);font-family:var(--mn);margin-top:2px}
+.shr-count{
+  font-size:16px;font-weight:800;font-family:var(--fn);
+  text-align:right;flex-shrink:0;min-width:60px;
+}
+.shr-btn{
+  padding:6px 14px;border-radius:20px;font-size:11px;font-family:var(--fn);
+  font-weight:700;cursor:pointer;border:none;transition:all .2s;flex-shrink:0;
+  white-space:nowrap;
+}
+.shr-btn-load{background:rgba(187,251,76,.15);color:var(--lime);border:1px solid rgba(187,251,76,.3)}
+.shr-btn-load:hover{background:rgba(187,251,76,.25)}
+.shr-btn-reload{background:rgba(102,151,247,.12);color:var(--blue);border:1px solid rgba(102,151,247,.3)}
+.shr-btn-reload:hover{background:rgba(102,151,247,.22)}
+.shr-btn-loading{background:rgba(255,255,255,.06);color:var(--t3);border:1px solid var(--bd);cursor:not-allowed}
+/* Bulk action row */
+.sheet-mgr-actions{
+  display:flex;gap:8px;margin-top:16px;padding-top:14px;
+  border-top:1px solid var(--bd);
+}
+.sma-btn{
+  flex:1;padding:10px;border-radius:12px;font-family:var(--fn);font-size:12px;
+  font-weight:700;cursor:pointer;border:none;transition:all .2s;
+}
+.sma-lime{background:var(--lime);color:#111}.sma-lime:hover{background:#d4ff6e}
+.sma-ghost{background:var(--s2);color:var(--t2);border:1px solid var(--bd)}.sma-ghost:hover{border-color:var(--bd2);color:var(--t1)}
+
+
+/* ═══════════════════════════════════════════
+   TABLE PAGE — Redesign v2
+   ═══════════════════════════════════════════ */
+.tbl-kpi-row{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:8px;margin:0 28px 14px;
+}
+.tbl-kpi-card{
+  background:var(--sf);border:1px solid var(--bd);
+  border-radius:var(--r2);padding:12px 14px;
+}
+.tbl-kpi-lbl{font-size:10px;color:var(--t3);font-family:var(--mn);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbl-kpi-val{font-size:22px;font-weight:800;font-family:var(--fn);color:var(--t1);line-height:1}
+.tbl-kpi-val.v-red{color:var(--red)}
+.tbl-kpi-val.v-lime{color:var(--lime)}
+.tbl-kpi-val.v-blue{color:var(--blue)}
+.tbl-kpi-val.v-warn{color:var(--warn)}
+.tbl-kpi-val.v-cyan{color:var(--cyan)}
+
+/* ── Month zone ── */
+.tbl-month-zone{
+  margin:0 28px 10px;
+  background:var(--sf);border:1px solid var(--bd);
+  border-radius:var(--r2);padding:10px 14px;
+}
+.tmz-label{font-size:10px;font-weight:700;color:var(--t3);font-family:var(--mn);letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.tmz-pills{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.tmz-pill{padding:4px 12px;border-radius:20px;font-size:12px;border:1px solid var(--bd);background:var(--s2);color:var(--t3);cursor:pointer;transition:all .15s;font-family:var(--fn);white-space:nowrap}
+.tmz-pill:hover{border-color:var(--bd2);color:var(--t1)}
+.tmz-pill.active{background:rgba(102,151,247,.12);border-color:rgba(102,151,247,.4);color:var(--blue);font-weight:700}
+.tmz-pill.loaded{background:rgba(187,251,76,.08);border-color:rgba(187,251,76,.3);color:var(--lime)}
+.tmz-pill.current{background:rgba(187,251,76,.15);border-color:rgba(187,251,76,.5);color:var(--lime);font-weight:700}
+.tmz-sep{width:1px;height:16px;background:var(--bd);flex-shrink:0;margin:0 2px}
+.tmz-count{margin-left:auto;font-size:10px;color:var(--t3);font-family:var(--mn)}
+
+/* ── Filter zone ── */
+.tbl-filter-zone{
+  margin:0 28px 10px;
+  background:var(--sf);border:1px solid var(--bd);
+  border-radius:var(--r2);overflow:hidden;
+}
+.tfz-top{display:flex;align-items:stretch;border-bottom:1px solid var(--bd)}
+.tfz-search{flex:1;display:flex;align-items:center;gap:8px;padding:9px 14px;border-right:1px solid var(--bd)}
+.tfz-search-icon{font-size:16px;color:var(--t3);flex-shrink:0}
+.tfz-search input{flex:1;border:none;background:transparent;font-size:13px;color:var(--t1);outline:none;font-family:var(--fn)}
+.tfz-search input::placeholder{color:var(--t3);font-size:12px}
+.tfz-info{padding:0 14px;font-size:12px;color:var(--t2);display:flex;align-items:center;white-space:nowrap;border-right:1px solid var(--bd)}
+.tfz-info strong{color:var(--t1);font-weight:700}
+.tfz-export{display:flex;align-items:center;gap:6px;padding:9px 14px;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;transition:background .15s;white-space:nowrap;font-family:var(--fn)}
+.tfz-export:hover{background:var(--s2)}
+.tfz-export i{font-size:15px}
+
+/* filter groups */
+.tfz-filters{display:flex;flex-wrap:wrap;align-items:stretch}
+.tfz-group{display:flex;flex-direction:column;justify-content:flex-start;padding:10px 14px;border-right:1px solid var(--bd);gap:5px}
+.tfz-group:last-child{border-right:none;flex:1}
+.tfz-glbl{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.4px;font-family:var(--mn)}
+.tfz-chips{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.fc{padding:4px 11px;border-radius:20px;font-size:11px;border:1px solid var(--bd);background:var(--s2);color:var(--t3);cursor:pointer;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;font-family:var(--fn)}
+.fc:hover{border-color:var(--bd2);color:var(--t1)}
+.fc.fc-on{border-color:rgba(102,151,247,.5);background:rgba(102,151,247,.1);color:var(--blue);font-weight:700}
+.fc.fc-red.fc-on{border-color:rgba(217,48,37,.4);background:rgba(217,48,37,.08);color:var(--red);font-weight:700}
+.fc.fc-lime.fc-on{border-color:rgba(187,251,76,.4);background:rgba(187,251,76,.08);color:var(--lime);font-weight:700}
+.fc.fc-warn.fc-on{border-color:rgba(232,133,10,.4);background:rgba(232,133,10,.08);color:var(--warn);font-weight:700}
+.fc.fc-purple.fc-on{border-color:rgba(127,119,221,.4);background:rgba(127,119,221,.08);color:#afa9ec;font-weight:700}
+.fc i{font-size:12px}
+.fc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* active filter bar */
+.tfz-active{display:none;align-items:center;gap:6px;padding:7px 14px;background:var(--s2);border-top:1px solid var(--bd);flex-wrap:wrap}
+.tfz-active.show{display:flex}
+.tfz-active-lbl{font-size:11px;color:var(--t3);font-family:var(--mn)}
+.fctag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;font-size:11px;background:rgba(102,151,247,.12);color:var(--blue);border:1px solid rgba(102,151,247,.3);font-family:var(--fn)}
+.fctag i{font-size:11px;cursor:pointer;opacity:.6}
+.fctag i:hover{opacity:1}
+.fclear{font-size:11px;color:var(--t3);cursor:pointer;border:none;background:none;padding:0;font-family:var(--fn)}
+.fclear:hover{color:var(--t1)}
+.tfz-res{margin-left:auto;font-size:11px;color:var(--t3);font-family:var(--mn)}
+
+/* ── Table ── */
+.tbl-wrap{margin:0 28px 0;overflow-x:auto;border-radius:var(--r2);border:1px solid var(--bd)}
+.tbl-wrap table{width:100%;border-collapse:collapse;font-size:12px}
+.tbl-wrap thead tr{background:var(--s2);border-bottom:1px solid var(--bd2)}
+.tbl-wrap th{padding:9px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--t3);font-family:var(--mn);letter-spacing:.3px;white-space:nowrap;cursor:pointer;user-select:none}
+.tbl-wrap th:hover{color:var(--t1)}
+.tbl-wrap td{padding:9px 10px;border-bottom:1px solid var(--bd);font-size:11px;white-space:nowrap}
+.tbl-wrap tr:last-child td{border-bottom:none}
+.tbl-wrap tr:hover td{background:var(--s2)}
+.tbl-wrap tr.row-breach td{background:rgba(217,48,37,.04)}
+.tbl-wrap tr.row-breach:hover td{background:rgba(217,48,37,.08)}
+.tbl-foot{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;font-size:11px;color:var(--t3);font-family:var(--mn);border-top:1px solid var(--bd);background:var(--s2)}
+
+
+/* ═══ TABLE PAGE — SPLIT LAYOUT ═══════════════════════════ */
+.tbl-page-split{display:flex;height:calc(100vh - 130px);gap:0;margin:0 28px;
+  border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden;background:var(--s2)}
+
+/* ── LEFT PANEL ── */
+.split-left{width:272px;min-width:272px;flex-shrink:0;display:flex;
+  flex-direction:column;border-right:1px solid var(--bd);overflow:hidden;background:var(--sf)}
+.split-left-hdr{padding:10px 14px;border-bottom:1px solid var(--bd);background:var(--sf);flex-shrink:0}
+.split-left-title{font-size:12px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:6px}
+.split-left-sub{font-size:10px;color:var(--t3);font-family:var(--mn);margin-top:2px}
+.split-left-scroll{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:12px}
+.split-left-scroll::-webkit-scrollbar{width:3px}
+.split-left-scroll::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+
+/* KPI mini grid */
+.skpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.skpi-c{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r1);padding:9px 11px}
+.skpi-c.span2{grid-column:span 2}
+.skpi-lbl{font-size:9px;color:var(--t3);font-family:var(--mn);margin-bottom:3px}
+.skpi-val{font-size:18px;font-weight:800;color:var(--t1);font-family:var(--fn);line-height:1}
+.skpi-val.sv-red{color:var(--red)}.skpi-val.sv-lime{color:var(--lime)}
+.skpi-val.sv-blue{color:var(--blue)}.skpi-val.sv-warn{color:var(--warn)}
+
+.sl-section-hd{font-size:9px;font-weight:700;color:var(--t3);font-family:var(--mn);
+  letter-spacing:.5px;display:flex;align-items:center;gap:4px;margin-bottom:6px}
+.sl-section-hd i{font-size:12px}
+
+/* Month grid */
+.sl-month-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.sl-mpill{padding:5px 0;text-align:center;border-radius:var(--r1);font-size:11px;
+  border:1px solid var(--bd);background:var(--s2);color:var(--t3);cursor:pointer;
+  transition:all .15s;font-family:var(--fn)}
+.sl-mpill:hover{border-color:var(--bd2);color:var(--t1)}
+.sl-mpill.slm-all{grid-column:span 4}
+.sl-mpill.slm-on{background:rgba(102,151,247,.12);border-color:rgba(102,151,247,.4);color:var(--blue);font-weight:700}
+.sl-mpill.slm-loaded{background:rgba(187,251,76,.08);border-color:rgba(187,251,76,.3);color:var(--lime)}
+
+/* Search */
+.sl-search{display:flex;align-items:center;gap:7px;padding:7px 10px;
+  background:var(--s2);border:1px solid var(--bd2);border-radius:var(--r1)}
+.sl-search i{font-size:15px;color:var(--t3);flex-shrink:0}
+.sl-search input{flex:1;border:none;background:transparent;font-size:12px;
+  color:var(--t1);outline:none;font-family:var(--fn)}
+.sl-search input::placeholder{color:var(--t3);font-size:11px}
+
+/* Filter chips */
+.sl-chips{display:flex;gap:5px;flex-wrap:wrap}
+.slc{padding:4px 10px;border-radius:20px;font-size:11px;border:1px solid var(--bd);
+  background:var(--s2);color:var(--t3);cursor:pointer;display:inline-flex;
+  align-items:center;gap:4px;white-space:nowrap;transition:all .15s;font-family:var(--fn)}
+.slc:hover{border-color:var(--bd2);color:var(--t1)}
+.slc.slc-on{font-weight:700}
+.slc.slc-red.slc-on{border-color:rgba(217,48,37,.5);background:rgba(217,48,37,.1);color:var(--red)}
+.slc.slc-lime.slc-on{border-color:rgba(187,251,76,.4);background:rgba(187,251,76,.08);color:var(--lime)}
+.slc.slc-blue.slc-on{border-color:rgba(102,151,247,.4);background:rgba(102,151,247,.1);color:var(--blue)}
+.slc.slc-warn.slc-on{border-color:rgba(232,133,10,.4);background:rgba(232,133,10,.08);color:var(--warn)}
+.slc.slc-purple.slc-on{border-color:rgba(127,119,221,.4);background:rgba(127,119,221,.08);color:#afa9ec}
+.slc i{font-size:12px}
+.slc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sl-sel{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--bd);
+  background:var(--s2);color:var(--t3);font-family:var(--fn);cursor:pointer;width:100%}
+
+.sl-divider{height:1px;background:var(--bd);margin:0 -2px}
+
+/* ── RIGHT PANEL ── */
+.split-right{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;background:var(--bg)}
+.split-right-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:9px 14px;border-bottom:1px solid var(--bd);background:var(--sf);flex-shrink:0}
+.split-right-title{font-size:12px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:6px}
+.split-right-title i{font-size:14px;color:var(--t3)}
+.split-right-actions{display:flex;align-items:center;gap:8px}
+.sr-badge{padding:3px 10px;border-radius:20px;font-size:11px;background:var(--s2);
+  color:var(--t3);border:1px solid var(--bd);font-family:var(--mn)}
+.sr-export{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--r1);
+  font-size:11px;font-weight:700;border:1px solid var(--bd);background:var(--sf);
+  color:var(--t1);cursor:pointer;font-family:var(--fn);transition:background .15s;position:relative}
+.sr-export:hover{background:var(--s2)}
+
+.active-filters{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 12px;
+  background:var(--sf);border-bottom:1px solid var(--bd);font-size:11px}
+.active-filters .afc-lbl{color:var(--t3);font-size:10px;font-weight:600;margin-right:2px}
+.active-filters .afc{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;
+  background:var(--s2);border:1px solid var(--bd2);border-radius:20px;color:var(--t1);
+  font-size:10px;font-family:var(--mn)}
+.active-filters .afc-x{cursor:pointer;color:var(--t3);font-weight:700;line-height:1}
+.active-filters .afc-x:hover{color:var(--red)}
+.active-filters .afc-clear{cursor:pointer;color:var(--blue);font-size:10px;margin-left:4px;
+  text-decoration:underline}
+.active-filters .afc-clear:hover{color:var(--cyan)}
+.split-right-table{flex:1;overflow:auto}.split-right-table::-webkit-scrollbar{width:5px;height:5px}
+.split-right-table::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+.split-right-table table{width:100%;border-collapse:collapse;font-size:11px}
+.split-right-table thead tr{background:var(--sf);position:sticky;top:0;z-index:2;
+  border-bottom:1px solid var(--bd2)}
+.split-right-table th{padding:8px 10px;text-align:left;font-size:9px;font-weight:700;
+  color:var(--t3);font-family:var(--mn);letter-spacing:.3px;white-space:nowrap;
+  cursor:pointer;user-select:none}
+.split-right-table th:hover{color:var(--t1)}
+.split-right-table td{padding:8px 10px;border-bottom:1px solid var(--bd);
+  font-size:11px;white-space:nowrap;color:var(--t1)}
+.split-right-table tr:hover td{background:var(--s2)}
+.split-right-table tr.sr-breach td{background:rgba(217,48,37,.04)}
+.split-right-table tr.sr-breach:hover td{background:rgba(217,48,37,.08)}
+
+.split-right-foot{display:flex;align-items:center;justify-content:space-between;
+  padding:7px 14px;font-size:10px;color:var(--t3);font-family:var(--mn);
+  border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0}
+
+
+/* ═══ KPI BAR — redesign ════════════════════════════════════ */
+.kpi-bar{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr)) 110px;
+  gap:1px;
+  background:var(--bd);
+  border-radius:var(--r2);
+  overflow:hidden;
+  margin:0 28px 12px;
+}
+.kbi{
+  background:var(--sf);
+  padding:13px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.kbi-lbl{
+  font-size:10px;color:var(--t3);
+  display:flex;align-items:center;gap:5px;
+  font-family:var(--mn);white-space:nowrap;
+}
+.kbi-lbl i{font-size:12px}
+.mom-badge{margin-left:auto;font-size:9px;font-weight:700;font-family:var(--mn);
+  padding:1px 6px;border-radius:10px;display:none;align-items:center;gap:2px;letter-spacing:.2px}
+.mom-badge.up{display:inline-flex;background:rgba(217,48,37,.14);color:#ff6b6b}
+.mom-badge.down{display:inline-flex;background:rgba(46,204,113,.14);color:#4dffb4}
+.mom-badge.flat{display:inline-flex;background:rgba(150,150,150,.14);color:var(--t3)}
+.mom-badge.good-up{display:inline-flex;background:rgba(46,204,113,.14);color:#4dffb4}
+.mom-badge.bad-down{display:inline-flex;background:rgba(217,48,37,.14);color:#ff6b6b}
+.kbi-val{
+  font-size:26px;font-weight:800;
+  font-family:var(--fn);color:var(--t1);line-height:1;
+}
+.kbi-meta{
+  display:flex;justify-content:space-between;align-items:baseline;
+  margin-bottom:3px;
+}
+.kbi-sub{font-size:10px;color:var(--t3);font-family:var(--mn)}
+.kbi-pct{font-size:10px;font-weight:700;font-family:var(--mn)}
+.kbi-track{height:4px;background:var(--s2);border-radius:2px;overflow:hidden}
+.kbi-fill{height:100%;border-radius:2px;min-width:4px;transition:width .6s cubic-bezier(.23,1,.32,1)}
+
+/* donut card */
+.kbi-donut{
+  background:var(--sf);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:5px;padding:10px;
+}
+.kbi-donut-wrap{position:relative;width:54px;height:54px}
+.kbi-donut-wrap svg{width:54px;height:54px}
+.kbi-donut-inner{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;font-family:var(--fn);
+}
+.kbi-donut-lbl{font-size:10px;color:var(--t3);font-family:var(--mn);text-align:center}
+
+
+/* ═══ VIRTUAL SCROLL ════════════════════════════════════════ */
+.split-right-table{overflow:auto;position:relative}
+.vs-spacer-top{width:100%;pointer-events:none;flex-shrink:0}
+.vs-spacer-bot{width:100%;pointer-events:none;flex-shrink:0}
+
+
+/* ─── ADMIN PAGES ────────────────────────────────────── */
+#page-sched, #page-slaconf, #page-holiday{
+  padding:16px 28px;
+  overflow-y:auto;
+  min-height:200px;
+}
+/* admin pages use .page-wrap.active{display:block} */
+#page-sched .tbl-wrap,
+#page-slaconf .tbl-wrap,
+#page-holiday .tbl-wrap{
+  margin:0 0 16px;
+  max-height:calc(100vh - 200px);
+  overflow:auto;
+}
+#page-sched .tbl-ctrl,
+#page-slaconf .tbl-ctrl,
+#page-holiday .tbl-ctrl{
+  padding:0;
+  margin:0 0 10px;
+}
+/* Restore tbl-wrap max-height for admin pages */
+#page-sched .tbl-wrap,
+#page-slaconf .tbl-wrap,
+#page-holiday .tbl-wrap{
+  margin:0 0 16px;
+  max-height:calc(100vh - 300px);
+  overflow:auto;
+}
+/* Restore tbl-ctrl for admin pages */
+#page-sched .tbl-ctrl,
+#page-slaconf .tbl-ctrl,
+#page-holiday .tbl-ctrl{
+  padding:0;
+  margin:0 0 10px;
+}
+
 </style>
 </head>
 <body>
 
-<div id="loading"><div class="spin"></div><div class="loading-msg" id="loadMsg">กำลังโหลด...</div></div>
+<div id="loading">
+  <div class="load-box">
+    <div class="load-icon">📦</div>
+    <div class="load-title" id="loadMsg">กำลังโหลด...</div>
+    <div class="load-sub" id="loadSub"></div>
+    <div class="load-bar-wrap">
+      <div class="load-bar-fill" id="loadBar" style="width:0%"></div>
+    </div>
+    <div class="load-stats" id="loadStats"></div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <!-- Detail Modal -->
@@ -748,13 +1241,37 @@ input.admin-inp:focus{border-color:var(--lime)}
   </div>
 </div>
 
+
+<!-- ══ SHEET MANAGER POPUP ══════════════════════════════════ -->
+<div class="sheet-mgr-overlay" id="sheetMgrOverlay" onclick="if(event.target===this)closeSheetMgr()">
+  <div class="sheet-mgr-modal">
+    <div class="sheet-mgr-header">
+      <div>
+        <div class="sheet-mgr-title">📂 จัดการดาวน์โหลดข้อมูล</div>
+        <div class="sheet-mgr-sub" id="sheetMgrSub">กำลังตรวจสอบ Sheet...</div>
+      </div>
+      <button class="sheet-mgr-close" onclick="closeSheetMgr()">✕</button>
+    </div>
+    <div id="sheetMgrList">
+      <div style="text-align:center;padding:30px;color:var(--t3);font-size:12px">
+        <div class="spin" style="margin:0 auto 12px"></div>
+        กำลังตรวจสอบ Sheet...
+      </div>
+    </div>
+    <div class="sheet-mgr-actions">
+      <button class="sma-btn sma-lime" onclick="loadAllFromMgr()">↻ โหลดทุก Sheet (Jan-Dec)</button>
+      <button class="sma-btn sma-ghost" onclick="closeSheetMgr()">ปิด</button>
+    </div>
+  </div>
+</div>
+
 <!-- HEADER -->
 <header class="hdr">
   <div class="hdr-logo">
     <div class="hdr-logo-mark">📦</div>
     <div>
       <div class="hdr-logo-name">GNR3 MAILSERVICE</div>
-      <div class="hdr-logo-sub">Document Delivery Tracking</div>
+      <div class="hdr-logo-sub">Document Delivery Tracking · <span style="color:#bbfb4c;font-weight:700">v11.fix7</span></div>
     </div>
   </div>
   <nav class="nav-pills">
@@ -776,9 +1293,10 @@ input.admin-inp:focus{border-color:var(--lime)}
       <span class="sheets-label" id="sheetsLabel">กด ↻ Sync</span>
     </div>
     <div style="position:relative" id="syncMenu">
-      <button class="sync-btn" onclick="quickSync()">↻ Sync</button>
+      <button class="sync-btn" onclick="openSheetMgr()">↻ Sync</button>
       <button class="sync-btn" style="padding:7px 10px;background:rgba(187,251,76,.15);color:var(--lime);margin-left:2px" onclick="toggleSyncMenu()">▾</button>
       <div id="syncDropdown" style="display:none;position:absolute;right:0;top:calc(100%+6px);background:var(--sf);border:1px solid var(--bd2);border-radius:16px;min-width:220px;z-index:300;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+        <div onclick="openSheetMgr();toggleSyncMenu()" class="export-item">📂 เลือก Sheet ที่จะโหลด</div>
         <div onclick="syncMonitor();toggleSyncMenu()" class="export-item">🔔 Sync Monitor (Alert)</div>
         <div onclick="syncAllSheets();toggleSyncMenu()" class="export-item">📊 Sync Jan-Dec</div>
         <div style="border-top:1px solid var(--bd)">
@@ -796,7 +1314,7 @@ input.admin-inp:focus{border-color:var(--lime)}
           <div onclick="lazyLoadSheet('Dec');toggleSyncMenu()" class="export-item">+ Dec</div>
         </div>
         <div style="border-top:1px solid var(--bd)">
-          <div onclick="testConnection();toggleSyncMenu()" class="export-item">🔍 ทดสอบ Connection</div>
+          <div onclick="testConnection('Monitor');toggleSyncMenu()" class="export-item">🔍 ทดสอบ Connection</div>
           <div onclick="openSheetsModal();toggleSyncMenu()" class="export-item">⚙️ ตั้งค่า Connection</div>
         </div>
       </div>
@@ -805,33 +1323,107 @@ input.admin-inp:focus{border-color:var(--lime)}
 </header>
 
 <!-- ═══ KPI STRIP ═══ -->
-<div style="padding:12px 28px">
-  <div class="kpi-strip" id="kpiStrip">
-    <div class="kpi-strip-item">
-      <div class="kpi-strip-num" id="ks1" style="color:var(--red)">—</div>
-      <span class="kpi-strip-label">🔴 เกิน SLA เข้ารับ</span>
-    </div>
-    <div class="kpi-strip-item">
-      <div class="kpi-strip-num" id="ks2">—</div>
-      <span class="kpi-strip-label">ใบงานทั้งหมด</span>
-    </div>
-    <div class="kpi-strip-item">
-      <div class="kpi-strip-num" id="ks3" style="color:var(--ok)">—</div>
-      <span class="kpi-strip-label">% ผ่าน SLA เข้ารับ</span>
-    </div>
-    <div class="kpi-strip-item">
-      <div class="kpi-strip-num" id="ks_del" style="color:var(--warn)">—</div>
-      <span class="kpi-strip-label">เกิน SLA ส่ง</span>
-    </div>
-    <div class="kpi-strip-item">
-      <div class="kpi-strip-num" id="ks4" style="color:var(--cyan)">—</div>
-      <span class="kpi-strip-label">Avg เข้ารับ (d)</span>
-    </div>
-    <div class="kpi-strip-big">
-      <div class="kpi-strip-ring" id="ks5" style="color:var(--lime);border-color:var(--lime)">—</div>
-      <span class="kpi-strip-label">กลุ่มงาน</span>
+<div class="kpi-bar" id="kpiStrip">
+
+  <!-- รายการทั้งหมด -->
+  <div class="kbi">
+    <div class="kbi-lbl"><i class="ti ti-inbox" aria-hidden="true"></i>รายการทั้งหมด</div>
+    <div class="kbi-val" id="ks2">—</div>
+    <div>
+      <div class="kbi-sub" style="margin-bottom:4px" id="ks2sub">กำลังโหลด...</div>
+      <div class="kbi-track"><div class="kbi-fill" id="ks2bar" style="width:100%;background:var(--blue)"></div></div>
     </div>
   </div>
+
+  <!-- เกิน SLA เข้ารับ -->
+  <div class="kbi">
+    <div class="kbi-lbl"><i class="ti ti-alert-circle" aria-hidden="true"></i>เกิน SLA เข้ารับ<span class="mom-badge" id="ks1mom"></span></div>
+    <div class="kbi-val" id="ks1" style="color:var(--red)">—</div>
+    <div>
+      <div class="kbi-meta">
+        <span class="kbi-sub" id="ks1sub">—</span>
+        <span class="kbi-pct" id="ks1pct" style="color:var(--red)">—</span>
+      </div>
+      <div class="kbi-track" style="background:rgba(217,48,37,.12)"><div class="kbi-fill" id="ks1bar" style="width:0%;background:var(--red)"></div></div>
+    </div>
+  </div>
+
+  <!-- ผ่าน SLA % -->
+  <div class="kbi">
+    <div class="kbi-lbl"><i class="ti ti-circle-check" aria-hidden="true"></i>ผ่าน SLA เข้ารับ<span class="mom-badge" id="ks3mom"></span></div>
+    <div class="kbi-val" id="ks3" style="color:var(--lime)">—</div>
+    <div>
+      <div class="kbi-meta">
+        <span class="kbi-sub" id="ks3sub">—</span>
+        <span class="kbi-pct" id="ks3pct" style="color:var(--lime)">—</span>
+      </div>
+      <div class="kbi-track" style="background:rgba(187,251,76,.1)"><div class="kbi-fill" id="ks3bar" style="width:0%;background:var(--lime)"></div></div>
+    </div>
+  </div>
+
+  <!-- เกิน SLA ส่ง -->
+  <div class="kbi">
+    <div class="kbi-lbl"><i class="ti ti-package" aria-hidden="true"></i>เกิน SLA ส่ง<span class="mom-badge" id="ksdelmom"></span></div>
+    <div class="kbi-val" id="ks_del" style="color:var(--warn)">—</div>
+    <div>
+      <div class="kbi-meta">
+        <span class="kbi-sub" id="ksdelsub">—</span>
+        <span class="kbi-pct" id="ksdelpct" style="color:var(--warn)">—</span>
+      </div>
+      <div class="kbi-track" style="background:rgba(232,133,10,.1)"><div class="kbi-fill" id="ksdelbar" style="width:0%;background:var(--warn)"></div></div>
+    </div>
+  </div>
+
+  <!-- Avg เข้ารับ -->
+  <div class="kbi">
+    <div class="kbi-lbl"><i class="ti ti-clock" aria-hidden="true"></i>Avg เข้ารับ (d)<span class="mom-badge" id="ks4mom"></span></div>
+    <div class="kbi-val" id="ks4" style="color:var(--blue)">—</div>
+    <div>
+      <div class="kbi-meta">
+        <span class="kbi-sub">SLA ≤ 3 วันทำการ</span>
+        <span class="kbi-pct" id="ks4grade" style="color:var(--blue)">—</span>
+      </div>
+      <div class="kbi-track" style="background:rgba(102,151,247,.1)"><div class="kbi-fill" id="ks4bar" style="width:0%;background:var(--blue)"></div></div>
+    </div>
+  </div>
+
+  <!-- กลุ่มงาน donut -->
+  <div class="kbi-donut">
+    <div class="kbi-donut-wrap">
+      <svg viewBox="0 0 54 54">
+        <circle cx="27" cy="27" r="22" fill="none" stroke="rgba(187,251,76,.15)" stroke-width="5"/>
+        <circle cx="27" cy="27" r="22" fill="none" id="ks5arc"
+          stroke="var(--lime)" stroke-width="5"
+          stroke-dasharray="0 138.2"
+          stroke-linecap="round"
+          transform="rotate(-90 27 27)"/>
+      </svg>
+      <div class="kbi-donut-inner" id="ks5" style="color:var(--lime)">—</div>
+    </div>
+    <div class="kbi-donut-lbl">กลุ่มงาน</div>
+  </div>
+
+</div>
+
+<!-- MONTHS STATUS STRIP -->
+<div class="months-strip" id="monthsStrip">
+  <span class="months-strip-label">📂 DATA:</span>
+  <span class="month-badge monitor" id="mbMonitor">
+    <span class="badge-dot"></span>Monitor
+  </span>
+  <span class="month-badge" id="mbJan">Jan</span>
+  <span class="month-badge" id="mbFeb">Feb</span>
+  <span class="month-badge" id="mbMar">Mar</span>
+  <span class="month-badge" id="mbApr">Apr</span>
+  <span class="month-badge" id="mbMay">May</span>
+  <span class="month-badge" id="mbJun">Jun</span>
+  <span class="month-badge" id="mbJul">Jul</span>
+  <span class="month-badge" id="mbAug">Aug</span>
+  <span class="month-badge" id="mbSep">Sep</span>
+  <span class="month-badge" id="mbOct">Oct</span>
+  <span class="month-badge" id="mbNov">Nov</span>
+  <span class="month-badge" id="mbDec">Dec</span>
+  <span class="months-strip-count" id="monthsCount"></span>
 </div>
 
 <!-- ═══════════════════════════════════
@@ -863,6 +1455,17 @@ input.admin-inp:focus{border-color:var(--lime)}
         <div class="meter-stat"><div class="meter-val" id="m2mode" style="color:var(--warn)">—</div><div class="meter-lbl">พบมากสุด</div></div>
       </div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:10px" id="m2bands"></div>
+    </div>
+  </div>
+
+  <!-- Row 1.5: Monthly Trend -->
+  <div class="card" style="margin-bottom:14px;display:flex;flex-direction:column">
+    <div class="sec-hdr">
+      <div class="sec-title" style="--lime:var(--cyan)">📈 แนวโน้ม % ผ่าน SLA รายเดือน</div>
+      <span style="font-size:10px;color:var(--t3);font-family:var(--mn)" id="trendInfo"></span>
+    </div>
+    <div style="flex:1;min-height:240px;position:relative">
+      <canvas id="cTrend" style="position:absolute;inset:0;width:100%!important;height:100%!important"></canvas>
     </div>
   </div>
 
@@ -908,85 +1511,186 @@ input.admin-inp:focus{border-color:var(--lime)}
 </div>
 
 <!-- TABLE -->
-<div class="page-wrap" id="page-table">
-  <!-- mini KPIs -->
-  <div class="tbl-kpi-row" id="tblKpis">
-    <div class="kpi-card k-lime"><div class="kpi-label">รายการทั้งหมด</div><div class="kpi-val" id="tk1">—</div></div>
-    <div class="kpi-card k-red"><div class="kpi-label">เกิน SLA Pickup</div><div class="kpi-val" id="tk2">—</div></div>
-    <div class="kpi-card k-ok"><div class="kpi-label">ผ่าน SLA %</div><div class="kpi-val" id="tk3">—</div></div>
-    <div class="kpi-card k-warn"><div class="kpi-label">Avg Pickup (d)</div><div class="kpi-val" id="tk4">—</div></div>
-    <div class="kpi-card k-cyan"><div class="kpi-label">Avg Total (d)</div><div class="kpi-val" id="tk5">—</div></div>
-    <div class="kpi-card k-blue"><div class="kpi-label">Period มากสุด</div><div class="kpi-val" id="tk6">—</div></div>
-  </div>
-  <!-- Month pills -->
-  <div class="tbl-month-bar">
-    <span class="tbl-m-label">📅 เดือน:</span>
-    <div id="tblMonthPills" style="display:flex;gap:5px;flex-wrap:wrap"></div>
-    <span style="font-size:10px;color:var(--t3);font-family:var(--mn);margin-left:auto" id="tblMonthCount"></span>
-  </div>
-  <!-- Controls -->
-  <div class="tbl-ctrl">
-    <input class="tbl-srch" placeholder="🔍 ค้นหา เลขใบงาน / ผู้ส่ง / ผู้รับ / สาขา / จังหวัด..." oninput="fSrch(this.value)">
-    <select class="tbl-sel" onchange="fPK(this.value)">
-      <option value="">SLA เข้ารับ: ทั้งหมด</option>
-      <option value="ผ่าน">✅ ผ่าน ≤3d</option>
-      <option value="เกิน">❌ เกิน >3d</option>
-    </select>
-    <select class="tbl-sel" onchange="fDeliveryType(this.value)" id="delivTypeF">
-      <option value="">ประเภท: ทั้งหมด</option>
-      <option value="Branch→Branch">Branch→Branch</option>
-      <option value="Branch→HO">Branch→HO</option>
-      <option value="HO→Branch">HO→Branch</option>
-    </select>
-    <select class="tbl-sel" onchange="fAlert(this.value)" id="alertF">
-      <option value="">Alert: ทั้งหมด</option>
-      <option value="red">🔴 เกิน SLA</option>
-      <option value="yellow">🟡 วันที่ 3</option>
-      <option value="blue">🔵 วันที่ 2</option>
-    </select>
-    <select class="tbl-sel" onchange="fPeriod(this.value)">
-      <option value="">Period: ทั้งหมด</option>
-      <option value="1-3">1–3 วัน</option>
-      <option value="4-6">4–6 วัน</option>
-      <option value="7-9">7–9 วัน</option>
-      <option value="10+">10+ วัน</option>
-    </select>
-    <select class="tbl-sel" onchange="fTeam(this.value)" id="teamF"><option value="">ทีม: ทั้งหมด</option></select>
-    <select class="tbl-sel" onchange="fProv(this.value)" id="provF"><option value="">จังหวัด: ทั้งหมด</option></select>
-    <div class="export-wrap">
-      <button class="btn btn-lime">⬇ Export ▾</button>
-      <div class="export-drop">
-        <div class="export-item" onclick="exportCSV()">📄 CSV</div>
-        <div class="export-item" onclick="exportExcel('summary')">📊 Excel (Summary)</div>
-        <div class="export-item" onclick="exportExcel('breach')">🚨 SLA Breach</div>
+<div class="page-wrap" id="page-table" style="padding:12px 0 0">
+
+<div class="tbl-page-split">
+
+  <!-- ════ LEFT: Filter Panel ════ -->
+  <div class="split-left">
+    <div class="split-left-hdr">
+      <div class="split-left-title">ตัวกรองและสรุป</div>
+      <div class="split-left-sub" id="splitLeftSub">—</div>
+    </div>
+    <div class="split-left-scroll">
+
+      <!-- KPI -->
+      <div>
+        <div class="sl-section-hd"><i class="ti ti-chart-bar" aria-hidden="true"></i>ภาพรวม</div>
+        <div class="skpi-grid">
+          <div class="skpi-c span2">
+            <div class="skpi-lbl">รายการทั้งหมด</div>
+            <div class="skpi-val" id="tk1">—</div>
+          </div>
+          <div class="skpi-c">
+            <div class="skpi-lbl">เกิน SLA รับ</div>
+            <div class="skpi-val sv-red" id="tk2">—</div>
+          </div>
+          <div class="skpi-c">
+            <div class="skpi-lbl">ผ่าน SLA %</div>
+            <div class="skpi-val sv-lime" id="tk3">—</div>
+          </div>
+          <div class="skpi-c">
+            <div class="skpi-lbl">เกิน SLA ส่ง</div>
+            <div class="skpi-val sv-warn" id="tk_del2">—</div>
+          </div>
+          <div class="skpi-c">
+            <div class="skpi-lbl">Avg รับ (d)</div>
+            <div class="skpi-val sv-blue" id="tk4">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sl-divider"></div>
+
+      <!-- เดือน -->
+      <div>
+        <div class="sl-section-hd"><i class="ti ti-calendar" aria-hidden="true"></i>เดือน</div>
+        <div id="leftMonthGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:4px">
+          <!-- populated by buildTableMonthBar -->
+        </div>
+        <div style="font-size:9px;color:var(--t3);font-family:var(--mn);text-align:right;margin-top:2px" id="tblMonthCount"></div>
+      </div>
+
+      <div class="sl-divider"></div>
+
+      <!-- Search -->
+      <div>
+        <div class="sl-section-hd"><i class="ti ti-search" aria-hidden="true"></i>ค้นหา</div>
+        <div class="sl-search">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <input id="searchInput" placeholder="เลขใบงาน / ผู้ส่ง / ผู้รับ / สาขา" oninput="fSrch(this.value)">
+        </div>
+      </div>
+
+      <div class="sl-divider"></div>
+
+      <!-- SLA เข้ารับ -->
+      <div>
+        <div class="sl-section-hd"><i class="ti ti-clock" aria-hidden="true"></i>SLA เข้ารับ</div>
+        <div class="sl-chips">
+          <div class="slc slc-red" onclick="toggleChip(this,'pk','เกิน')"><i class="ti ti-alert-circle" aria-hidden="true"></i>เกิน</div>
+          <div class="slc slc-lime" onclick="toggleChip(this,'pk','ผ่าน')"><i class="ti ti-circle-check" aria-hidden="true"></i>ผ่าน</div>
+        </div>
+      </div>
+
+      <!-- SLA ส่ง -->
+      <div>
+        <div class="sl-section-hd"><i class="ti ti-package" aria-hidden="true"></i>SLA ส่ง</div>
+        <div class="sl-chips">
+          <div class="slc slc-red" onclick="toggleChip(this,'del','เกิน')">เกิน</div>
+          <div class="slc slc-lime" onclick="toggleChip(this,'del','ผ่าน')">ผ่าน</div>
+        </div>
+      </div>
+
+      <!-- Alert -->
+      <div>
+        <div class="sl-section-hd"><i class="ti ti-bell" aria-hidden="true"></i>Alert</div>
+        <div class="sl-chips">
+          <div class="slc slc-red" onclick="toggleChip(this,'alert','red')"><span class="slc-dot" style="background:var(--red)"></span>เกิน SLA</div>
+          <div class="slc slc-warn" onclick="toggleChip(this,'alert','yellow')"><span class="slc-dot" style="background:var(--warn)"></span>วันที่ 3</div>
+          <div class="slc slc-blue" onclick="toggleChip(this,'alert','blue')"><span class="slc-dot" style="background:var(--blue)"></span>วันที่ 2</div>
+        </div>
+      </div>
+
+      <!-- ประเภทส่ง -->
+      <div>
+        <div class="sl-section-hd"><i class="ti ti-arrows-exchange" aria-hidden="true"></i>ประเภทส่ง</div>
+        <div class="sl-chips">
+          <div class="slc slc-purple" onclick="toggleChip(this,'type','Branch→HO')">Branch→HO</div>
+          <div class="slc" onclick="toggleChip(this,'type','Branch→Branch')">Branch→Branch</div>
+          <div class="slc" onclick="toggleChip(this,'type','HO→Branch')">HO→Branch</div>
+        </div>
+      </div>
+
+      <!-- อื่นๆ -->
+      <div>
+        <div class="sl-section-hd"><i class="ti ti-adjustments" aria-hidden="true"></i>อื่นๆ</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <select class="sl-sel" onchange="fPeriod(this.value)">
+            <option value="">ระยะเวลา: ทั้งหมด</option>
+            <option value="1-3">1–3 วัน</option>
+            <option value="4-6">4–6 วัน</option>
+            <option value="7-9">7–9 วัน</option>
+            <option value="10+">10+ วัน</option>
+          </select>
+          <select class="sl-sel" onchange="fTeam(this.value)" id="teamF">
+            <option value="">ทีม: ทั้งหมด</option>
+          </select>
+          <select class="sl-sel" onchange="fProv(this.value)" id="provF">
+            <option value="">จังหวัด: ทั้งหมด</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="padding-bottom:8px">
+        <button onclick="clearAllFilters()" style="width:100%;padding:7px;border-radius:var(--r1);border:1px solid var(--bd);background:var(--s2);color:var(--t3);font-size:11px;cursor:pointer;font-family:var(--fn);transition:all .15s" onmouseover="this.style.color='var(--t1)';this.style.borderColor='var(--bd2)'" onmouseout="this.style.color='var(--t3)';this.style.borderColor='var(--bd)'">
+          ล้างตัวกรองทั้งหมด
+        </button>
+      </div>
+
+    </div>
+  <div id="tblMonthPills" style="display:none"></div><div id="tblMonthCount" style="display:none"></div></div>
+
+  <!-- ════ RIGHT: Table Panel ════ -->
+  <div class="split-right">
+    <div class="split-right-hdr">
+      <div class="split-right-title"><i class="ti ti-table" aria-hidden="true"></i>รายการ</div>
+      <div class="split-right-actions">
+        <div class="sr-badge" id="tfzCount">—</div>
+        <div class="sr-export export-wrap" onclick="toggleExportDrop(this)">
+          ⬇ Export ▾
+          <div class="export-drop" style="right:0;left:auto;top:calc(100%+4px)">
+            <div class="export-item" onclick="exportCSV()">📄 CSV</div>
+            <div class="export-item" onclick="exportExcel('summary')">📊 Excel (Summary)</div>
+            <div class="export-item" onclick="exportExcel('breach')">🚨 SLA Breach</div>
+          </div>
+        </div>
       </div>
     </div>
+
+    <div class="active-filters" id="activeFilters" style="display:none"></div>
+    <div class="split-right-table">
+      <table>
+        <thead><tr>
+          <th onclick="srt('jobNo')">เลขที่ใบงาน ↕</th>
+          <th onclick="srt('deliveryType')">ประเภท ↕</th>
+          <th onclick="srt('group')">กลุ่มผู้สั่ง ↕</th>
+          <th onclick="srt('senderName')">ผู้สั่งงาน ↕</th>
+          <th onclick="srt('receiverCo')">บริษัทผู้ติดต่อ ↕</th>
+          <th onclick="srt('province')">จังหวัด ↕</th>
+          <th onclick="srt('orderDate')">วันสั่งงาน ↕</th>
+          <th onclick="srt('pickupDate')">วันที่เข้ารับ ↕</th>
+          <th onclick="srt('completionDate')">วันดำเนินการสำเร็จ ↕</th>
+          <th onclick="srt('pickupBizDays')">🕐 เข้ารับ (d) ↕</th>
+          <th onclick="srt('pickupSLA')">SLA เข้ารับ ↕</th>
+          <th onclick="srt('deliveryBizDays')">📦 ส่ง (d) ↕</th>
+          <th onclick="srt('deliverySLA')">SLA ส่ง ↕</th>
+          <th onclick="srt('calDays')">รวม (วัน) ↕</th>
+          <th onclick="srt('alertLevel')">Alert ↕</th>
+          <th onclick="srt('result')">ผลการวิ่ง ↕</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="tbody"><tr><td colspan="17" style="text-align:center;padding:50px;color:var(--t3)"><div style="font-size:20px;margin-bottom:10px">📋</div><div style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:5px">ยังไม่มีข้อมูล</div><div style="font-size:11px">กด ↻ Sync เพื่อโหลดข้อมูลจาก Google Sheets</div></td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="split-right-foot">
+      <span id="tfootCount">แถว: 0</span>
+      <span id="tblMonthCountRight"></span>
+    </div>
   </div>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr>
-        <th onclick="srt('jobNo')">เลขที่ใบงาน ↕</th>
-        <th onclick="srt('deliveryType')">ประเภท ↕</th>
-        <th onclick="srt('group')">กลุ่มผู้สั่ง ↕</th>
-        <th onclick="srt('senderName')">ผู้สั่งงาน ↕</th>
-        <th onclick="srt('receiverCo')">บริษัทผู้ติดต่อ ↕</th>
-        <th onclick="srt('province')">จังหวัด ↕</th>
-        <th onclick="srt('orderDate')">วันสั่งงาน ↕</th>
-        <th onclick="srt('pickupDate')">วันที่เข้ารับ ↕</th>
-        <th onclick="srt('completionDate')">วันดำเนินการสำเร็จ ↕</th>
-        <th onclick="srt('pickupBizDays')" class="pk">🕐 เข้ารับ (d) ↕</th>
-        <th onclick="srt('pickupSLA')" class="pk">SLA เข้ารับ ↕</th>
-        <th onclick="srt('deliveryBizDays')" class="pk">📦 ส่ง (d) ↕</th>
-        <th onclick="srt('deliverySLA')" class="pk">SLA ส่ง ↕</th>
-        <th onclick="srt('calDays')">รวม (วัน) ↕</th>
-        <th onclick="srt('alertLevel')">Alert ↕</th>
-        <th onclick="srt('result')">ผลการวิ่ง ↕</th>
-        <th></th>
-      </tr></thead>
-      <tbody id="tbody"><tr><td colspan="17" style="text-align:center;padding:40px;color:var(--t3)">กรุณาเชื่อมต่อ Google Sheets หรือกด Sync</td></tr></tbody>
-    </table>
-    <div class="tbl-foot" id="tfoot"><span>แถว: 0</span></div>
-  </div>
+
+</div>
 </div>
 
 <!-- ALERT -->
@@ -995,7 +1699,7 @@ input.admin-inp:focus{border-color:var(--lime)}
   <div class="grid-2">
     <div>
       <div class="sec-hdr"><div class="sec-title" style="--lime:var(--red)">🚨 รายการเกิน / ใกล้เกิน SLA</div></div>
-      <div id="alertList" style="max-height:calc(100vh-320px);overflow-y:auto"></div>
+      <div id="alertList" style="max-height:calc(100vh - 320px);overflow-y:auto"><div style="text-align:center;padding:40px;color:var(--t3);font-size:12px">กรุณาโหลดข้อมูล Monitor เพื่อแสดง Alert</div></div>
     </div>
     <div class="card">
       <div class="sec-hdr"><div class="sec-title" style="--lime:var(--lime)">📊 สรุป SLA รายเดือน</div></div>
@@ -1111,7 +1815,7 @@ input.admin-inp:focus{border-color:var(--lime)}
 <script>
 
 // ═══════════════════════════════════════════════════════════
-// GNR3 MAILSERVICE MONITOR v11
+// GNR3 MAILSERVICE MONITOR v11 build:20260525_021947
 // Google Sheets Integration + Clean Architecture
 // ═══════════════════════════════════════════════════════════
 const DEMO_R=[{"id":"3","jobNo":"GNR3-260428-0217","ref":"AG0217","orderDate":"28/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":8,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"-","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"7","jobNo":"GNR3-260428-0365","ref":"AG0365","orderDate":"28/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":8,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0347","branchName":"นครหลวง","province":"พระนครศรีอยุธยา","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"-","note1":"เล่มปิดบัญชี 1 : 1ฒน 6362","slaDays":7,"sendDays":2,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"11","jobNo":"GNR3-260428-0383","ref":"AG0383","orderDate":"28/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":8,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0420","branchName":"เชิงทะเล(ภูเก็ต)","province":"ภูเก็ต","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ป้ายภาษี 1 : ขจ 3810 , เล่มปิดบัญชี 3 : ขข 5129,บพ 8394,1กง 5718","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"30","jobNo":"GNR3-260428-0606","ref":"AG0606","orderDate":"28/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":8,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"31","jobNo":"GNR3-260428-0610","ref":"AG0610","orderDate":"28/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":8,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"40","jobNo":"GNR3-260429-0091","ref":"AH0091","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"56","jobNo":"GNR3-260429-0130","ref":"AH0130","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"61","jobNo":"GNR3-260429-0166","ref":"AH0166","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"64","jobNo":"GNR3-260429-0196","ref":"AH0196","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"สำนักงานใหญ่","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"-","note1":"ค่าน้ำประปา","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"71","jobNo":"GNR3-260429-0262","ref":"AH0262","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"73","jobNo":"GNR3-260429-0279","ref":"AH0279","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"74","jobNo":"GNR3-260429-0300","ref":"AH0300","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0002","branchName":"อยุธยา","province":"พระนครศรีอยุธยา","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 1 : กฉ 8424","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"77","jobNo":"GNR3-260429-0304","ref":"AH0304","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0030","branchName":"นครปฐม","province":"นครปฐม","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 3 : 2กข 8787,1กศ 7109,บน 6361","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"79","jobNo":"GNR3-260429-0307","ref":"AH0307","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0050","branchName":"สมุทรสาคร","province":"สมุทรสาคร","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 2 : 4กญ 8642,1กภ 6174 , เอกสารขอคืนค่ามัดจำ RFN 1 : 70-8166","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"82","jobNo":"GNR3-260429-0310","ref":"AH0310","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0076","branchName":"จอมเทียน","province":"ชลบุรี","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ป้ายภาษี IOS 1 : 4กช 1205 , เล่มปิดบัญชี 1 : 2กพ 2872","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"83","jobNo":"GNR3-260429-0312","ref":"AH0312","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0104","branchName":"ประตูน้ำพระอินทร์","province":"พระนครศรีอยุธยา","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ป้ายภาษี IOS 1 : 3ขฐ 8568","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"84","jobNo":"GNR3-260429-0313","ref":"AH0313","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0107","branchName":"ภูเก็ต","province":"ภูเก็ต","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 1 : 1กอ 3015","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"87","jobNo":"GNR3-260429-0316","ref":"AH0316","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0127","branchName":"วังน้อย","province":"พระนครศรีอยุธยา","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ป้ายภาษี IOS 1 : 3ฒญ 2526 , เล่มปิดบัญชี 2 : กต 1033,กฉ 1654","slaDays":5,"sendDays":3,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"91","jobNo":"GNR3-260429-0320","ref":"AH0320","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0152","branchName":"เสนา","province":"พระนครศรีอยุธยา","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 2 : 1กษ 465,1กส 6382","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"102","jobNo":"GNR3-260429-0334","ref":"AH0334","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0317","branchName":"หนองชาก(ชลบุรี)","province":"ชลบุรี","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ป้ายภาษี IOS 1 : งว 6956","slaDays":7,"sendDays":2,"slaStatus":"ผ่าน","periodBand":"7-9"},{"id":"105","jobNo":"GNR3-260429-0337","ref":"AH0337","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0332","branchName":"บึง (ศรีราชา)","province":"ชลบุรี","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ป้ายภาษี IOS 2 : 3กจ 2857,กอ 2286 , เล่มปิดบัญชี 1 : 3กพ 3268","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"111","jobNo":"GNR3-260429-0343","ref":"AH0343","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0369","branchName":"สี่แยกถลาง (ภูเก็ต)","province":"ภูเก็ต","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 2 : กว 904,1กฬ 6052","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"132","jobNo":"GNR3-260429-0366","ref":"AH0366","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0523","branchName":"นิคมพัฒนา","province":"ระยอง","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ป้ายภาษี IOS 1 : คจบ 348 , เล่มปิดบัญชี 2 : 2กย 5642,2กอ 9930","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"133","jobNo":"GNR3-260429-0367","ref":"AH0367","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0528","branchName":"ซอยเทียนดัด","province":"นครปฐม","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 1 : 3ขฮ 4647","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"141","jobNo":"GNR3-260429-0375","ref":"AH0375","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0768","branchName":"เกาะโพธิ์","province":"ชลบุรี","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 2 : 4กฒ 2307,ผท 3172","slaDays":7,"sendDays":2,"slaStatus":"ผ่าน","periodBand":"7-9"},{"id":"146","jobNo":"GNR3-260429-0381","ref":"AH0381","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0852","branchName":"ชุมชนวัดโคกมะยม","province":"พระนครศรีอยุธยา","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ป้ายภาษี IOS 1 : 2กก 1332","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"154","jobNo":"GNR3-260429-0389","ref":"AH0389","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0904","branchName":"ถนนมนตรีสุริยวงศ์","province":"ราชบุรี","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 1 : ญผ 7763","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"156","jobNo":"GNR3-260429-0392","ref":"AH0392","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"0941","branchName":"ถนนเทพกระษัตรี","province":"ภูเก็ต","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 1 : บจ 8690","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"166","jobNo":"GNR3-260429-0402","ref":"AH0402","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"1038","branchName":"หนองแก-บ้านบึง","province":"ชลบุรี","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 1 : 3กข 7174","slaDays":7,"sendDays":2,"slaStatus":"ผ่าน","periodBand":"7-9"},{"id":"177","jobNo":"GNR3-260429-0413","ref":"AH0413","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"1109","branchName":"แยกเจ","province":"ชลบุรี","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ป้ายภาษี IOS 1 : ขร 8325","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"183","jobNo":"GNR3-260429-0420","ref":"AH0420","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"1163","branchName":"บางบาล","province":"พระนครศรีอยุธยา","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ป้ายภาษี IOS 1 : 9ขฉ 9153","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"209","jobNo":"GNR3-260429-0449","ref":"AH0449","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"1575","branchName":"พีทีที สเตชั่น บ้านเก่า-พานทอง","province":"ชลบุรี","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ป้ายภาษี IOS 1 : จพ 4975","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"221","jobNo":"GNR3-260429-0462","ref":"AH0462","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"REG","group":"Operations & Operational Risks Department","branchCode":"1865","branchName":"ตลาดป่ามะพร้าว","province":"ระยอง","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"เล่มปิดบัญชี 1 : กจ 2611","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"245","jobNo":"GNR3-260429-0493","ref":"AH0493","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"246","jobNo":"GNR3-260429-0494","ref":"AH0494","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"251","jobNo":"GNR3-260429-0499","ref":"AH0499","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"Insurance Operations Section","group":"Operations & Operational Risks Department","branchCode":"1752","branchName":"สำนักท้อน","province":"ระยอง","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"แก้ไข APP PPI/0003877","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"256","jobNo":"GNR3-260429-0504","ref":"AH0504","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"Insurance Operations Section","group":"Operations & Operational Risks Department","branchCode":"1179","branchName":"ชากค้อ-หนองขาม","province":"ชลบุรี","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"แก้ไข APP PPI/0012489","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"260","jobNo":"GNR3-260429-0508","ref":"AH0508","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"265","jobNo":"GNR3-260429-0516","ref":"AH0516","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"สำนักงานใหญ่","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"สัญญาจ้างพนักงานใหม่ คุณนริศรา พวงยอด","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"272","jobNo":"GNR3-260429-0523","ref":"AH0523","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"276","jobNo":"GNR3-260429-0527","ref":"AH0527","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"281","jobNo":"GNR3-260429-0532","ref":"AH0532","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"290","jobNo":"GNR3-260429-0542","ref":"AH0542","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"OPS-INS","group":"Operations & Operational Risks Department","branchCode":"0408","branchName":"สัตหีบ กม.10","province":"ชลบุรี","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"APP PPI","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"292","jobNo":"GNR3-260429-0544","ref":"AH0544","orderDate":"29/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":7,"team":"OPS-INS","group":"Operations & Operational Risks Department","branchCode":"1865","branchName":"ตลาดป่ามะพร้าว","province":"ระยอง","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"APP PPI","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"7-9"},{"id":"305","jobNo":"GNR3-260430-0001","ref":"AJ0001","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"317","jobNo":"GNR3-260430-0013","ref":"AJ0013","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"337","jobNo":"GNR3-260430-0033","ref":"AJ0033","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"342","jobNo":"GNR3-260430-0039","ref":"AJ0039","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"350","jobNo":"GNR3-260430-0048","ref":"AJ0048","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"354","jobNo":"GNR3-260430-0053","ref":"AJ0053","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"357","jobNo":"GNR3-260430-0059","ref":"AJ0059","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"369","jobNo":"GNR3-260430-0071","ref":"AJ0071","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"381","jobNo":"GNR3-260430-0087","ref":"AJ0087","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"382","jobNo":"GNR3-260430-0088","ref":"AJ0088","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"397","jobNo":"GNR3-260430-0104","ref":"AJ0104","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"405","jobNo":"GNR3-260430-0112","ref":"AJ0112","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"406","jobNo":"GNR3-260430-0113","ref":"AJ0113","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"417","jobNo":"GNR3-260430-0124","ref":"AJ0124","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"421","jobNo":"GNR3-260430-0128","ref":"AJ0128","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"423","jobNo":"GNR3-260430-0130","ref":"AJ0130","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"สำนักงานใหญ่","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ค่าไฟ","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"435","jobNo":"GNR3-260430-0144","ref":"AJ0144","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"439","jobNo":"GNR3-260430-0148","ref":"AJ0148","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"440","jobNo":"GNR3-260430-0149","ref":"AJ0149","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"448","jobNo":"GNR3-260430-0157","ref":"AJ0157","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"450","jobNo":"GNR3-260430-0159","ref":"AJ0159","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จพิเศษ - เข้าพบลูกค้าแล้วไม่สามารถเก็บเอกสารได้ โทรแจ้งผู้สั่งงานแล้ว","remark":"เอกสารอยู่ในตู้เซฟ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"453","jobNo":"GNR3-260430-0162","ref":"AJ0162","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"470","jobNo":"GNR3-260430-0181","ref":"AJ0181","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"474","jobNo":"GNR3-260430-0185","ref":"AJ0185","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"สำนักงานใหญ่","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ค่าน้ำดื่ม","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"487","jobNo":"GNR3-260430-0204","ref":"AJ0204","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"490","jobNo":"GNR3-260430-0215","ref":"AJ0215","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"สำนักงานใหญ่","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ค่าใช้จ่าย สาขา IU","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"497","jobNo":"GNR3-260430-0225","ref":"AJ0225","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"สำนักงานใหญ่","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"หนังสือมอบอำนาจช่วงทวงถามหนี้ น.ส.รัญชนา สุทธศิริ","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"523","jobNo":"GNR3-260430-0252","ref":"AJ0252","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"531","jobNo":"GNR3-260430-0260","ref":"AJ0260","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"541","jobNo":"GNR3-260430-0270","ref":"AJ0270","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"546","jobNo":"GNR3-260430-0417","ref":"AJ0417","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"547","jobNo":"GNR3-260430-0418","ref":"AJ0418","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"สำนักงานใหญ่","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"ค่าใช้จ่ายสาขา ชั้น 11","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"550","jobNo":"GNR3-260430-0421","ref":"AJ0421","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"554","jobNo":"GNR3-260430-0425","ref":"AJ0425","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"571","jobNo":"GNR3-260430-0444","ref":"AJ0444","orderDate":"30/04/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":6,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"เกิน","periodBand":"4-6"},{"id":"578","jobNo":"GNR3-260504-0015","ref":"D0015","orderDate":"04/05/2026","pickupDate":"05/05/2026","arrivalDate":"06/05/2026","days":2,"team":"UPC Branch","group":"Branch","branchCode":"0000","branchName":"HO","province":"ไม่ระบุ","result":"สำเร็จ","reason":"สำเร็จปกติ - เก็บเอกสารครบตามที่สั่งงาน","remark":"สำเร็จ","note1":"-","slaDays":3,"sendDays":5,"slaStatus":"ผ่าน","periodBand":"1-3"}];
@@ -1144,6 +1848,12 @@ let provinceSLA = {};
 let flt = {srch:'',pk:'',period:'',team:'',prov:'',month:'',delivType:'',alertLvl:''};
 let sflt = {srch:'',prov:''};
 let sortSt = {col:null, asc:true};
+// ── Filter state for split-panel table ────────────────────
+let _srch='', _fPer='', _fTeam='', _fProv='', _fBranch='';
+function fSrch(v){ _srch=v; applyF(); }
+function fPeriod(v){ _fPer=v; applyF(); }
+function fTeam(v){ _fTeam=v; applyF(); }
+function fProv(v){ _fProv=v; applyF(); }
 let charts = {};
 let _slaMap = new Map();
 let _bizCache = new Map();
@@ -1246,8 +1956,11 @@ function saveAndSync(){
   }
   localStorage.setItem('gnr3_conn_mode', CONN_MODE);
   closeSheetsModal();
+  // Sync after saving
   if(syncTargetSheet2 === 'all'){
     syncAllSheets();
+  } else if(syncTargetSheet2 === 'Monitor'){
+    syncMonitor();
   } else {
     syncData(syncTargetSheet2);
   }
@@ -1256,52 +1969,52 @@ function saveAndSync(){
 
 
 // ─── SYNC FROM GOOGLE SHEETS ───────────────────────────────
-// ─── FETCH WITH PAGINATION (handle 18k+ rows) ─────────────────
+// ─── FETCH SHEET (GAS paginated) ──────────────────────────────
 async function fetchSheet(sheetName, onProgress){
   if(CONN_MODE === 'appsscript' && APPS_SCRIPT_URL){
     return await fetchSheetPaged(sheetName, onProgress);
   } else {
     if(!SHEET_ID) throw new Error('ยังไม่ได้ตั้งค่า Sheet ID');
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(sheetName)}`;
-    const resp = await fetch(url);
-    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const text = await resp.text();
-    return parseCSV(text);
+    const r = await fetch(url);
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    return parseCSV(await r.text());
   }
 }
 
 async function fetchSheetPaged(sheetName, onProgress){
-  const PAGE_SIZE = 500;
-  // Step 1: Get total count (fast — no data transfer)
-  const countUrl = `${APPS_SCRIPT_URL}?sheet=${encodeURIComponent(sheetName)}&count=true&dateFormat=iso`;
-  const countResp = await fetch(countUrl);
-  if(!countResp.ok) throw new Error(`HTTP ${countResp.status}`);
-  const countJson = await countResp.json();
-  if(countJson.error) throw new Error(countJson.error);
+  const GAS = APPS_SCRIPT_URL;
+  const SZ  = 500;
 
-  const total = countJson.count || 0;
+  // Step 1: count total rows (fast)
+  const cUrl = `${GAS}?sheet=${encodeURIComponent(sheetName)}&count=true`;
+  const cRes = await fetch(cUrl);
+  if(!cRes.ok) throw new Error(`Count HTTP ${cRes.status}`);
+  const cJson = await cRes.json();
+  if(cJson.error) throw new Error('GAS: ' + cJson.error);
+
+  const total = cJson.count || 0;
   if(total === 0) return [];
 
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalPages = Math.ceil(total / SZ);
   let allRows = [];
+  setProgress(0, total, `โหลด "${sheetName}"...`, `ทั้งหมด ${total.toLocaleString()} แถว · ${totalPages} หน้า`);
 
-  if(onProgress) onProgress(0, total, totalPages);
-
-  // Step 2: Fetch pages in parallel (max 3 at a time)
-  const CONCURRENCY = 3;
-  for(let batch = 0; batch < totalPages; batch += CONCURRENCY){
-    const pageBatch = [];
-    for(let p = batch; p < Math.min(batch + CONCURRENCY, totalPages); p++){
-      // dateFormat=iso tells Apps Script to return dates as YYYY-MM-DD
-    const pageUrl = `${APPS_SCRIPT_URL}?sheet=${encodeURIComponent(sheetName)}&page=${p+1}&size=${PAGE_SIZE}&dateFormat=iso`;
-      pageBatch.push(fetch(pageUrl).then(r=>r.json()));
+  // Fetch 3 pages concurrently
+  for(let batch = 0; batch < totalPages; batch += 3){
+    const batchPages = [];
+    for(let p = batch; p < Math.min(batch+3, totalPages); p++){
+      const url = `${GAS}?sheet=${encodeURIComponent(sheetName)}&page=${p+1}&size=${SZ}`;
+      batchPages.push(
+        fetch(url)
+          .then(r => { if(!r.ok) throw new Error(`Page ${p+1} HTTP ${r.status}`); return r.json(); })
+          .then(j => { if(j.error) throw new Error('GAS: '+j.error); return j.data||[]; })
+      );
     }
-    const results = await Promise.all(pageBatch);
-    results.forEach(json=>{
-      if(json.error) throw new Error(json.error);
-      if(json.data && json.data.length) allRows = allRows.concat(json.data);
-    });
+    const results = await Promise.all(batchPages);
+    results.forEach(rows => { if(rows.length) allRows = allRows.concat(rows); });
     if(onProgress) onProgress(allRows.length, total, totalPages);
+    setProgress(allRows.length, total, `โหลด "${sheetName}"...`, `หน้า ${Math.min(batch+3,totalPages)}/${totalPages}`);
   }
   return allRows;
 }
@@ -1321,8 +2034,11 @@ async function syncData(sheetName){
     });
     if(!rows||rows.length<1) throw new Error('ไม่พบข้อมูลใน Sheet: '+target);
     const lm2 = document.getElementById('loadMsg');
-    if(lm2) lm2.textContent = `Normalize ${rows.length.toLocaleString()} แถว...`;
-    const normalized = rows.map(r=>{try{return normRow(r);}catch(e){return null;}}).filter(Boolean);
+    setProgress(0, rows.length, `คำนวณ SLA...`, `Normalize ${rows.length.toLocaleString()} แถว`);
+    // Chunked normalize — 500 rows at a time, yields to browser between chunks
+    const normalized = await normalizeChunked(rows, (done, total)=>{
+      setProgress(done, total, `คำนวณ SLA "${target}"...`, `${done.toLocaleString()} / ${total.toLocaleString()} แถว`);
+    });
 
     if(isMonitor){
       // Monitor → Alert only
@@ -1528,7 +2244,7 @@ function renderProvinceSLATable(){
   const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   s('ps1',Object.keys(provinceSLA).length); s('ps2',provList.length); s('ps3',DEFAULT_PROVINCE_SLA+'d');
   const dl=document.getElementById('provDatalist'); if(dl)dl.innerHTML=provList.map(p=>`<option value="${p}">`).join('');
-  if(!provList.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--t3)">กรุณาโหลดข้อมูล SLA Schedule</div>';return;}
+  if(!provList.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--t3);font-size:12px">ยังไม่มีข้อมูลจังหวัด<br><span style="font-size:10px;color:var(--t3);margin-top:6px;display:block">จะโหลดพร้อมกับข้อมูลรายเดือน (Jan-Dec)</span></div>';return;}
   el.innerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--lime-d);border-radius:8px;margin-bottom:10px;border:1px solid rgba(187,251,76,.15)">
     <span>📌</span><span style="font-size:11px;color:var(--t1)">ค่าหลัก Default ทุกจังหวัด =</span>
     <span style="font-family:var(--mn);font-size:16px;font-weight:800;color:var(--lime)">${DEFAULT_PROVINCE_SLA} วันทำการ</span>
@@ -1562,89 +2278,98 @@ function rebuildSlaMap(){ _slaMap.clear(); slaData.forEach(s=>_slaMap.set(s.code
 // After Apps Script redeploy with ISO format, this will switch automatically
 
 function fmtDate(v){
+  // GAS v3 sends ISO "2026-01-03" → display as "03/01/2026" (DD/MM/YYYY)
   if(!v) return '';
-
-  // Date object (from cellDates:true)
   if(v instanceof Date){
     if(isNaN(v.getTime())) return '';
     return _pad(v.getDate())+'/'+_pad(v.getMonth()+1)+'/'+v.getFullYear();
   }
-
   const s = String(v).replace(/\xa0/g,'').trim();
   if(!s||s==='-'||s==='nan'||s==='undefined'||s==='null'||s==='0') return '';
 
-  // ── ISO: YYYY-MM-DD ← unambiguous, from redeployed Apps Script ──
-  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})([T ].*)?$/);
+  // ISO/near-ISO YYYY-XX-YY → DD/MM/YYYY
+  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   if(iso){
-    let y=parseInt(iso[1]),m=parseInt(iso[2]),d=parseInt(iso[3]);
+    let y=parseInt(iso[1]), a=parseInt(iso[2]), b=parseInt(iso[3]);
     if(y>2500) y-=543;
-    if(m>=1&&m<=12&&d>=1&&d<=31&&y>=2000&&y<=2100)
+    if(y<2000||y>2100) return s;
+    let m,d;
+    if(a>12&&b<=12){m=b;d=a;}       // YYYY-DD-MM (GAS เก่า): a=day, b=month
+    else if(b>12&&a<=12){m=a;d=b;}  // YYYY-MM-DD normal: a=month, b=day
+    else{m=a;d=b;}                  // ambiguous: treat as YYYY-MM-DD (standard)
+    if(m>=1&&m<=12&&d>=1&&d<=31)
       return _pad(d)+'/'+_pad(m)+'/'+y;
   }
 
-  // ── XX/YY/YYYY or XX/YY/YYYY (Buddhist) ─────────────────────────
-  const slash = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-  if(slash){
-    let p0=parseInt(slash[1]), p1=parseInt(slash[2]), y=parseInt(slash[3]);
+  // Fallback: XX/YY/YYYY
+  const sl = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if(sl){
+    let p0=parseInt(sl[1]), p1=parseInt(sl[2]), y=parseInt(sl[3]);
     if(y<100) y+=2000;
-    if(y>2500) y-=543; // Buddhist → CE
-
-    let d, m;
-
-    // CASE 1: p0 > 12 → must be DD/MM/YYYY (day first)
-    if(p0 > 12){
-      d=p0; m=p1;
-    }
-    // CASE 2: p1 > 12 → must be MM/DD/YYYY (month first) — impossible for valid day/month
-    // but handle anyway
-    else if(p1 > 12){
-      m=p0; d=p1;
-    }
-    // CASE 3: both ≤ 12 → Apps Script confirmed sends MM/DD/YYYY
-    // "05/01/2026" = month=05, day=01
-    else {
-      m=p0; d=p1;  // ← TREAT AS MM/DD/YYYY (Apps Script format)
-    }
-
-    if(m>=1&&m<=12&&d>=1&&d<=31&&y>=2000&&y<=2100)
-      return _pad(d)+'/'+_pad(m)+'/'+y;
+    if(y>2500) y-=543;
+    let d_,m_;
+    if(p0>12){d_=p0;m_=p1;}        // DD/MM แน่นอน: วัน>12 ไม่ใช่เดือน
+    else if(p1>12){d_=p1;m_=p0;}   // DD/MM แน่นอน: เดือนไม่เกิน 12
+    else{d_=p0;m_=p1;}             // กำกวม: ใช้ DD/MM (Thai) → p0=วัน, p1=เดือน
+    if(m_>=1&&m_<=12&&d_>=1&&d_<=31&&y>=2000&&y<=2100)
+      return _pad(d_)+'/'+_pad(m_)+'/'+y;
   }
-
   return s;
 }
 
 function _pad(n){ return String(n).padStart(2,'0'); }
 
+// displayDate: final pass for table cells
+function displayDate(s){
+  if(!s||s==='—'||s==='-'||!s.trim()) return '—';
+  return fmtDate(s) || s;
+}
+
+
 function parseDate(s){
   if(!s) return null;
   try{
     if(s instanceof Date) return isNaN(s.getTime())?null:new Date(s.getFullYear(),s.getMonth(),s.getDate());
-    // Use fmtDate to normalize first → always DD/MM/YYYY
-    const fmt = fmtDate(s);
-    if(!fmt) return null;
-    // Parse normalized DD/MM/YYYY
-    const p = fmt.split('/');
-    if(p.length!==3) return null;
-    const d=parseInt(p[0]),m=parseInt(p[1]),y=parseInt(p[2]);
-    if(isNaN(d)||isNaN(m)||isNaN(y)) return null;
-    if(m<1||m>12||d<1||d>31) return null;
-    if(y<2000||y>2100) return null;
-    return new Date(y, m-1, d);
+    const str = String(s).replace(/\xa0/g,'').trim();
+    if(!str||str==='-'||str==='0') return null;
+
+    // 1. ISO YYYY-MM-DD ← GAS v3 primary format, most unambiguous
+    const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(iso){
+      let y=parseInt(iso[1]), m=parseInt(iso[2]), d=parseInt(iso[3]);
+      if(y>2500) y-=543;
+      if(y>=2000&&y<=2100&&m>=1&&m<=12&&d>=1&&d<=31)
+        return new Date(y, m-1, d);
+    }
+
+    // 2. DD/MM/YYYY ← already formatted (display format)
+    // IMPORTANT: dmy[1]=DD (day), dmy[2]=MM (month)
+    const dmy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if(dmy){
+      const DAY=parseInt(dmy[1]), MON=parseInt(dmy[2]), YR=parseInt(dmy[3]);
+      // Validate: DAY must be 1-31, MON must be 1-12
+      if(MON>=1&&MON<=12&&DAY>=1&&DAY<=31&&YR>=2000&&YR<=2100)
+        return new Date(YR, MON-1, DAY);
+    }
+    return null;
   }catch(e){return null;}
 }
 
 function bizDays(d1,d2){
+  // นับวันทำการ: ไม่นับวัน d1 (วันเริ่ม), นับวัน d2 (วันสิ้นสุด) รวม
+  // เช่น สั่ง Mon → รับ Wed = 2 วันทำการ (Tue, Wed)
   if(!d1||!d2) return null;
   try{
     const start=new Date(d1.getFullYear(),d1.getMonth(),d1.getDate());
     const end=new Date(d2.getFullYear(),d2.getMonth(),d2.getDate());
     if(start>=end) return 0;
     const diff=Math.round((end-start)/86400000);
-    if(diff>366) return null;
+    if(diff>500) return null; // ข้อมูลผิดปกติ (>500 วัน)
     const ck=start.getFullYear()+'-'+(start.getMonth()+1)+'-'+start.getDate()+'|'+end.getFullYear()+'-'+(end.getMonth()+1)+'-'+end.getDate();
     if(_bizCache.has(ck)) return _bizCache.get(ck);
     let biz=0,cur=new Date(start);
-    while(cur<end){const dw=cur.getDay();if(dw>=1&&dw<=5&&!isHoliday(cur))biz++;cur.setDate(cur.getDate()+1);}
+    cur.setDate(cur.getDate()+1); // ไม่นับวันเริ่ม (d1)
+    while(cur<=end){const dw=cur.getDay();if(dw>=1&&dw<=5&&!isHoliday(cur))biz++;cur.setDate(cur.getDate()+1);}
     if(_bizCache.size>20000)_bizCache.clear();
     _bizCache.set(ck,biz); return biz;
   }catch(e){return null;}
@@ -1683,12 +2408,16 @@ function normRow(r){
   const jobNo         = c(r['เลขที่ใบงาน']      ||r['jobNo']          ||'');
   const group         = c(r['กลุ่มผู้สั่งงาน']  ||r['group']          ||'');
   const senderName    = c(r['ชื่อ - สกุล ผู้สั่งงาน']||r['ชื่อ-สกุล ผู้สั่งงาน']||r['sender']||'');
-  const orderDate = fmtDate(r['วันสั่งงาน']||r['วันที่สั่งงาน']||r['orderDate']||'');
-  const pickupDate    = fmtDate(r['วันที่เข้ารับ'] ||r['pickupDate']      ||'');
+  // ── Dates: keep raw ISO for calculation, formatted DD/MM/YYYY for display ──
+  const _rawOrder   = String(r['วันสั่งงาน']   ||r['วันที่สั่งงาน']||r['orderDate']||'').trim();
+  const _rawPickup  = String(r['วันที่เข้ารับ'] ||r['pickupDate']   ||'').trim();
+  const _rawComplete= String(r['วันที่ดำเนินการสำเร็จ']||r['arrivalDate']||r['completion']||'').trim();
+  const orderDate      = fmtDate(_rawOrder);    // DD/MM/YYYY for display
+  const pickupDate     = fmtDate(_rawPickup);   // DD/MM/YYYY for display
   const receiverCo    = c(r['บริษัท ผู้ติดต่อ']  ||r['branchName']     ||'');
   const receiverName  = c(r['ชื่อ - สกุล ผู้ติดต่อ']||r['ชื่อ-สกุล ผู้ติดต่อ']||r['receiver']||'');
   const province      = c(r['จังหวัด']            ||r['province']       ||'');
-  const completionDate = fmtDate(r['วันที่ดำเนินการสำเร็จ']||r['arrivalDate']||r['completion']||'');
+  const completionDate = fmtDate(_rawComplete);  // DD/MM/YYYY for display
   const status        = c(r['สถานะ']              ||r['status']         ||'');
   const remark        = c(r['หมายเหตุการวิ่ง']   ||r['remark']         ||'');
   const result        = c(r['ผลการวิ่ง']          ||r['result']         ||'');
@@ -1713,14 +2442,23 @@ function normRow(r){
   const senderDisplay = senderIsHO ? 'HO / สำนักงานใหญ่' : group;
 
   // ── SLA #1: Pickup ≤ 3 วันทำการ (วันสั่งงาน → วันที่เข้ารับ) ──
-  const od = parseDate(orderDate);
-  const pd = parseDate(pickupDate); // วันที่เข้ารับโดยตรง
+  // ══════════════════════════════════════════════════════════
+  // CRITICAL: ต้องผ่าน fmtDate ก่อนเสมอ
+  // raw "05/01/2026" (GAS เก่า MM/DD) → parseDate โดยตรง = January 5 ✗
+  // raw "05/01/2026" → fmtDate CASE3 → "01/05/2026" → parseDate = May 1 ✓
+  // raw "2026-05-01" (GAS v3 ISO) → fmtDate ISO branch → "01/05/2026" → parseDate = May 1 ✓
+  // ══════════════════════════════════════════════════════════
+  const od = parseDate(orderDate);      // orderDate = fmtDate(_rawOrder) แล้ว
+  const pd = parseDate(pickupDate);     // pickupDate = fmtDate(_rawPickup) แล้ว
   const pickupBizDays = bizDays(od, pd);
-  const pickupSLA = (pickupBizDays===null)?'ไม่มีข้อมูล'
-                   :(pickupBizDays<=PICKUP_SLA_DAYS?'ผ่าน':'เกิน');
+  // ตรวจสอบข้อมูลผิดปกติ: วันเข้ารับก่อนวันสั่งงาน
+  const dateInvalid = od && pd && pd < od;
+  const pickupSLA = dateInvalid ? 'ข้อมูลผิด'
+    : (pickupBizDays===null)?'ไม่มีข้อมูล'
+    : (pickupBizDays<=PICKUP_SLA_DAYS?'ผ่าน':'เกิน');
 
   // ── SLA #2: Delivery ≤ 1 วันทำการ (วันที่เข้ารับ → วันดำเนินการสำเร็จ) ──
-  const cd = parseDate(completionDate);
+  const cd = parseDate(completionDate);  // ผ่าน fmtDate แล้ว
   const deliveryBizDays = bizDays(pd, cd); // วันเข้ารับ → วันดำเนินการสำเร็จ
   const deliverySLA = (deliveryBizDays===null)?'ไม่มีข้อมูล'
                      :(deliveryBizDays<=DELIVERY_SLA_DAYS?'ผ่าน':'เกิน');
@@ -1730,20 +2468,24 @@ function normRow(r){
 
   // ── Period band (calendar days) ─────────────────────────
   let calDays = 0;
-  if(od && cd) calDays = Math.round((cd-od)/86400000);
-  const periodBand = calDays<=3?'1-3':calDays<=6?'4-6':calDays<=9?'7-9':'10+';
+  if(od && cd){
+    calDays = Math.round((cd-od)/86400000);
+    // ถ้า calDays ติดลบ = ข้อมูลผิด (วันสำเร็จก่อนวันสั่ง)
+    if(calDays < 0) calDays = 0;
+  }
+  const periodBand = calDays===0?'N/A':calDays<=3?'1-3':calDays<=6?'4-6':calDays<=9?'7-9':'10+';
 
   // ── Province SLA ─────────────────────────────────────────
   const totalSLADays = getProvinceSLADays(province);
   const totalSLAStatus = (calDays>0&&calDays>totalSLADays)?'เกิน':'ผ่าน';
 
   // ── Alert level for pickup SLA ───────────────────────────
-  // Blue=2d, Yellow=3d, Red=>3d
+  // Blue=วันที่2, Yellow=วันที่3, Red=เกิน3วัน
   let alertLevel = 'none';
-  if(pickupBizDays!==null){
-    if(pickupBizDays > PICKUP_SLA_DAYS)      alertLevel = 'red';
-    else if(pickupBizDays === PICKUP_SLA_DAYS)  alertLevel = 'yellow';
-    else if(pickupBizDays === PICKUP_SLA_DAYS-1) alertLevel = 'blue';
+  if(!dateInvalid && pickupBizDays!==null){
+    if(pickupBizDays > PICKUP_SLA_DAYS)           alertLevel = 'red';
+    else if(pickupBizDays === PICKUP_SLA_DAYS)    alertLevel = 'yellow';
+    else if(pickupBizDays === PICKUP_SLA_DAYS-1)  alertLevel = 'blue';
   }
 
   return {
@@ -1760,6 +2502,7 @@ function normRow(r){
     totalBizDays, calDays, periodBand,
     totalSLADays, totalSLAStatus,
     alertLevel,
+    days: calDays,  // backward compat alias for calDays
     // Display
     team: group, // backward compat for charts
   };
@@ -1769,6 +2512,11 @@ function normRow(r){
 function rebuildAll(){
   const _s=(fn,...a)=>{try{fn(...a);}catch(e){console.error(fn?.name||'?',e);}};
   filteredData=[...allData];
+  // Auto-seed slaData from DEMO_S if empty (SLA schedule data)
+  if(!slaData.length && DEMO_S && DEMO_S.length){
+    slaData = DEMO_S.map(r=>({...r})); rebuildSlaMap();
+  }
+  _s(updateAllMonthsBadges);
   _s(updateKpiStrip);
   _s(buildDashWith,allData);
   _s(populateOpts);
@@ -1784,48 +2532,297 @@ function rebuildAll(){
 
 
 // ─── DIAGNOSTIC: show raw data from Apps Script ──────────────
-async function testConnection(){
+async function testConnection(sheetName){
   if(!APPS_SCRIPT_URL){ showToast('ยังไม่ได้ตั้งค่า Apps Script URL','twarn'); return; }
-  show('ทดสอบการเชื่อมต่อ...');
+  const sheet = sheetName || 'Monitor';
+  show(`🔍 ตรวจสอบข้อมูลดิบจาก Sheet: ${sheet}...`);
   try{
-    // Fetch 3 rows to inspect raw format
-    const url = `${APPS_SCRIPT_URL}?sheet=Monitor&size=3&page=1&dateFormat=iso`;
+    const url = `${APPS_SCRIPT_URL}?sheet=${encodeURIComponent(sheet)}&size=5&page=1`;
     const resp = await fetch(url);
     const json = await resp.json();
     hide();
-    if(json.error){ showToast('Error: '+json.error,'terr'); return; }
+    if(json.error){ showToast('GAS Error: '+json.error,'terr'); return; }
+
     const rows = json.data || [];
-    if(!rows.length){ showToast('ไม่มีข้อมูล','twarn'); return; }
-    // Show raw data in modal
-    const r = rows[0];
-    const keys = ['เลขที่ใบงาน','วันสั่งงาน','วันที่ดำเนินการสำเร็จ','กลุ่มผู้สั่งงาน','บริษัท ผู้ติดต่อ','จังหวัด'];
-    document.getElementById('mTitle').textContent = '🔍 ข้อมูลดิบ (Raw) จาก Apps Script';
+    const firstRow = rows[0] || {};
+
+    // Date columns to inspect
+    const dateCols = ['วันสั่งงาน','วันที่เข้ารับ','วันที่ดำเนินการสำเร็จ'];
+    const allCols = ['เลขที่ใบงาน','กลุ่มผู้สั่งงาน','วันสั่งงาน','วันที่เข้ารับ',
+                     'บริษัท ผู้ติดต่อ','จังหวัด','วันที่ดำเนินการสำเร็จ','สถานะ','ผลการวิ่ง'];
+
+    // Detect date format
+    let dateFormat = 'ไม่ทราบ';
+    const sampleDate = firstRow['วันสั่งงาน'] || '';
+    if(/^\d{4}-\d{2}-\d{2}/.test(sampleDate)) dateFormat = '✅ ISO (yyyy-MM-dd) — ถูกต้อง';
+    else if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(sampleDate)){
+      const p = sampleDate.split('/');
+      if(parseInt(p[0])<=12 && parseInt(p[1])<=12) dateFormat = '⚠️ กำกวม (MM/DD หรือ DD/MM?) — ต้อง Redeploy GAS';
+      else if(parseInt(p[0])>12) dateFormat = '✅ DD/MM/YYYY (วัน/เดือน/ปี) — ถูกต้อง';
+      else dateFormat = '⚠️ น่าจะเป็น MM/DD/YYYY — ต้อง Redeploy GAS';
+    }
+
+    const body = `
+<div style="margin-bottom:14px">
+  <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px">📡 GAS Response Info</div>
+  <div class="mrow"><span class="mk">Sheet</span><span class="mv" style="color:var(--lime)">${json.sheet||'Monitor'}</span></div>
+  <div class="mrow"><span class="mk">แถวทั้งหมด</span><span class="mv" style="color:var(--lime)">${(json.totalCount||0).toLocaleString()} แถว</span></div>
+  <div class="mrow"><span class="mk">หน้าทั้งหมด</span><span class="mv">${json.totalPages||1} หน้า (${json.pageSize||500} แถว/หน้า)</span></div>
+</div>
+
+<div style="margin-bottom:14px">
+  <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px">📅 รูปแบบวันที่ที่ GAS ส่งมา</div>
+  <div class="mrow mpk"><span class="mk">ตรวจพบ Format</span>
+    <span class="mv">${dateFormat}</span></div>
+  ${dateCols.map(col=>{
+    const raw = firstRow[col]||'(ไม่มีข้อมูล)';
+    const converted = fmtDate(raw);
+    const displayed = displayDate(converted);
+    const ok = raw === '(ไม่มีข้อมูล)' ? '—' : displayed === converted ? '✅' : '🔄';
+    return `<div class="mrow">
+      <span class="mk" style="font-size:10px">${col}</span>
+      <div style="text-align:right;font-family:var(--mn);font-size:10px">
+        <div style="color:var(--warn)">Raw: <strong>${raw}</strong></div>
+        <div style="color:var(--lime)">แสดง: <strong>${displayed}</strong></div>
+      </div>
+    </div>`;
+  }).join('')}
+</div>
+
+<div style="margin-bottom:8px">
+  <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px">🔍 ข้อมูล Row แรก (Raw จาก GAS)</div>
+  ${allCols.map(col=>`
+  <div class="mrow">
+    <span class="mk" style="font-size:10px">${col}</span>
+    <span class="mv" style="font-family:var(--mn);font-size:10px;color:${firstRow[col]?'var(--t1)':'var(--t3)'}">${firstRow[col]||'—'}</span>
+  </div>`).join('')}
+</div>
+
+<div>
+  <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px">📋 Columns ที่ GAS ส่งมา (ทั้งหมด)</div>
+  <div style="display:flex;flex-wrap:wrap;gap:4px">
+    ${Object.keys(firstRow).filter(k=>!k.startsWith('_')).map(k=>
+      `<span style="font-size:9px;font-family:var(--mn);padding:2px 8px;border-radius:8px;background:var(--s2);border:1px solid var(--bd);color:${allCols.includes(k)?'var(--lime)':'var(--warn)'}">${k}</span>`
+    ).join('')}
+  </div>
+  <div style="font-size:9px;color:var(--t3);margin-top:6px">🟢 สีเขียว = column ที่ระบบใช้  🟡 สีเหลือง = column ที่ไม่ได้ใช้</div>
+</div>`;
+
+    const sheetBtns = ['Monitor','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+      .map(s=>`<button onclick="testConnection('${s}')" style="padding:3px 10px;border-radius:12px;
+        font-size:10px;font-family:var(--mn);cursor:pointer;border:1px solid ${s===sheet?'var(--lime)':'var(--bd)'};
+        background:${s===sheet?'rgba(187,251,76,.15)':'var(--s2)'};color:${s===sheet?'var(--lime)':'var(--t2)'};
+        font-weight:${s===sheet?'700':'400'}">${s}</button>`).join('');
+
+    document.getElementById('mTitle').textContent = '🔍 ตรวจสอบข้อมูลดิบ: ' + sheet;
     document.getElementById('mBody').innerHTML =
-      `<div style="font-size:10px;color:var(--t3);font-family:var(--mn);margin-bottom:10px">Row 1 — ก่อน normalize</div>`+
-      keys.map(k=>`<div class="mrow"><span class="mk">${k}</span>
-        <span class="mv" style="color:var(--lime);font-family:var(--mn)">${r[k]||'(ไม่พบ column นี้)'}</span></div>`).join('')+
-      `<div style="margin-top:12px;font-size:10px;color:var(--t3)">
-        <strong style="color:var(--t2)">หลัง fmtDate:</strong><br>
-        วันสั่งงาน: <span style="color:var(--lime)">${fmtDate(r['วันสั่งงาน'])}</span><br>
-        วันดำเนินการสำเร็จ: <span style="color:var(--lime)">${fmtDate(r['วันที่ดำเนินการสำเร็จ'])}</span>
-      </div>`;
+      `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--bd)">
+        ${sheetBtns}
+      </div>` + body;
     document.getElementById('modal').classList.add('show');
+
   }catch(e){
     hide();
-    showToast('ทดสอบไม่ได้: '+e.message,'terr');
+    showToast('เชื่อมต่อไม่ได้: '+e.message,'terr');
+    console.error('testConnection:', e);
   }
 }
 
 // ─── QUICK SYNC: Monitor (Alert) + current month (Dashboard) ──
-async function quickSync(){
-  const now=new Date();
-  const curMonth=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()];
+// ─── CHUNKED NORMALIZE ─────────────────────────────────────────
+// Process rows in 500-row batches with setTimeout(0) breaks between
+// → browser stays responsive, progress bar animates smoothly
+async function normalizeChunked(rows, onProgress){
+  const CHUNK = 500;
+  const result = [];
+  const total = rows.length;
+  for(let i=0; i<total; i+=CHUNK){
+    const batch = rows.slice(i, i+CHUNK);
+    for(const r of batch){
+      try{ const nr=normRow(r); if(nr) result.push(nr); }catch(e){}
+    }
+    if(onProgress) onProgress(Math.min(i+CHUNK, total), total);
+    // Yield to browser every chunk → UI stays responsive
+    await new Promise(res => setTimeout(res, 0));
+  }
+  return result;
+}
+
+// ─── DEBOUNCED SEARCH ───────────────────────────────────────────
+let _searchDebounceTimer;
+const _origFSrch = typeof fSrch === 'function' ? fSrch : null;
+
+async function syncMonitor(){
+  updateMonthsBadge('Monitor','loading');
+  show('🔔 Sync Monitor', 'กำลังดึงข้อมูลงาน active...');
   try{
-    await syncMonitor();   // Alert
-    await syncData(curMonth); // Dashboard + Table
+    const rows = await fetchSheet('Monitor', (done, total)=>{
+      setProgress(done, total, 'โหลด Monitor...', '');
+    });
+    monitorData = await normalizeChunked(rows||[], (done, total)=>{
+      setProgress(done, total, 'คำนวณ Monitor...', '');
+    });
+    loadedSheets.add('Monitor');
+    updateMonthsBadge('Monitor','loaded');
+    updateSheetsStatus(true, `⚡ ${monitorData.length.toLocaleString()} งาน`);
+    buildAlertPage();
+    showToast(`✓ Monitor: ${monitorData.length.toLocaleString()} งาน`, 'tok');
+  }catch(e){
+    updateMonthsBadge('Monitor','error');
+    showToast('Monitor error: '+e.message,'terr');
+  }
+  hide();
+}
+
+
+// ─── SHEET MANAGER ────────────────────────────────────────────
+let sheetCounts = {}; // {Monitor:18467, Jan:5234, ...}
+let loadingSheets = new Set(); // sheets currently being loaded
+
+async function openSheetMgr(){
+  document.getElementById('sheetMgrOverlay').classList.add('open');
+  renderSheetMgr('กำลังตรวจสอบ Sheet...');
+  // Fetch counts from GAS
+  if(APPS_SCRIPT_URL){
+    try{
+      const r = await fetch(`${APPS_SCRIPT_URL}?action=getSheets`);
+      const j = await r.json();
+      if(j.ok && j.counts){
+        sheetCounts = j.counts;
+        renderSheetMgr(`พบ ${j.sheets.length} Sheet · กด "โหลด" เพื่อดึงข้อมูล`);
+      } else {
+        renderSheetMgr('ตรวจสอบไม่สำเร็จ — ' + (j.error||'unknown'));
+      }
+    }catch(e){
+      renderSheetMgr('เชื่อมต่อไม่ได้: ' + e.message);
+    }
+  } else {
+    renderSheetMgr('ยังไม่ตั้งค่า Apps Script URL');
+  }
+}
+
+function closeSheetMgr(){
+  document.getElementById('sheetMgrOverlay').classList.remove('open');
+}
+
+function renderSheetMgr(subText){
+  const sub = document.getElementById('sheetMgrSub');
+  if(sub) sub.textContent = subText;
+
+  const list = document.getElementById('sheetMgrList');
+  if(!list) return;
+
+  const MONTHS = ['Monitor','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  list.innerHTML = MONTHS.map(name=>{
+    const isMonitor = name === 'Monitor';
+    const count = sheetCounts[name]; // undefined if not fetched yet
+    const loaded = loadedSheets.has(name) || (isMonitor && monitorData.length>0);
+    const isLoading = loadingSheets.has(name);
+    const rows = loaded ? (isMonitor ? monitorData.length : allData.length) : count;
+
+    // Classes
+    let cls = 'shr';
+    if(isMonitor) cls += ' shr-monitor';
+    if(loaded) cls += ' shr-loaded';
+    if(isLoading) cls += ' shr-loading';
+
+    // Icon
+    const icon = isLoading ? '⏳' : loaded ? '✅' : count > 0 ? '📄' : count === 0 ? '⬜' : '❓';
+
+    // Count display
+    let countHtml = '';
+    if(isLoading){
+      countHtml = `<span class="shr-count" style="color:var(--blue)">โหลด...</span>`;
+    } else if(loaded){
+      const n = isMonitor ? monitorData.length : count;
+      countHtml = `<span class="shr-count" style="color:var(--lime)">${(n||0).toLocaleString()}</span>`;
+    } else if(count !== undefined){
+      const clr = count > 0 ? 'var(--t1)' : 'var(--t3)';
+      countHtml = `<span class="shr-count" style="color:${clr}">${count > 0 ? count.toLocaleString() : '—'}</span>`;
+    } else {
+      countHtml = `<span class="shr-count" style="color:var(--t3)">?</span>`;
+    }
+
+    // Button
+    let btn = '';
+    if(isLoading){
+      btn = `<button class="shr-btn shr-btn-loading" disabled>กำลังโหลด...</button>`;
+    } else if(loaded){
+      btn = `<button class="shr-btn shr-btn-reload" onclick="loadFromMgr('${name}')">↻ โหลดใหม่</button>`;
+    } else if(!count || count > 0){
+      btn = `<button class="shr-btn shr-btn-load" onclick="loadFromMgr('${name}')">+ โหลด</button>`;
+    } else {
+      btn = `<button class="shr-btn shr-btn-loading" disabled style="opacity:.3">ว่าง</button>`;
+    }
+
+    // Meta
+    let meta = '';
+    if(isMonitor) meta = 'งานที่กำลังดำเนินการ (Alert)';
+    else meta = 'ข้อมูลรายเดือน (Dashboard + Table)';
+    if(loaded){
+      if(isMonitor) meta += ` · โหลดแล้ว ${monitorData.length.toLocaleString()} แถว`;
+      else meta += ` · โหลดแล้ว`;
+    } else if(count > 0){
+      meta += ` · ${count.toLocaleString()} แถวใน Sheet`;
+    }
+
+    return `<div class="${cls}" id="shr_${name}">
+      <span class="shr-icon">${icon}</span>
+      <div class="shr-info">
+        <div class="shr-name">${name}</div>
+        <div class="shr-meta">${meta}</div>
+      </div>
+      ${countHtml}
+      ${btn}
+    </div>`;
+  }).join('');
+}
+
+async function loadFromMgr(name){
+  if(loadingSheets.has(name)) return;
+  loadingSheets.add(name);
+  renderSheetMgr(document.getElementById('sheetMgrSub')?.textContent || '');
+
+  try{
+    if(name === 'Monitor'){
+      await syncMonitor();
+    } else {
+      await syncData(name);
+    }
+  }catch(e){
+    showToast('โหลด '+name+' ล้มเหลว: '+e.message,'terr');
+  }
+  loadingSheets.delete(name);
+  renderSheetMgr(`อัปเดตล่าสุด: ${new Date().toLocaleTimeString('th')}`);
+}
+
+async function loadAllFromMgr(){
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const sub = document.getElementById('sheetMgrSub');
+  if(sub) sub.textContent = 'กำลังโหลดทุก Sheet...';
+
+  for(const m of MONTHS){
+    if(!sheetCounts[m] || sheetCounts[m] === 0) continue; // skip empty
+    await loadFromMgr(m);
+  }
+  if(sub) sub.textContent = `โหลดครบแล้ว · รวม ${allData.length.toLocaleString()} แถว`;
+}
+
+async function quickSync(){
+  // Always sync directly - never open modal
+  if(!APPS_SCRIPT_URL){
+    showToast('กรุณาตั้งค่า Apps Script URL ก่อน (กด ▾)', 'twarn');
+    return;
+  }
+  const now = new Date();
+  const curMonth = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()];
+  try{
+    await syncMonitor();          // Alert (Monitor sheet)
+    await syncData(curMonth);     // Dashboard + Table (current month)
   }catch(e){
     hide();
-    showToast('Sync error: '+e.message,'terr');
+    showToast('Sync error: '+e.message, 'terr');
   }
 }
 
@@ -1842,13 +2839,32 @@ document.addEventListener('click',e=>{
 });
 
 // ─── NAVIGATION ──────────────────────────────────────────────
-function switchPage(id, btnEl){
-  // Deactivate all
-  document.querySelectorAll('.nav-pill').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.page-wrap').forEach(p=>p.classList.remove('active'));
+// ─── DRILL-DOWN: dashboard → table filtered by branch ─────
+function drillToBranch(branchName, opts){
+  opts = opts || {};
+  // Reset all filters first
+  Object.keys(_chipState).forEach(k=>_chipState[k]='');
+  document.querySelectorAll('.slc').forEach(c=>c.classList.remove('slc-on'));
+  document.querySelectorAll('.sl-sel').forEach(s=>s.value='');
+  const si=document.getElementById('searchInput'); if(si) si.value='';
+  _srch=''; _fPer=''; _fTeam=''; _fProv=''; _fBranch='';
+  // Apply branch filter
+  _fBranch = branchName;
+  // Optionally pre-filter to breached pickup (when drilling from breach list)
+  if(opts.breachOnly){
+    _chipState.pk = 'เกิน';
+    document.querySelectorAll('.slc').forEach(c=>{
+      const oc=c.getAttribute('onclick')||'';
+      if(oc.includes("'pk'") && oc.includes("'เกิน'")) c.classList.add('slc-on');
+    });
+  }
+  // Go to table page
+  switchPage('table', null);
+}
 
-  // Activate desktop nav pill
+function switchPage(id, btnEl){
+  // ── Deactivate all nav pills ──────────────────────────────
+  document.querySelectorAll('.nav-pill').forEach(b=>b.classList.remove('active'));
   if(btnEl && btnEl.classList && btnEl.classList.contains('nav-pill')){
     btnEl.classList.add('active');
   } else {
@@ -1857,23 +2873,26 @@ function switchPage(id, btnEl){
     });
   }
 
-  // Activate mobile bottom nav
+  // ── Mobile bottom nav ─────────────────────────────────────
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
   const bMap={dash:'bnav-dash',table:'bnav-table',alert:'bnav-alert'};
   const adminPgs=['sched','slaconf','holiday'];
-  if(bMap[id]) document.getElementById(bMap[id])?.classList.add('active');
-  else if(adminPgs.includes(id)) document.getElementById('bnav-admin')?.classList.add('active');
+  if(bMap[id]) { var bn=document.getElementById(bMap[id]); if(bn) bn.classList.add('active'); }
+  else if(adminPgs.includes(id)) { var ba=document.getElementById('bnav-admin'); if(ba) ba.classList.add('active'); }
 
-  // Show page
-  const pg = document.getElementById('page-'+id);
+  // ── Show/hide pages using ONLY classList (pure CSS control) ──
+  document.querySelectorAll('.page-wrap').forEach(p=>p.classList.remove('active'));
+  var pg=document.getElementById('page-'+id);
   if(pg) pg.classList.add('active');
 
-  // Build content
+  // ── Build content ─────────────────────────────────────────
   try{
+    if(id==='dash')    { updateKpiStrip(); buildDashWith(allData); }
     if(id==='alert')   buildAlertPage();
     if(id==='slaconf') renderProvinceSLATable();
     if(id==='holiday') renderHolidayPage();
     if(id==='sched')   buildSched();
-    if(id==='table'){  buildTableMonthBar(); applyF(); }
+    if(id==='table')   { buildTableMonthBar(); applyF(); }
   }catch(e){ console.error('switchPage:',id,e); }
 }
 
@@ -1892,6 +2911,42 @@ document.addEventListener('click',e=>{
 });
 
 // ─── KPI STRIP ────────────────────────────────────────────
+// ── UPDATE MONTHS BADGE ─────────────────────────────────────
+function updateMonthsBadge(sheet, state){
+  // state: 'loading' | 'loaded' | 'error'
+  const nameMap={
+    Monitor:'mbMonitor',
+    Jan:'mbJan',Feb:'mbFeb',Mar:'mbMar',Apr:'mbApr',
+    May:'mbMay',Jun:'mbJun',Jul:'mbJul',Aug:'mbAug',
+    Sep:'mbSep',Oct:'mbOct',Nov:'mbNov',Dec:'mbDec'
+  };
+  const id = nameMap[sheet];
+  if(!id) return;
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('loaded','loading');
+  if(state==='loading') el.classList.add('loading');
+  else if(state==='loaded') el.classList.add('loaded');
+  // Update count
+  const count = document.getElementById('monthsCount');
+  if(count){
+    const loaded = loadedSheets.size;
+    const hasMonitor = monitorData.length > 0;
+    const parts = [];
+    if(hasMonitor) parts.push(`Monitor: ${monitorData.length.toLocaleString()}`);
+    if(allData.length) parts.push(`Jan-Dec: ${allData.length.toLocaleString()} แถว`);
+    count.textContent = parts.join(' · ');
+  }
+}
+
+function updateAllMonthsBadges(){
+  // Reset all
+  ['Monitor','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].forEach(s=>{
+    updateMonthsBadge(s, loadedSheets.has(s)?'loaded':'');
+  });
+  if(monitorData.length>0) updateMonthsBadge('Monitor','loaded');
+}
+
 function updateKpiStrip(){
   const D=allData; if(!D.length) return;
   const _s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
@@ -1899,17 +2954,97 @@ function updateKpiStrip(){
   const hd=D.filter(r=>r.pickupBizDays!==null);
   const pkFail=hd.filter(r=>r.pickupSLA==='เกิน').length;
   const pkPass=hd.filter(r=>r.pickupSLA==='ผ่าน').length;
-  const pkPct=hd.length?Math.round(pkPass/hd.length*100):0;
+  // % จากทั้งหมดที่มีข้อมูล (pass+fail) เท่านั้น ไม่นับ null
+  const pkHasData = pkPass + pkFail;
+  // ใช้ 1 ทศนิยม เพื่อแสดงความแตกต่างได้ชัด (99.6% ≠ 100%)
+  const pkPct = pkHasData > 0 ? (pkPass/pkHasData*100).toFixed(1) : '0.0';
   const avgPK=hd.length?(hd.reduce((s,r)=>s+r.pickupBizDays,0)/hd.length).toFixed(1):'—';
   const delFail=D.filter(r=>r.deliverySLA==='เกิน').length;
   // Grouped jobs count
   const grouped=groupJobs(D);
   _s('ks1',pkFail); _s('ks2',total.toLocaleString());
-  _s('ks3',pkPct+'%'); _s('ks_del',delFail);
+  _s('ks3',pkPct+'%'); _s('ks_del',delFail); _s('tk_del2',delFail);
   _s('ks4',avgPK+'d'); _s('ks5',grouped.length.toLocaleString());
   // Update Monitor status in header
   const alertBadge=document.getElementById('alertBadge');
   if(alertBadge) alertBadge.textContent=monitorData.filter(r=>r.alertLevel==='red').length||'';
+  // ── Month-over-Month comparison ──────────────────────────
+  updateMoM(D);
+}
+
+// ─── MONTH-OVER-MONTH (MoM) BADGES ─────────────────────────
+function updateMoM(D){
+  // Find the two most recent months present in data
+  const byMonth={};
+  D.forEach(r=>{
+    const m=getMonth(r.orderDate), y=getYear(r.orderDate);
+    if(!m) return;
+    const key=(y||0)*100+m;
+    (byMonth[key]=byMonth[key]||[]).push(r);
+  });
+  const keys=Object.keys(byMonth).map(Number).sort((a,b)=>a-b);
+  const setBadge=(id,txt,cls)=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.className='mom-badge'+(cls?' '+cls:'');
+    el.textContent=txt;
+  };
+  if(keys.length<2){
+    ['ks1mom','ks3mom','ksdelmom','ks4mom'].forEach(id=>setBadge(id,'',''));
+    return;
+  }
+  const cur=byMonth[keys[keys.length-1]];
+  const prev=byMonth[keys[keys.length-2]];
+  // Guard: skip MoM if either month has too few records (noisy comparison)
+  const MIN_VOL=10;
+  if(cur.length<MIN_VOL || prev.length<MIN_VOL){
+    ['ks1mom','ks3mom','ksdelmom','ks4mom'].forEach(id=>setBadge(id,'',''));
+    return;
+  }
+  const ABBR=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const prevM=ABBR[keys[keys.length-2]%100]||'';
+
+  const metrics=(arr)=>{
+    const hd=arr.filter(r=>r.pickupBizDays!==null);
+    const pkPass=hd.filter(r=>r.pickupSLA==='ผ่าน').length;
+    const pkFail=hd.filter(r=>r.pickupSLA==='เกิน').length;
+    const hasData=pkPass+pkFail;
+    return {
+      pkFail,
+      pkPct: hasData? pkPass/hasData*100 : null,
+      delFail: arr.filter(r=>r.deliverySLA==='เกิน').length,
+      avgPK: hd.length? hd.reduce((s,r)=>s+r.pickupBizDays,0)/hd.length : null
+    };
+  };
+  const c=metrics(cur), p=metrics(prev);
+
+  // diff: lowerIsBetter true means an increase is BAD (red)
+  const fmtBadge=(id,curV,prevV,opts)=>{
+    opts=opts||{};
+    if(curV==null||prevV==null){ setBadge(id,'',''); return; }
+    const diff=curV-prevV;
+    const eps=opts.eps||0.05;
+    if(Math.abs(diff)<eps){ setBadge(id,'→ 0 vs '+prevM,'flat'); return; }
+    const arrow=diff>0?'▲':'▼';
+    let disp;
+    if(opts.pct){ disp=(diff>0?'+':'')+diff.toFixed(1)+'pp'; }       // percentage-point
+    else if(opts.dec){ disp=(diff>0?'+':'')+diff.toFixed(1); }
+    else { disp=(diff>0?'+':'')+Math.round(diff); }
+    // Determine good/bad coloring
+    const lowerIsBetter = opts.lowerIsBetter;
+    let cls;
+    if(lowerIsBetter) cls = diff>0 ? 'bad-down' : 'good-up';   // increase=bad
+    else              cls = diff>0 ? 'good-up' : 'bad-down';   // increase=good
+    setBadge(id, `${arrow} ${disp} vs ${prevM}`, cls);
+  };
+
+  // เกิน SLA เข้ารับ (count) — lower is better
+  fmtBadge('ks1mom', c.pkFail, p.pkFail, {lowerIsBetter:true, eps:0.5});
+  // ผ่าน SLA % — higher is better
+  fmtBadge('ks3mom', c.pkPct, p.pkPct, {pct:true, eps:0.05});
+  // เกิน SLA ส่ง (count) — lower is better
+  fmtBadge('ksdelmom', c.delFail, p.delFail, {lowerIsBetter:true, eps:0.5});
+  // Avg เข้ารับ (days) — lower is better
+  fmtBadge('ks4mom', c.avgPK, p.avgPK, {dec:true, lowerIsBetter:true, eps:0.05});
 }
 
 // ─── DASHBOARD ────────────────────────────────────────────
@@ -1959,19 +3094,24 @@ function buildDashWith(D){
   const hd=D.filter(r=>r.pickupBizDays!==null);
   const pkPass=hd.filter(r=>r.pickupSLA==='ผ่าน').length;
   const pkFail=hd.filter(r=>r.pickupSLA==='เกิน').length;
-  const pkPct=hd.length?Math.round(pkPass/hd.length*100):0;
+  const pkFail2=hd.filter(r=>r.pickupSLA==='เกิน').length;
+  const pkHasData2=pkPass+pkFail2;
+  const pkPct=pkHasData2>0?(pkPass/pkHasData2*100).toFixed(1):'0.0';
   const avgPK=hd.length?(hd.reduce((s,r)=>s+r.pickupBizDays,0)/hd.length).toFixed(1):'—';
-  const avgT=(D.reduce((s,r)=>s+(r.days||0),0)/total).toFixed(1);
+  const avgT=(D.reduce((s,r)=>s+(r.calDays||0),0)/total).toFixed(1);
   const succPct=Math.round(D.filter(r=>r.result==='สำเร็จ').length/total*100);
   // Meters
   _s('m1p',pkPass);_s('m1f',pkFail);_s('m1pct',pkPct+'%');_s('m1avg',avgPK+'d');
   const m1b=document.getElementById('m1bar');
   if(m1b) m1b.style.cssText=`width:${pkPct}%;background:${pkPct>=80?'var(--ok)':pkPct>=50?'var(--warn)':'var(--red)'}`;
-  const da=D.map(r=>r.days).filter(d=>d>0);
+  const da=D.map(r=>r.calDays).filter(d=>d>0);
   const mn=da.length?Math.min(...da):'—',mx=da.length?Math.max(...da):'—';
   const av=da.length?(da.reduce((s,v)=>s+v,0)/da.length).toFixed(1):'—';
   const md=da.length?da.sort((a,b)=>da.filter(v=>v===b).length-da.filter(v=>v===a).length)[0]:'—';
-  _s('m2min',mn);_s('m2avg',av);_s('m2max',mx);_s('m2mode',md+'d');
+  _s('m2min', da.length?mn+'d':'—');
+  _s('m2avg', da.length?av+'d':'—');
+  _s('m2max', da.length?mx+'d':'—');
+  _s('m2mode', da.length?(md+'d'):'—');
   const pb={'1-3':0,'4-6':0,'7-9':0,'10+':0};
   D.forEach(r=>pb[r.periodBand]=(pb[r.periodBand]||0)+1);
   const pc={'1-3':'var(--ok)','4-6':'var(--cyan)','7-9':'var(--warn)','10+':'var(--red)'};
@@ -1985,29 +3125,47 @@ function buildDashWith(D){
   const sl=Object.values(bm).sort((a,b)=>b.cnt-a.cnt).slice(0,8);
   const bEl=document.getElementById('breachList');
   if(bEl) bEl.innerHTML=sl.length
-    ? sl.map(v=>{const pct=Math.round(v.cnt/(bt[v.n]||1)*100);const avg=v.cpk?(v.spk/v.cpk).toFixed(1):'—';const cls=pct>=70?'':'warn';
-      return `<div class="breach-item ${cls}">
-        <div class="breach-icon" style="background:${cls?'var(--warn-d)':'var(--red-d)'}">🏢</div>
-        <div class="breach-info"><div class="breach-name">${v.n}</div><div class="breach-meta">${v.prov} · ${v.cnt} งาน · avg ${avg}d</div></div>
-        <div class="breach-pct ${cls}">${pct}%</div></div>`;}).join('')
-    : '<div style="text-align:center;padding:24px;color:var(--ok);font-size:12px">✓ ไม่มีสาขาเกิน SLA</div>';
+    ? sl.map((v,idx)=>{
+        const pct=Math.round(v.cnt/(bt[v.n]||1)*100);
+        const avg=v.cpk?(v.spk/v.cpk).toFixed(1):'—';
+        const cls=pct>=70?'':'warn';
+        const sev=pct>=80?'var(--red)':pct>=50?'var(--warn)':'var(--blue)';
+        return `<div class="breach-item ${cls}" style="cursor:pointer" onclick="drillToBranch('${v.n.replace(/'/g,"\\'")}',{breachOnly:true})" title="คลิกเพื่อดูรายการเกิน SLA ของสาขานี้">
+          <div class="breach-icon">${idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':'🏢'}</div>
+          <div class="breach-info">
+            <div class="breach-name">${v.n}</div>
+            <div class="breach-meta">${v.prov} · ${v.cnt.toLocaleString()} งาน เกิน · avg <span style="color:${sev};font-weight:700">${avg}d</span></div>
+            <div class="breach-bar-wrap"><div class="breach-bar-fill" style="width:${pct}%"></div></div>
+          </div>
+          <div class="breach-right">
+            <div class="breach-pct ${cls}">${pct}%</div>
+            <div class="breach-pct-lbl">เกิน SLA</div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="text-align:center;padding:28px;color:var(--ok);font-size:13px;font-weight:600">🎉 ไม่มีสาขาเกิน SLA</div>';
   const bCnt=document.getElementById('breachCount');if(bCnt)bCnt.textContent=sl.length+'/'+(Object.keys(bm).length)+' สาขา';
   // Rank
   const wm={};D.forEach(r=>wm[r.branchName]=(wm[r.branchName]||0)+1);
   const tw=Object.entries(wm).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const mxw=tw[0]?.[1]||1;
   const rc=['#bbfb4c','#4dffb4','#6697f7','#ffac33','#b57bee','#ff9f43','#ff6b35','#ff4d6a'];
+  const rMedal=['gold','silver','bronze'];
   const rEl=document.getElementById('rankList');
-  if(rEl) rEl.innerHTML=tw.map(([n,c],i)=>{const clr=rc[i%rc.length];const w=Math.round(c/mxw*100);
-    return `<div class="rank-item">
-      <div class="rank-n" style="background:${clr}18;color:${clr}">${i+1}</div>
-      <div class="rank-name">${n}</div>
-      <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${w}%;background:${clr}"></div></div>
-      <div class="rank-val">${c}</div>
+  if(rEl) rEl.innerHTML=tw.map(([n,c],i)=>{
+    const clr=rc[i%rc.length];
+    const w=Math.round(c/mxw*100);
+    const medalCls=i<3?rMedal[i]:'';
+    const nbg=medalCls?'':clr+'20';
+    return `<div class="rank-item" style="cursor:pointer" onclick="drillToBranch('${n.replace(/'/g,"\\'")}')" title="คลิกเพื่อดูรายการทั้งหมดของสาขานี้">
+      <div class="rank-n ${medalCls}" style="${medalCls?'':'background:'+nbg+';color:'+clr}">${i+1}</div>
+      <div class="rank-name" style="color:${i===0?'var(--t1)':'var(--t2)'}">${n}</div>
+      <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${w}%;background:linear-gradient(90deg,${clr},${clr}88)"></div></div>
+      <div class="rank-val" style="color:${clr}">${c.toLocaleString()}</div>
     </div>`;}).join('');
   // Best/Worst
   const ba={},bc={},bpk={},bpc={};
-  D.forEach(r=>{ba[r.branchName]=(ba[r.branchName]||0)+r.days;bc[r.branchName]=(bc[r.branchName]||0)+1;if(r.pickupBizDays!==null){bpk[r.branchName]=(bpk[r.branchName]||0)+r.pickupBizDays;bpc[r.branchName]=(bpc[r.branchName]||0)+1;}});
+  D.forEach(r=>{ba[r.branchName]=(ba[r.branchName]||0)+r.calDays;bc[r.branchName]=(bc[r.branchName]||0)+1;if(r.pickupBizDays!==null){bpk[r.branchName]=(bpk[r.branchName]||0)+r.pickupBizDays;bpc[r.branchName]=(bpc[r.branchName]||0)+1;}});
   const al=Object.entries(ba).filter(([k])=>bc[k]>=2).map(([k,s])=>({k,avg:s/bc[k]})).sort((a,b)=>a.avg-b.avg);
   const pkl=Object.entries(bpk).filter(([k])=>bpc[k]>=2).map(([k,s])=>({k,avg:s/bpc[k]})).sort((a,b)=>a.avg-b.avg);
   const hiRow=(icon,name,sub,val,clr)=>`<div class="perf-item" style="border-left:2px solid ${clr}">
@@ -2027,23 +3185,82 @@ function buildDashWith(D){
     charts.tm=new Chart(cEl,{type:'bar',data:{labels:Object.keys(tm),datasets:[{data:Object.values(tm),backgroundColor:['rgba(187,251,76,.7)','rgba(77,124,254,.7)','rgba(255,172,51,.7)','rgba(255,61,90,.7)','rgba(168,85,247,.7)'],borderRadius:6}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:'#888',font:{family:'Plus Jakarta Sans',size:10},maxRotation:20},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#888'},grid:{color:'rgba(255,255,255,.04)'}}}}}); }
+  // Monthly SLA trend chart
+  buildTrendChart(D);
   // Province bars
   const pA={},pC={};
-  D.forEach(r=>{if(r.province&&r.province!=='ไม่ระบุ'){pA[r.province]=(pA[r.province]||0)+r.days;pC[r.province]=(pC[r.province]||0)+1;}});
+  D.forEach(r=>{if(r.province&&r.province!=='ไม่ระบุ'){pA[r.province]=(pA[r.province]||0)+r.calDays;pC[r.province]=(pC[r.province]||0)+1;}});
   const pL=Object.entries(pA).map(([p,s])=>({p,avg:s/pC[p],jobs:pC[p]})).sort((a,b)=>a.avg-b.avg);
   const mxA=Math.max(...pL.map(x=>x.avg),1);
   const provFn=(avg,mx)=>{const r=avg/mx;return r<=.4?'#bbfb4c':r<=.55?'#4dffb4':r<=.68?'#6697f7':r<=.78?'#ffac33':r<=.88?'#ff6b35':'#ff4d6a';};
   const rkSty=i=>{const c=[['rgba(187,251,76,.2)','#bbfb4c'],['rgba(77,255,180,.15)','#4dffb4'],['rgba(102,151,247,.15)','#6697f7']][i];return c?`background:${c[0]};color:${c[1]}`:'background:var(--s2);color:var(--t3)';};
   const pEl=document.getElementById('provBars');
-  if(pEl) pEl.innerHTML=pL.length?'<div class="prov-list">'+pL.map((x,i)=>{const clr=provFn(x.avg,mxA);return `<div class="prov-item">
-    <div class="prov-rank" style="${rkSty(i)}">${i+1}</div>
-    <div class="prov-name" title="${x.p}">${x.p}</div>
-    <div class="prov-bar-wrap"><div class="prov-bar-fill" style="width:${Math.round(x.avg/mxA*100)}%;background:${clr}"></div></div>
-    <div class="prov-val" style="color:${clr}">${x.avg.toFixed(1)}d</div>
-  </div>`;}).join('')+'</div>':'';
+  if(pEl) pEl.innerHTML=pL.length?pL.map((x,i)=>{
+    const clr=provFn(x.avg,mxA);
+    const barW=Math.round(x.avg/mxA*100);
+    const rkBg=i===0?'linear-gradient(135deg,rgba(187,251,76,.25),rgba(187,251,76,.1))':
+                i===1?'linear-gradient(135deg,rgba(77,255,180,.2),rgba(77,255,180,.08))':
+                i===2?'linear-gradient(135deg,rgba(102,151,247,.2),rgba(102,151,247,.08))':
+                'rgba(255,255,255,.06)';
+    const rkClr=i===0?'#bbfb4c':i===1?'#4dffb4':i===2?'#6697f7':'var(--t3)';
+    return `<div class="prov-item" title="${x.p} · ${x.jobs.toLocaleString()} งาน · avg ${x.avg.toFixed(1)}d">
+      <div class="prov-rank" style="background:${rkBg};color:${rkClr};border:1px solid ${rkClr}30">${i+1}</div>
+      <div class="prov-name">${x.p}</div>
+      <div class="prov-bar-wrap">
+        <div class="prov-bar-fill" style="width:${barW}%;background:linear-gradient(90deg,${clr},${clr}88)"></div>
+      </div>
+      <div class="prov-val" style="color:${clr}">${x.avg.toFixed(1)}d</div>
+    </div>`;}).join(''):
+    '<div style="text-align:center;padding:24px;color:var(--t3);font-size:11px">กรุณาโหลดข้อมูล</div>';
 }
 
-// ─── TABLE ────────────────────────────────────────────────
+// ─── MONTHLY SLA TREND ─────────────────────────────────────
+function buildTrendChart(D){
+  const cEl=document.getElementById('cTrend'); if(!cEl) return;
+  const ABBR=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  // Aggregate by month: pickup pass %, delivery pass %, volume
+  const agg={};  // {month: {pkPass, pkTotal, delPass, delTotal, vol}}
+  D.forEach(r=>{
+    const m=getMonth(r.orderDate); if(!m) return;
+    if(!agg[m]) agg[m]={pkPass:0,pkTotal:0,delPass:0,delTotal:0,vol:0};
+    const a=agg[m]; a.vol++;
+    if(r.pickupSLA==='ผ่าน'||r.pickupSLA==='เกิน'){ a.pkTotal++; if(r.pickupSLA==='ผ่าน') a.pkPass++; }
+    if(r.deliverySLA==='ผ่าน'||r.deliverySLA==='เกิน'){ a.delTotal++; if(r.deliverySLA==='ผ่าน') a.delPass++; }
+  });
+  const months=Object.keys(agg).map(Number).sort((a,b)=>a-b);
+  const labels=months.map(m=>ABBR[m]||m);
+  const pkPct=months.map(m=>agg[m].pkTotal?+(agg[m].pkPass/agg[m].pkTotal*100).toFixed(1):null);
+  const delPct=months.map(m=>agg[m].delTotal?+(agg[m].delPass/agg[m].delTotal*100).toFixed(1):null);
+  const vol=months.map(m=>agg[m].vol);
+
+  const ti=document.getElementById('trendInfo');
+  if(ti) ti.textContent=`${months.length} เดือน · ${D.length.toLocaleString()} งาน`;
+
+  if(charts.trend){ try{charts.trend.destroy();}catch(e){} }
+  charts.trend=new Chart(cEl,{
+    data:{labels,datasets:[
+      {type:'bar',label:'จำนวนงาน',data:vol,yAxisID:'y1',
+        backgroundColor:'rgba(77,124,254,.18)',borderColor:'rgba(77,124,254,.35)',borderWidth:1,borderRadius:4,order:3},
+      {type:'line',label:'% ผ่าน SLA เข้ารับ',data:pkPct,yAxisID:'y',
+        borderColor:'#bbfb4c',backgroundColor:'rgba(187,251,76,.1)',borderWidth:2.5,
+        pointRadius:3,pointBackgroundColor:'#bbfb4c',tension:.3,fill:false,spanGaps:true,order:1},
+      {type:'line',label:'% ผ่าน SLA ส่ง',data:delPct,yAxisID:'y',
+        borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,.1)',borderWidth:2.5,
+        pointRadius:3,pointBackgroundColor:'#00d4ff',tension:.3,fill:false,spanGaps:true,borderDash:[5,3],order:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,position:'top',labels:{color:'#aaa',font:{family:'Plus Jakarta Sans',size:10},boxWidth:12,padding:10}},
+        tooltip:{callbacks:{label:(c)=>{
+          if(c.dataset.yAxisID==='y') return ` ${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y+'%':'—'}`;
+          return ` ${c.dataset.label}: ${c.parsed.y.toLocaleString()}`;
+        }}}},
+      scales:{
+        x:{ticks:{color:'#888',font:{family:'Plus Jakarta Sans',size:10}},grid:{color:'rgba(255,255,255,.04)'}},
+        y:{position:'left',min:0,max:100,ticks:{color:'#888',callback:v=>v+'%'},grid:{color:'rgba(255,255,255,.04)'},title:{display:true,text:'% ผ่าน SLA',color:'#888',font:{size:9}}},
+        y1:{position:'right',min:0,ticks:{color:'#666'},grid:{display:false},title:{display:true,text:'จำนวนงาน',color:'#666',font:{size:9}}}
+      }}
+  });
+}
 function populateOpts(){
   const ts=[...new Set(allData.map(r=>r.team))].sort();
   const teamF=document.getElementById('teamF');if(teamF)teamF.innerHTML='<option value="">ทีม: ทั้งหมด</option>'+ts.map(t=>`<option value="${t}">${t}</option>`).join('');
@@ -2054,53 +3271,188 @@ function populateOpts(){
 }
 
 function buildTableMonthBar(){
-  const pills=document.getElementById('tblMonthPills');if(!pills)return;
-  const ms=new Set(allData.map(r=>getMonth(r.orderDate)).filter(Boolean));
-  const months=[...ms].sort((a,b)=>a-b);
-  const act=flt.month===''?'all':flt.month;
+  // Get months that have data
+  const monthCounts = {};
+  allData.forEach(r=>{
+    const m = getMonth(r.orderDate);
+    if(m) monthCounts[m] = (monthCounts[m]||0)+1;
+  });
 
-  // Map month number → sheet name
-  const monthSheetMap={1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun',7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec'};
+  const ABBR = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.',
+                 'ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const activeMon = _chipState.month;
 
-  pills.innerHTML=
-    `<button class="tbl-mpill all-pill ${act==='all'?'active':''}" onclick="setTblMonth('')">ทั้งหมด</button>`
-    +months.map(m=>{
-      const isAct=act===m||act==String(m);
-      return `<button class="tbl-mpill ${isAct?'active':''}" onclick="setTblMonth(${m})">${THAI_M[m]}</button>`;
-    }).join('')
-    // Show unloaded months (months not yet fetched)
-    +'<span style="color:var(--t4);margin:0 4px">·</span>'
-    +MONTH_ONLY_SHEETS.filter(s=>!loadedSheets.has(s)).map(s=>`
-      <button onclick="lazyLoadSheet('${s}')"
-        style="padding:3px 10px;border-radius:20px;font-size:10px;font-family:var(--mn);cursor:pointer;
-          border:1px dashed rgba(255,255,255,.15);background:none;color:rgba(255,255,255,.25);transition:all .2s"
-        onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'"
-        onmouseout="this.style.borderColor='rgba(255,255,255,.15)';this.style.color='rgba(255,255,255,.25)'">
-        + ${s}
-      </button>`).join('');
+  // Left panel month grid
+  const grid = document.getElementById('leftMonthGrid');
+  if(grid){
+    const allBtn = `<div onclick="setLeftMonth('')"
+      style="grid-column:span 4;padding:5px 0;text-align:center;border-radius:8px;font-size:11px;
+        font-family:var(--fn);cursor:pointer;border:1px solid ${!activeMon?'rgba(102,151,247,.5)':'var(--bd)'};
+        background:${!activeMon?'rgba(102,151,247,.12)':'var(--s2)'};
+        color:${!activeMon?'var(--blue)':'var(--t3)'};font-weight:${!activeMon?'700':'400'}">
+      ทั้งหมด (${allData.length.toLocaleString()})
+    </div>`;
 
-  const tc=document.getElementById('tblMonthCount');
-  if(tc) tc.textContent=loadedSheets.size+' Sheet · '+allData.length.toLocaleString()+' แถว (Dashboard/Table) · Monitor: '+monitorData.length.toLocaleString()+' งาน (Alert)';
+    const monthBtns = Object.keys(monthCounts).sort((a,b)=>a-b).map(m=>{
+      const isActive = activeMon===String(m);
+      const loaded = loadedSheets.has(['','Jan','Feb','Mar','Apr','May','Jun',
+                      'Jul','Aug','Sep','Oct','Nov','Dec'][m]);
+      return `<div onclick="setLeftMonth('${m}')"
+        style="padding:5px 0;text-align:center;border-radius:8px;font-size:11px;
+          font-family:var(--fn);cursor:pointer;
+          border:1px solid ${isActive?'rgba(102,151,247,.5)':loaded?'rgba(187,251,76,.3)':'var(--bd)'};
+          background:${isActive?'rgba(102,151,247,.12)':loaded?'rgba(187,251,76,.06)':'var(--s2)'};
+          color:${isActive?'var(--blue)':loaded?'var(--lime)':'var(--t3)'};
+          font-weight:${isActive?'700':'400'}">
+        ${ABBR[m]}
+      </div>`;
+    }).join('');
+
+    grid.innerHTML = allBtn + monthBtns;
+  }
+
+  // Update count info
+  const tc = document.getElementById('tblMonthCount');
+  if(tc){
+    const shown = Object.keys(monthCounts).length;
+    tc.textContent = `${shown} เดือน · ${allData.length.toLocaleString()} แถว`;
+  }
+  // Update top status bar
+  const splitSub = document.getElementById('splitLeftSub');
+  if(splitSub){
+    const cur = activeMon ? ABBR[parseInt(activeMon)] : 'ทุกเดือน';
+    splitSub.textContent = `${cur} · ${filteredData.length.toLocaleString()} แถว`;
+  }
+}
+
+function setLeftMonth(mon){
+  _chipState.month = mon;
+  applyF();
 }
 
 function setTblMonth(m){flt.month=m===''?'':m;buildTableMonthBar();applyF();}
 
+// ── Chip filter state ──────────────────────────────────────
+const _chipState = {pk:'', del:'', alert:'', type:'', month:''};
+
+function toggleChip(el, key, val){
+  const wasOn = _chipState[key] === val;
+  // Clear all chips in same group
+  el.closest('.sl-chips')?.querySelectorAll('.slc').forEach(c => {
+    c.classList.remove('slc-on');
+  });
+  if(wasOn){
+    _chipState[key] = '';
+  } else {
+    _chipState[key] = val;
+    el.classList.add('slc-on');
+  }
+  applyF();
+}
+
+function clearAllFilters(){
+  Object.keys(_chipState).forEach(k => _chipState[k] = '');
+  document.querySelectorAll('.slc').forEach(c => c.classList.remove('slc-on'));
+  document.querySelectorAll('.sl-sel').forEach(s => s.value = '');
+  const si = document.getElementById('searchInput');
+  if(si) si.value = '';
+  _srch = ''; _fPer = ''; _fTeam = ''; _fProv = ''; _fBranch = '';
+  applyF();
+  showToast('ล้างตัวกรองแล้ว','tok');
+}
+
 function applyF(){
-  filteredData=allData.filter(r=>{
-    const q=(flt.srch||'').toLowerCase();
-    if(q&&!r.jobNo.toLowerCase().includes(q)&&!(r.sender||'').toLowerCase().includes(q)&&!(r.receiver||'').toLowerCase().includes(q)&&!r.branchName.toLowerCase().includes(q)&&!r.province.toLowerCase().includes(q)) return false;
-    if(flt.pk&&r.pickupSLA!==flt.pk) return false;
-    if(flt.period&&r.periodBand!==flt.period) return false;
-    if(flt.team&&r.team!==flt.team) return false;
-    if(flt.prov&&r.province!==flt.prov) return false;
-    if(flt.month!==''&&flt.month!==null&&getMonth(r.orderDate)!==parseInt(flt.month)) return false;
-    if(flt.delivType&&r.deliveryType!==flt.delivType) return false;
-    if(flt.alertLvl&&r.alertLevel!==flt.alertLvl) return false;
+  // ── Active filters (chip + dropdown + search) ────────────
+  const srch   = (_srch||'').toLowerCase();
+  const fPK    = _chipState.pk;      // SLA เข้ารับ chip
+  const fDel   = _chipState.del;     // SLA ส่ง chip
+  const fAlert = _chipState.alert;   // Alert chip
+  const fType  = _chipState.type;    // ประเภทส่ง chip
+  const fMonth = _chipState.month;   // เดือน chip (number string '1'-'12')
+  const fPer   = _fPer;
+  const fTeam  = _fTeam;
+  const fProv  = _fProv;
+  const fBranch= _fBranch;
+
+  filteredData = allData.filter(r=>{
+    // Search
+    if(srch){
+      const haystack = (r.jobNo+' '+(r.senderName||'')+' '+(r.receiverName||'')+
+                        ' '+(r.receiverCo||'')+' '+(r.province||'')+' '+(r.branchName||'')).toLowerCase();
+      if(!haystack.includes(srch)) return false;
+    }
+    // SLA filters
+    if(fPK    && r.pickupSLA   !== fPK)    return false;
+    if(fDel   && r.deliverySLA !== fDel)   return false;
+    if(fAlert && r.alertLevel  !== fAlert) return false;
+    if(fType  && r.deliveryType!== fType)  return false;
+    // Month filter (from left panel month chip)
+    if(fMonth){
+      const m = getMonth(r.orderDate);
+      if(m !== parseInt(fMonth)) return false;
+    }
+    // Dropdowns
+    if(fPer  && r.periodBand  !== fPer)  return false;
+    if(fTeam && r.team        !== fTeam) return false;
+    if(fProv && r.province    !== fProv) return false;
+    if(fBranch && r.branchName!== fBranch) return false;
     return true;
   });
-  if(sortSt.col) filteredData.sort((a,b)=>{const va=a[sortSt.col],vb=b[sortSt.col];return sortSt.asc?(va>vb?1:va<vb?-1:0):(va<vb?1:va>vb?-1:0);});
+
+  if(sortSt.col) filteredData.sort((a,b)=>{
+    const va=a[sortSt.col], vb=b[sortSt.col];
+    return sortSt.asc?(va>vb?1:va<vb?-1:0):(va<vb?1:va>vb?-1:0);
+  });
+
+  // Update displays
   updateTableKPIs();
   renderTable();
+  const tfzEl=document.getElementById('tfzCount');
+  if(tfzEl) tfzEl.textContent=filteredData.length.toLocaleString()+' / '+allData.length.toLocaleString()+' รายการ';
+  const tfc=document.getElementById('tfootCount');
+  if(tfc) tfc.textContent='แสดง '+filteredData.length.toLocaleString()+' แถว';
+  buildTableMonthBar();
+  renderActiveFilters();
+}
+
+// ─── ACTIVE FILTER CHIPS (drill-down indicator) ───────────
+function renderActiveFilters(){
+  const el=document.getElementById('activeFilters'); if(!el) return;
+  const alertLbl={red:'เกิน SLA',yellow:'วันที่ 3',blue:'วันที่ 2'};
+  const chips=[];
+  const mk=(lbl,clearFn)=>`<span class="afc">${lbl}<span class="afc-x" onclick="${clearFn}">✕</span></span>`;
+  if(_fBranch) chips.push(mk('🏢 สาขา: '+_fBranch, "clearBranchFilter()"));
+  if(_fProv)   chips.push(mk('📍 จังหวัด: '+_fProv, "fProv('');var p=document.getElementById('provF');if(p)p.value=''"));
+  if(_fTeam)   chips.push(mk('👥 ทีม: '+_fTeam, "fTeam('');var t=document.getElementById('teamF');if(t)t.value=''"));
+  if(_fPer)    chips.push(mk('⏱ ระยะเวลา: '+_fPer, "clearPeriodFilter()"));
+  if(_chipState.pk)    chips.push(mk('เข้ารับ: '+_chipState.pk, "clearChipGroup('pk')"));
+  if(_chipState.del)   chips.push(mk('ส่ง: '+_chipState.del, "clearChipGroup('del')"));
+  if(_chipState.alert) chips.push(mk('🔔 '+(alertLbl[_chipState.alert]||_chipState.alert), "clearChipGroup('alert')"));
+  if(_chipState.type)  chips.push(mk('ประเภท: '+_chipState.type, "clearChipGroup('type')"));
+  if(chips.length){
+    el.style.display='flex';
+    el.innerHTML='<span class="afc-lbl">ตัวกรอง:</span>'+chips.join('')+
+      `<span class="afc-clear" onclick="clearAllFilters()">ล้างทั้งหมด</span>`;
+  } else {
+    el.style.display='none'; el.innerHTML='';
+  }
+}
+function clearBranchFilter(){ _fBranch=''; applyF(); }
+function clearPeriodFilter(){
+  _fPer='';
+  document.querySelectorAll('.sl-sel').forEach(s=>{
+    if((s.getAttribute('onchange')||'').includes('fPeriod')) s.value='';
+  });
+  applyF();
+}
+function clearChipGroup(key){
+  _chipState[key]='';
+  // Remove visual 'on' state from the matching chip group
+  document.querySelectorAll('.slc.slc-on').forEach(c=>{
+    const oc=c.getAttribute('onclick')||'';
+    if(oc.includes("'"+key+"'")) c.classList.remove('slc-on');
+  });
+  applyF();
 }
 
 function updateTableKPIs(){
@@ -2109,55 +3461,120 @@ function updateTableKPIs(){
   if(!n){['tk1','tk2','tk3','tk4','tk5','tk6'].forEach(id=>_s(id,'—'));return;}
   const pkFail=D.filter(r=>r.pickupSLA==='เกิน').length;
   const pkPass=D.filter(r=>r.pickupSLA==='ผ่าน').length;
-  const pkPct=pkPass+pkFail>0?Math.round(pkPass/(pkPass+pkFail)*100):100;
+  const pkPct=pkPass+pkFail>0?(pkPass/(pkPass+pkFail)*100).toFixed(1)+'%':'100%';
   const hd=D.filter(r=>r.pickupBizDays!==null);
   const avgPK=hd.length?(hd.reduce((s,r)=>s+r.pickupBizDays,0)/hd.length).toFixed(1):'—';
-  const avgT=(D.reduce((s,r)=>s+(r.days||0),0)/n).toFixed(1);
+  const avgT=(D.reduce((s,r)=>s+(r.calDays||0),0)/n).toFixed(1);
   const bandMap={};D.forEach(r=>bandMap[r.periodBand]=(bandMap[r.periodBand]||0)+1);
   const topBand=Object.entries(bandMap).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
-  _s('tk1',n.toLocaleString());_s('tk2',pkFail);_s('tk3',pkPct+'%');_s('tk4',avgPK+(avgPK!=='—'?'d':''));_s('tk5',avgT+'d');_s('tk6',topBand+(topBand!=='—'?' วัน':''));
+  _s('tk1',n.toLocaleString());_s('tk2',pkFail);_s('tk3',pkPct);_s('tk4',avgPK+(avgPK!=='—'?'d':''));_s('tk5',avgT+'d');_s('tk6',topBand+(topBand!=='—'?' วัน':''));
 }
+
+// ─── VIRTUAL SCROLL STATE ─────────────────────────────────────
+let _vsRowH = 38;          // estimated row height px
+let _vsVisible = 50;       // rows rendered at once
+let _vsStart = 0;          // first rendered row index
+let _vsTotal = 0;          // total filtered rows
+let _vsScrollEl = null;    // scroll container
 
 function renderTable(){
   const body=document.getElementById('tbody');if(!body)return;
-  if(!filteredData.length){body.innerHTML='<tr><td colspan="17" style="text-align:center;padding:40px;color:var(--t3)">ไม่พบข้อมูล</td></tr>';
-    const tf=document.getElementById('tfoot');if(tf)tf.innerHTML='<span>แถว: 0</span>'; return;}
-  const pc={'1-3':'p1','4-6':'p2','7-9':'p3','10+':'p4'};
+  if(!filteredData.length){
+    body.innerHTML='<tr><td colspan="17" style="text-align:center;padding:40px;color:var(--t3)">ไม่พบข้อมูล</td></tr>';
+    const tf=document.getElementById('tfoot');if(tf)tf.innerHTML='<span>แถว: 0</span>';
+    _updateFooter(); return;
+  }
+  _vsTotal = filteredData.length;
+  _vsStart = 0;
+  _vsScrollEl = document.querySelector('.split-right-table');
+  if(_vsScrollEl){ _vsScrollEl.scrollTop = 0; }
+  _vsRender();
+  _vsAttachScroll();
+  _updateFooter();
+}
+
+function _vsRender(){
+  const body=document.getElementById('tbody'); if(!body) return;
+  const end = Math.min(_vsStart + _vsVisible, _vsTotal);
+  const slice = filteredData.slice(_vsStart, end);
+
+  // Spacers simulate full height without DOM nodes
+  const topH = _vsStart * _vsRowH;
+  const botH = Math.max(0, (_vsTotal - end) * _vsRowH);
+
+  body.innerHTML =
+    `<tr class="vs-spacer-top"><td colspan="17" style="height:${topH}px;padding:0;border:none"></td></tr>` +
+    slice.map((r, i) => _rowHtml(r, _vsStart + i)).join('') +
+    `<tr class="vs-spacer-bot"><td colspan="17" style="height:${botH}px;padding:0;border:none"></td></tr>`;
+}
+
+function _vsAttachScroll(){
+  if(!_vsScrollEl) return;
+  _vsScrollEl.onscroll = _vsOnScroll;
+}
+
+let _vsScrollTimer;
+function _vsOnScroll(){
+  clearTimeout(_vsScrollTimer);
+  _vsScrollTimer = setTimeout(()=>{
+    const scrollTop = _vsScrollEl.scrollTop;
+    const newStart = Math.max(0, Math.floor(scrollTop / _vsRowH) - 5);
+    if(Math.abs(newStart - _vsStart) >= 10){
+      _vsStart = newStart;
+      _vsRender();
+    }
+  }, 16); // ~60fps
+}
+
+function _updateFooter(){
+  const tf = document.getElementById('tfoot');
+  const tfc = document.getElementById('tfootCount');
+  if(!filteredData.length){
+    if(tf) tf.innerHTML='<span>แถว: 0</span>';
+    if(tfc) tfc.textContent='แสดง 0 แถว';
+    return;
+  }
+  const pf=filteredData.filter(r=>r.pickupSLA==='เกิน').length;
+  const pp=filteredData.filter(r=>r.pickupSLA==='ผ่าน').length;
+  const avgD=(filteredData.reduce((s,r)=>s+(r.pickupBizDays||0),0)/filteredData.length).toFixed(1);
+  if(tf) tf.innerHTML=`<span style="font-weight:700">${filteredData.length.toLocaleString()} แถว</span>
+    <span style="color:var(--t3)">·</span><span style="color:var(--red)">เกิน SLA รับ: ${pf.toLocaleString()}</span>
+    <span style="color:var(--t3)">·</span><span style="color:var(--ok)">ผ่าน: ${pp.toLocaleString()}</span>
+    <span style="color:var(--t3)">·</span><span style="color:var(--t2)">avg รับ: ${avgD}d</span>`;
+  if(tfc) tfc.textContent='แสดง '+filteredData.length.toLocaleString()+' แถว';
+}
+
+
+
+// ─── ROW HTML GENERATOR ────────────────────────────────────────
+function _rowHtml(r, i){
   const alertClr={red:'var(--red)',yellow:'var(--warn)',blue:'var(--cyan)',none:'var(--t3)'};
   const alertLbl={red:'🔴',yellow:'🟡',blue:'🔵',none:'—'};
   const typeClr={[TYPE_B2B]:'var(--lime)',[TYPE_B2H]:'var(--blue)',[TYPE_H2B]:'var(--warn)',[TYPE_H2H]:'var(--t3)'};
-  body.innerHTML=filteredData.map((r,i)=>`<tr style="cursor:pointer" onclick="showDetail(${i})">
+  const breachCls = (r.pickupSLA==='เกิน'||r.deliverySLA==='เกิน') ? 'sr-breach' : '';
+  return `<tr class="${breachCls}" style="cursor:pointer" onclick="showDetail(${i})">
     <td class="mn" style="white-space:nowrap">${r.jobNo}</td>
     <td><span style="font-size:10px;font-family:var(--mn);font-weight:600;color:${typeClr[r.deliveryType]||'var(--t2)'}">${r.deliveryType||'—'}</span></td>
     <td style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis" title="${r.group}">${r.group||'—'}</td>
     <td style="font-size:11px;max-width:110px;overflow:hidden;text-overflow:ellipsis" title="${r.senderName}">${r.senderName||'—'}</td>
     <td style="font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;font-weight:500" title="${r.receiverCo}">${r.receiverCo||'—'}</td>
     <td style="font-size:11px">${r.province||'—'}</td>
-    <td class="mn">${r.orderDate||'—'}</td>
-    <td class="mn">${r.pickupDate||'—'}</td>
-    <td class="mn">${r.completionDate||'—'}</td>
-    <td class="mn" style="text-align:center;font-weight:700;color:${alertClr[r.alertLevel]||'var(--ok)'}">
-      ${r.pickupBizDays!==null?r.pickupBizDays+'d':'—'}</td>
-    <td><span class="chip ${r.pickupSLA==='ผ่าน'?'cok':r.pickupSLA==='เกิน'?'cfail':'cwarn'}">${r.pickupSLA}</span></td>
-    <td class="mn" style="text-align:center;font-weight:700;color:${r.deliverySLA==='เกิน'?'var(--red)':r.deliverySLA==='ผ่าน'?'var(--ok)':'var(--t3)'}">
-      ${r.deliveryBizDays!==null?r.deliveryBizDays+'d':'—'}</td>
+    <td class="mn">${displayDate(r.orderDate)}</td>
+    <td class="mn">${displayDate(r.pickupDate)}</td>
+    <td class="mn">${displayDate(r.completionDate)}</td>
+    <td class="mn" style="text-align:center;font-weight:700;color:${r.pickupSLA==='เกิน'?'var(--red)':'var(--ok)'}">${r.pickupBizDays!==null?r.pickupBizDays+'d':'—'}</td>
+    <td><span class="chip ${r.pickupSLA==='ผ่าน'?'cok':r.pickupSLA==='เกิน'?'cfail':r.pickupSLA==='ข้อมูลผิด'?'chip-err':'cwarn'}">${r.pickupSLA}</span></td>
+    <td class="mn" style="text-align:center;font-weight:700;color:${r.deliverySLA==='เกิน'?'var(--red)':r.deliverySLA==='ผ่าน'?'var(--ok)':'var(--t3)'}">${r.deliveryBizDays!==null?r.deliveryBizDays+'d':'—'}</td>
     <td><span class="chip ${r.deliverySLA==='ผ่าน'?'cok':r.deliverySLA==='เกิน'?'cfail':'cwarn'}">${r.deliverySLA}</span></td>
-    <td class="mn" style="text-align:center">${r.calDays||'—'}</td>
+    <td class="mn" style="text-align:center;color:${r.calDays>0?'var(--lime)':r.calDays===0&&r.completionDate?'var(--warn)':'var(--t3)'}">${r.calDays>0?r.calDays+'d':r.calDays===0&&r.completionDate?'0d':'—'}</td>
     <td style="text-align:center;font-size:14px">${alertLbl[r.alertLevel]||'—'}</td>
     <td><span class="chip ${r.result==='สำเร็จ'?'cok':'cfail'}">${r.result||'—'}</span></td>
     <td><button onclick="event.stopPropagation();showDetail(${i})" style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:3px 9px;color:var(--t2);cursor:pointer;font-size:10px">ดู</button></td>
-  </tr>`).join('');
-  const pf=filteredData.filter(r=>r.pickupSLA==='เกิน').length;
-  const pp=filteredData.filter(r=>r.pickupSLA==='ผ่าน').length;
-  const avgD=filteredData.length?(filteredData.reduce((s,r)=>s+(r.days||0),0)/filteredData.length).toFixed(1):'—';
-  const tf=document.getElementById('tfoot');
-  if(tf)tf.innerHTML=`<span style="font-weight:700">${filteredData.length.toLocaleString()} แถว</span>
-    <span style="color:var(--t4)">·</span><span style="color:var(--red)">เกิน: ${pf}</span>
-    <span style="color:var(--t4)">·</span><span style="color:var(--ok)">ผ่าน: ${pp}</span>
-    <span style="color:var(--t4)">·</span><span style="color:var(--t2)">avg: ${avgD}d</span>`;
+  </tr>`;
 }
 
-function fSrch(v){flt.srch=v;applyF()} function fDeliveryType(v){flt.delivType=v;applyF()} function fAlert(v){flt.alertLvl=v;applyF()} function fPK(v){flt.pk=v;applyF()} function fPeriod(v){flt.period=v;applyF()} function fTeam(v){flt.team=v;applyF()} function fProv(v){flt.prov=v;applyF()}
+// ─── REAL renderTable (replaces old one) ──────────────────────
+
 function srt(col){if(sortSt.col===col)sortSt.asc=!sortSt.asc;else{sortSt.col=col;sortSt.asc=true;}applyF();}
 
 // ─── MODAL ────────────────────────────────────────────────
@@ -2175,7 +3592,7 @@ function showDetail(i){
     ['─','─',''],
     ['🕐 Pickup วันทำการ',(r.pickupBizDays!==null?r.pickupBizDays+' วันทำการ':'—'),pkCls],
     ['🕐 Pickup SLA',r.pickupSLA+(r.pickupSLA==='เกิน'?` ❌ (>3d)`:r.pickupSLA==='ผ่าน'?' ✅ (≤3d)':''),pkCls],
-    ['📦 รวมระยะเวลา',r.days+' วัน',''],['📦 Period Time',r.periodBand+' วัน',''],
+    ['📦 รวมระยะเวลา',r.calDays+' วัน',''],['📦 Period Time',r.periodBand+' วัน',''],
     ['ผลการวิ่ง',r.result||'—',''],['เหตุผล',r.reason||'—',''],
   ];
   document.getElementById('mBody').innerHTML=rows.map(([k,v,cls])=>
@@ -2195,6 +3612,14 @@ function buildAlertPage(){
   const warning = D.filter(r=>r.alertLevel==='blue');     // 2d blue
   // Stats
   const asEl=document.getElementById('alertStats');
+  if(!D.length){
+    if(asEl)asEl.innerHTML='<div class="alert-stat" style="grid-column:1/-1"><div class="alert-stat-v" style="color:var(--t3);font-size:14px">—</div><div class="alert-stat-l">กรุณาโหลดข้อมูล Monitor</div></div>';
+    const alEl2=document.getElementById('alertList');
+    if(alEl2)alEl2.innerHTML='<div style="text-align:center;padding:40px;color:var(--t3);font-size:12px">กรุณาโหลดข้อมูล Monitor<br><span style=\'font-size:10px;margin-top:6px;display:block\'>กด ↻ Sync → Sync Monitor</span></div>';
+    const mtEl2=document.getElementById('alertMonthTable');
+    if(mtEl2)mtEl2.innerHTML='';
+    return;
+  }
   // Delivery type breakdown
   const b2b=D.filter(r=>r.deliveryType===TYPE_B2B).length;
   const b2h=D.filter(r=>r.deliveryType===TYPE_B2H).length;
@@ -2223,7 +3648,7 @@ function buildAlertPage(){
       <div class="alert-info">
         <div class="alert-job">${r.jobNo} ${r.jobCount>1?`<span style="font-size:10px;font-family:var(--mn);background:rgba(255,255,255,.1);padding:1px 6px;border-radius:8px">${r.jobCount} ใบงาน</span>`:''}</div>
         <div class="alert-meta">${r.branchName||r.receiverCo||'—'} · ${r.province} · ${r.group}</div>
-        <div class="alert-meta" style="color:var(--t3)">สั่ง: ${r.orderDate} → ดำเนินการ: ${r.completionDate||r.pickupDate||'ยังไม่สำเร็จ'}</div>
+        <div class="alert-meta" style="color:var(--t3)">สั่ง: ${displayDate(r.orderDate)} → ดำเนินการ: ${r.completionDate?displayDate(r.completionDate):r.pickupDate?displayDate(r.pickupDate):'ยังไม่สำเร็จ'}</div>
         <div class="alert-meta" style="color:var(--t3)">
           ประเภท: <strong style="color:${clrVal}">${r.deliveryType||'—'}</strong>
           ${r.deliveryBizDays!==null?`· ส่ง: ${r.deliveryBizDays}d (SLA ${r.deliverySLA})`:''}
@@ -2244,11 +3669,12 @@ function buildAlertPage(){
       warning.length?`<div style="font-size:10px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;margin-top:10px">🔵 วันที่ 2 — แจ้งเตือน (${warning.length})</div>`+warning.slice(0,10).map(r=>alertCard(r,'blue','วันที่ 2')).join(''):'',
     ].filter(Boolean);
     alEl.innerHTML=sections.length?sections.join(''):
-      '<div style="text-align:center;padding:40px;color:var(--ok);font-size:13px">🎉 ทุกงานผ่าน SLA Pickup</div>';
+      D.length?'<div style="text-align:center;padding:40px;color:var(--ok);font-size:16px;font-weight:700">🎉 ทุกงานผ่าน SLA Pickup<br><span style=\'font-size:11px;color:var(--t3);font-weight:400;margin-top:6px;display:block\'>ตรวจสอบแล้ว '+D.length.toLocaleString()+' งาน</span></div>':
+      '<div style="text-align:center;padding:40px;color:var(--t3);font-size:12px">กรุณาโหลดข้อมูล Monitor<br><span style=\'font-size:10px;margin-top:6px;display:block\'>กด ↻ Sync → Sync Monitor</span></div>';
   }
   // Monthly table
   const byM={};
-  D.forEach(r=>{const m=getMonth(r.orderDate);if(!m)return;if(!byM[m])byM[m]={total:0,pkFail:0,pkPass:0,breach:0,sumDays:0};const s=byM[m];s.total++;if(r.pickupSLA==='เกิน')s.pkFail++;else s.pkPass++;if(r.totalSLAStatus==='เกิน')s.breach++;s.sumDays+=r.days||0;});
+  D.forEach(r=>{const m=getMonth(r.orderDate);if(!m)return;if(!byM[m])byM[m]={total:0,pkFail:0,pkPass:0,breach:0,sumDays:0};const s=byM[m];s.total++;if(r.pickupSLA==='เกิน')s.pkFail++;else s.pkPass++;if(r.totalSLAStatus==='เกิน')s.breach++;s.sumDays+=r.calDays||0;});
   const mtEl=document.getElementById('alertMonthTable');
   if(mtEl)mtEl.innerHTML=Object.keys(byM).length?`<table class="admin-table" style="font-size:11px"><thead><tr>
     <th>เดือน</th><th>งาน</th><th>Pickup เกิน</th><th>% ผ่าน</th><th>Total เกิน</th><th>avg วัน</th>
@@ -2320,21 +3746,40 @@ function exportExcel(mode){
 }
 
 // ─── UI HELPERS ───────────────────────────────────────────
-const ld=document.getElementById('loading'),lm=document.getElementById('loadMsg');
-function show(msg='กำลังโหลด...'){
-  try{ if(lm)lm.textContent=msg; ld?.classList.add('show'); }catch(e){}
-}
-function hide(){
-  try{ ld?.classList.remove('show'); }catch(e){}
-}
-// Safety: auto-hide after 30s to prevent stuck overlay
+const ld=document.getElementById('loading');
+const lm=document.getElementById('loadMsg');
+const lsub=document.getElementById('loadSub');
+const lbar=document.getElementById('loadBar');
+const lstats=document.getElementById('loadStats');
+
 let _hideTimer;
-const _origShow = show;
-window.show = function(msg){
-  clearTimeout(_hideTimer);
-  _origShow(msg);
-  _hideTimer = setTimeout(()=>{ hide(); }, 30000);
-};
+
+function show(msg='กำลังโหลด...', sub=''){
+  try{
+    clearTimeout(_hideTimer);
+    if(lm) lm.textContent = msg;
+    if(lsub) lsub.textContent = sub;
+    if(lbar) lbar.style.width = '0%';
+    if(lstats) lstats.textContent = '';
+    ld?.classList.add('show');
+    _hideTimer = setTimeout(()=>{ hide(); }, 60000); // 60s safety
+  }catch(e){}
+}
+
+function hide(){
+  try{ clearTimeout(_hideTimer); ld?.classList.remove('show'); }catch(e){}
+}
+
+// Update progress bar during loading
+function setProgress(done, total, msg, sub){
+  try{
+    const pct = total>0 ? Math.round(done/total*100) : 0;
+    if(lbar) lbar.style.width = pct+'%';
+    if(msg && lm) lm.textContent = msg;
+    if(sub && lsub) lsub.textContent = sub;
+    if(lstats && total>0) lstats.textContent = `${done.toLocaleString()} / ${total.toLocaleString()} แถว (${pct}%)`;
+  }catch(e){}
+}
 
 let _toastTimer;
 function showToast(msg,cls=''){
@@ -2357,6 +3802,14 @@ function closeBnavAdmin(){
 }
 
 // ─── INIT ─────────────────────────────────────────────────
+// ── Clear SLA cache on new version load ──────────────────
+const _VER = 'v11.fix7';
+if(localStorage.getItem('gnr3_ver') !== _VER){
+  // Version ใหม่ → ล้าง cache ทั้งหมด
+  try{ _bizCache && _bizCache.clear(); }catch(e){}
+  localStorage.setItem('gnr3_ver', _VER);
+  console.log('[VERSION] Updated to', _VER, '- cache cleared');
+}
 try{loadStoredHolidays();}catch(e){}
 // Pre-populate 2569 company holidays if none saved yet
 try{
@@ -2376,11 +3829,28 @@ try{
 }catch(e){}
 try{ renderHolidayPage(); }catch(e){}
 
+// ── SELF-TEST SLA Calculation ──────────────────────────
+// ทดสอบ: วันสั่ง 01/05/2026 → รับ 05/05/2026 = ควรได้ 1 วันทำการ
+try{
+  const _testOd = parseDate(fmtDate('2026-05-01'));
+  const _testPd = parseDate(fmtDate('2026-05-05'));
+  const _testBiz = bizDays(_testOd, _testPd);
+  if(_testBiz !== 1){
+    console.error('[SELF-TEST FAILED] bizDays(May1,May5)='+_testBiz+' expected=1');
+    console.error('  parseDate("01/05/2026")='+parseDate('01/05/2026'));
+    console.error('  od='+_testOd?.toISOString?.()?.slice(0,10));
+    console.error('  pd='+_testPd?.toISOString?.()?.slice(0,10));
+    showToast('⚠️ SLA calculation error detected - check console', 'terr');
+  } else {
+    console.log('[SELF-TEST OK] SLA bizDays(May1,May5)=1 ✓');
+  }
+}catch(_e){ console.error('[SELF-TEST ERROR]', _e); }
+
 // Make sure loading overlay is HIDDEN on start
 hide();
 
-// Show ready state
-updateSheetsStatus(false, 'กด ↻ Sync เพื่อโหลดข้อมูล');
+// Auto-load demo data so all pages have content immediately
+loadDemo();
 
 
 </script>
