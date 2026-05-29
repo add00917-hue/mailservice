@@ -2268,21 +2268,69 @@ function loadStoredHolidays(){
 function rebuildHolidaySet(){ holidaySet=new Set(holidays.map(h=>h.date)); }
 function saveHolidays(){ try{localStorage.setItem('gnr3_holidays',JSON.stringify(holidays));}catch(e){} rebuildHolidaySet(); }
 
-// ─── DATA CACHE (localStorage) ────────────────────────────
-// Cache key versioning lets us invalidate old caches when schema changes
-const CACHE_VER = 'v1';
-const CACHE_KEYS = {
-  data:  `gnr3_cache_${CACHE_VER}_data`,
-  sla:   `gnr3_cache_${CACHE_VER}_sla`,
-  loaded:`gnr3_cache_${CACHE_VER}_loaded`,
-  meta:  `gnr3_cache_${CACHE_VER}_meta`
-};
-// Fields whose values repeat heavily across rows → store via dictionary index
+// ─── DATA CACHE (IndexedDB + localStorage meta) ───────────
+// Bulk data goes to IndexedDB (100+ MB capacity).
+// Metadata stays in localStorage so getCacheInfo() can stay synchronous (used by UI/badge).
+const CACHE_VER = 'v2';
+const IDB_NAME = 'gnr3_cache';
+const IDB_STORE = 'blobs';
+const IDB_VERSION = 1;
+const META_KEY = `gnr3_cache_${CACHE_VER}_meta`;
+
 const DICT_FIELDS = ['province','group','team','branchName','reason','periodBand','result',
   'pickupSLA','deliverySLA','totalSLAStatus','alertLevel','deliveryType','status',
   'orderDate','pickupDate','arrivalDate','completionDate','deliveryDate'];
-// Alias fields that can be reconstructed on load — drop to save space
 const ALIAS_FIELDS = ['sender','receiver','days','senderIsHO'];
+
+// ── IndexedDB helpers (promise-based wrappers) ──
+let _idbPromise = null;
+function _openIdb(){
+  if(_idbPromise) return _idbPromise;
+  _idbPromise = new Promise((resolve, reject)=>{
+    if(!(typeof indexedDB !== 'undefined' ? indexedDB : (typeof window !== 'undefined' && window.indexedDB))){
+      reject(new Error('IndexedDB not supported')); return;
+    }
+    const idb = typeof indexedDB !== 'undefined' ? indexedDB : window.indexedDB;
+    const req = idb.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = e=>{
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains(IDB_STORE)){
+        db.createObjectStore(IDB_STORE);
+      }
+    };
+    req.onsuccess = e=>resolve(e.target.result);
+    req.onerror = ()=>reject(req.error);
+  });
+  return _idbPromise;
+}
+async function _idbPut(key, value){
+  const db = await _openIdb();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(value, key);
+    tx.oncomplete = ()=>resolve(true);
+    tx.onerror = ()=>reject(tx.error);
+    tx.onabort = ()=>reject(tx.error || new Error('transaction aborted'));
+  });
+}
+async function _idbGet(key){
+  const db = await _openIdb();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(IDB_STORE, 'readonly');
+    const req = tx.objectStore(IDB_STORE).get(key);
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error);
+  });
+}
+async function _idbClear(){
+  const db = await _openIdb();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).clear();
+    tx.oncomplete = ()=>resolve(true);
+    tx.onerror = ()=>reject(tx.error);
+  });
+}
 
 // Pack records: build per-field dictionaries, replace string values with integer IDs
 function packRecords(records){
@@ -2294,7 +2342,7 @@ function packRecords(records){
   const recs = records.map(r=>{
     const out = {};
     for(const k in r){
-      if(ALIAS_FIELDS.includes(k)) continue; // drop aliases
+      if(ALIAS_FIELDS.includes(k)) continue;
       const v = r[k];
       if(DICT_FIELDS.includes(k) && v!=null && v!==''){
         let id = dictMaps[k].get(v);
@@ -2308,10 +2356,8 @@ function packRecords(records){
   });
   return { dicts, recs };
 }
-
-// Unpack: replace integer IDs back to strings, rebuild alias fields
 function unpackRecords(packed){
-  if(!packed || !packed.recs || !packed.dicts) return packed; // already plain array? return as-is
+  if(!packed || !packed.recs || !packed.dicts) return packed;
   const { dicts, recs } = packed;
   return recs.map(r=>{
     const out = {...r};
@@ -2319,7 +2365,6 @@ function unpackRecords(packed){
       const v = r[f];
       if(typeof v==='number' && dicts[f]) out[f] = dicts[f][v];
     });
-    // Rebuild aliases (used by some chart/table code paths)
     if(out.group && !out.team) out.team = out.group;
     if(out.calDays!=null && out.days==null) out.days = out.calDays;
     if(out.receiverCo && !out.receiver) out.receiver = out.receiverCo;
@@ -2328,61 +2373,66 @@ function unpackRecords(packed){
   });
 }
 
-// Save current allData + slaData to localStorage. Returns true on success.
-function saveCache(){
+// Estimate size of an object once stringified — used for meta only (no extra serialization)
+function _estimateBytes(obj){
+  try{ return JSON.stringify(obj).length; }catch(_){ return 0; }
+}
+
+// Save current allData + slaData to IndexedDB. Async, fire-and-forget callers OK.
+// Returns Promise<boolean>
+async function saveCache(){
   try{
     const t0 = performance.now();
     if(!allData || !allData.length) return false;
 
-    const packed   = packRecords(allData);
-    const dataStr  = JSON.stringify(packed);
-    const slaStr   = JSON.stringify(slaData||[]);
-    const loadedArr= Array.from(loadedSheets||[]);
+    const packed = packRecords(allData);
+    const loadedArr = Array.from(loadedSheets||[]);
+
+    // Store native objects in IndexedDB (no JSON.stringify needed — structured-clone is faster)
+    await _idbPut('data',   packed);
+    await _idbPut('sla',    slaData||[]);
+    await _idbPut('loaded', loadedArr);
+
+    // Estimate stored size (rough — only for UI display)
+    const sizeKB = Math.round(_estimateBytes(packed)/1024);
     const meta = {
       ts: Date.now(),
       rowCount: allData.length,
       slaCount: (slaData||[]).length,
       sheetCount: loadedArr.length,
-      sizeKB: Math.round((dataStr.length + slaStr.length)/1024),
-      packed: true
+      sizeKB,
+      backend: 'indexeddb'
     };
+    try{ localStorage.setItem(META_KEY, JSON.stringify(meta)); }catch(_){}
 
-    localStorage.setItem(CACHE_KEYS.data,   dataStr);
-    localStorage.setItem(CACHE_KEYS.sla,    slaStr);
-    localStorage.setItem(CACHE_KEYS.loaded, JSON.stringify(loadedArr));
-    localStorage.setItem(CACHE_KEYS.meta,   JSON.stringify(meta));
-
-    console.log(`💾 Cache saved: ${meta.rowCount.toLocaleString()} rows · ${(meta.sizeKB/1024).toFixed(1)} MB · ${(performance.now()-t0).toFixed(0)} ms`);
+    console.log(`💾 Cache saved (IndexedDB): ${meta.rowCount.toLocaleString()} rows · ${(sizeKB/1024).toFixed(1)} MB · ${(performance.now()-t0).toFixed(0)} ms`);
     try{ updateCacheBadge(); }catch(_){}
     return true;
   }catch(e){
     console.warn('Cache save failed:', e.message);
     if(e.name==='QuotaExceededError' || /quota/i.test(e.message)){
-      try{ Object.values(CACHE_KEYS).forEach(k=>localStorage.removeItem(k)); }catch(_){}
-      // Don't toast — we'll show a banner in the UI instead. Just log.
-      console.warn('Cache exceeded browser quota — data too large to cache locally');
+      try{ await _idbClear(); localStorage.removeItem(META_KEY); }catch(_){}
+      try{ showToast('Cache เต็ม — ข้อมูลใหญ่เกินกว่าจะเก็บในเครื่อง','twarn'); }catch(_){}
     }
     return false;
   }
 }
 
-// Load cached data. Returns {data, sla, loaded, meta} or null.
-function loadCache(){
+// Load cached data. Async. Returns {data, sla, loaded, meta} or null.
+async function loadCache(){
   try{
-    const dataStr = localStorage.getItem(CACHE_KEYS.data);
-    const metaStr = localStorage.getItem(CACHE_KEYS.meta);
-    if(!dataStr || !metaStr) return null;
-
+    const metaStr = localStorage.getItem(META_KEY);
+    if(!metaStr) return null;
     const meta = JSON.parse(metaStr);
-    const raw  = JSON.parse(dataStr);
-    // Backwards-compat: handle both packed and plain-array caches
+
+    const raw = await _idbGet('data');
+    if(!raw) return null;
+
     const data = (raw && raw.recs && raw.dicts) ? unpackRecords(raw) : raw;
     if(!Array.isArray(data) || !data.length) return null;
 
-    const slaStr = localStorage.getItem(CACHE_KEYS.sla);
-    const sla = slaStr ? JSON.parse(slaStr) : [];
-    const loadedStr = localStorage.getItem(CACHE_KEYS.loaded);
-    const loaded = loadedStr ? JSON.parse(loadedStr) : [];
+    const sla    = (await _idbGet('sla'))    || [];
+    const loaded = (await _idbGet('loaded')) || [];
 
     return { data, sla, loaded, meta };
   }catch(e){
@@ -2391,23 +2441,33 @@ function loadCache(){
   }
 }
 
-// Clear all cache entries
-function clearCache(){
-  try{ Object.values(CACHE_KEYS).forEach(k=>localStorage.removeItem(k)); return true; }
-  catch(e){ console.warn('Cache clear failed:', e.message); return false; }
+// Clear all cache entries. Async.
+async function clearCache(){
+  try{
+    await _idbClear();
+    localStorage.removeItem(META_KEY);
+    // Also remove legacy v1 keys if present
+    ['gnr3_cache_v1_data','gnr3_cache_v1_sla','gnr3_cache_v1_loaded','gnr3_cache_v1_meta']
+      .forEach(k=>{ try{ localStorage.removeItem(k); }catch(_){} });
+    return true;
+  }catch(e){
+    console.warn('Cache clear failed:', e.message);
+    return false;
+  }
 }
 
-// Return info about current cache (for UI display) — does NOT load the data
+// Synchronous info read from localStorage meta — safe to call from UI render code.
 function getCacheInfo(){
   try{
-    const metaStr = localStorage.getItem(CACHE_KEYS.meta);
+    const metaStr = localStorage.getItem(META_KEY);
     if(!metaStr) return { exists:false };
     const meta = JSON.parse(metaStr);
     const ageMs = Date.now() - (meta.ts||0);
     return {
       exists:true, ageMs, ageText: formatCacheAge(ageMs),
       ts: meta.ts, rowCount: meta.rowCount||0, slaCount: meta.slaCount||0,
-      sheetCount: meta.sheetCount||0, sizeKB: meta.sizeKB||0
+      sheetCount: meta.sheetCount||0, sizeKB: meta.sizeKB||0,
+      backend: meta.backend || 'localstorage'
     };
   }catch(e){ return { exists:false }; }
 }
@@ -2498,9 +2558,9 @@ function renderCacheModal(){
     </div>`:''}
   `;
 }
-function handleClearCache(){
+async function handleClearCache(){
   if(!confirm('ยืนยันการล้าง Cache?\nครั้งถัดไปจะต้อง Sync ใหม่')) return;
-  clearCache();
+  await clearCache();
   updateCacheBadge();
   renderCacheModal();
   showToast('🗑️ ล้าง Cache แล้ว', 'tok');
@@ -4313,10 +4373,10 @@ try{
 hide();
 
 // Try to restore from localStorage cache first; fallback to demo data
-(function autoBoot(){
-  const cached = loadCache();
-  if(cached && cached.data && cached.data.length){
-    try{
+(async function autoBoot(){
+  try{
+    const cached = await loadCache();
+    if(cached && cached.data && cached.data.length){
       allData = cached.data;
       filteredData = [...allData];
       if(cached.sla && cached.sla.length){
@@ -4333,9 +4393,9 @@ hide();
       showToast(`💾 โหลดจาก Cache สำเร็จ · ${allData.length.toLocaleString()} แถว (${age}ที่แล้ว)`, 'tok');
       console.log(`💾 Cache restored: ${allData.length.toLocaleString()} rows, age=${age}`);
       return;
-    }catch(e){
-      console.warn('Cache restore failed, falling back to demo:', e);
     }
+  }catch(e){
+    console.warn('Cache restore failed, falling back to demo:', e);
   }
   // No cache or restore failed → demo data
   loadDemo();
